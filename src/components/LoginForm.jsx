@@ -10,15 +10,30 @@ import { FaUser } from "react-icons/fa";
 
 export const LoginForm = ({ isOpen, onClose }) => {
 
+    const [view, setView] = useState('login');
+
     if (!isOpen) return null;
+
+    const loginStyle = {
+        transform: view === 'login' ? 'translateX(0)' : 'translateX(-500px)',
+        transition: 'transform 0.3s ease'
+    };
+
+    const registrationStyle = {
+        transform: view === 'signup' ? 'translateX(0)' : 'translateX(500px)',
+        transition: 'transform 0.3s ease',
+        position: 'absolute',
+        top: 0
+    };
+
 
     return (
         <div class="modal-container open">
             <div class="modal-content">
                 <MdCancel class="cancel" onClick={onClose} />
 
-                <form class="login">
-                    <h2>Login</h2>
+                <form className="login" style={loginStyle}>
+                    <h1>Login</h1>
 
                     <div class="form-control">
                         <label for="email"><MdEmail /> Email</label>
@@ -37,14 +52,14 @@ export const LoginForm = ({ isOpen, onClose }) => {
                         <button><FaGoogle /> Google</button>
                     </div>
                     <div class="form-control-others">
-                        <label for="create">
-                            Don't have an account? <a href="javascript:void(0)" id="Login">Sign up now</a>
+                        <label>
+                            Don't have an account? <a href="#" onClick={() => setView('signup')}>Sign up now</a>
                         </label>
                     </div>
                 </form>
 
-                <form class="registration">
-                    <h2>Create Account</h2>
+                <form className="registration" style={registrationStyle}>
+                    <h1>Create Account</h1>
 
                     <div class="horiz-form">
                         <div class="form-control">
@@ -57,16 +72,16 @@ export const LoginForm = ({ isOpen, onClose }) => {
                         </div>
                     </div>
 
-                    <div class="form-control">
+                    <div class="form-control2">
                         <label for="email"><MdEmail /> Email</label>
                         <input type="email" id="email" placeholder="Enter your email" />
                     </div>
 
-                    <div class="form-control">
+                    <div class="form-control2">
                         <label for="password"><IoMdLock /> Password</label>
                         <input type="password" id="password" placeholder="Enter your password" />
                     </div>
-                    <div class="form-control">
+                    <div class="form-control2">
                         <label for="password"><IoMdLock /> Confirm Password</label>
                         <input type="password" id="password" placeholder="Confirm your password" />
                     </div>
@@ -79,8 +94,8 @@ export const LoginForm = ({ isOpen, onClose }) => {
                         <button><FaGoogle /> Google</button>
                     </div>
                     <div class="form-control-others">
-                        <label for="loginHere">
-                            Already have an account? <a href="javascript:void(0)" id="Login">Log in</a>
+                        <label>
+                            Already have an account? <a href="#" onClick={() => setView('login')}>Log in</a>
                         </label>
                     </div>
                 </form>

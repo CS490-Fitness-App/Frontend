@@ -36,7 +36,8 @@ form {
     width: 450px;
 }
 
-h2 {
+h1 {
+    color: white;
     text-align: center;
     margin: 20px;
 }
@@ -48,20 +49,32 @@ h2 {
     top: 5px;
 }
 
-.horiz-form {
-    display:flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
 .form-control {
     display: flex;
     flex-direction: column;
     padding: 10px 10px 8px;
-    /*border: 1px solid black;*/
+    border: 1px solid black;
     border-radius: 4px;
     margin-bottom: 20px;
-    transform: 0.3s;
+    background-color: #E9ECFF;
+}
+
+.horiz-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px 20px 8px;
+}
+
+.form-control2 {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px 8px;
+    border: 1px solid black;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+    margin-left: 20px;
     background-color: #E9ECFF;
 }
 
@@ -73,12 +86,15 @@ h2 {
     background-color: #E9ECFF;
 }
 
+.form-control2 input {
+    outline: none;
+    border: none;
+    padding: 4px 0 0;
+    font-size: 14px;
+    background-color: #E9ECFF;
+}
+
 .form-control-others {
     margin: 5% auto;
     text-align: center;
-}
-
-.registration {
-    position: absolute;
-    transform: translate(500px); 
 }
