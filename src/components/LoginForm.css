@@ -1,4 +1,6 @@
 .modal-container {
+    visibility: hidden;
+    opacity: 0;
     position: absolute;
     top: 0;
     right: 0;
@@ -11,12 +13,17 @@
     transition: all 0.4s
 }
 
+.modal-container.open {
+    visibility: visible;
+    opacity: 1;
+}
+
 .modal-content {
     border-radius: 5px;
     position: relative;
     height: 600px;
     width: 450px;
-    min-width: 90%;
+    max-width: 90%;
     background: #868BF7;
     padding: 1em 2em;
     display: flex;
@@ -69,4 +76,9 @@ h2 {
 .form-control-others {
     margin: 5% auto;
     text-align: center;
+}
+
+.registration {
+    position: absolute;
+    transform: translate(500px); 
 }

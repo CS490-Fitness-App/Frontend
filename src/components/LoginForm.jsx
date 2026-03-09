@@ -1,16 +1,21 @@
 import "./LoginForm.css"
 import React from 'react'
+import { useState } from 'react'
+
 import { MdEmail } from "react-icons/md";
 import { IoMdLock } from "react-icons/io";
 import { FaGoogle } from "react-icons/fa";
 import { MdCancel } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 
-export const LoginForm = () => {
+export const LoginForm = ({ isOpen, onClose }) => {
+
+    if (!isOpen) return null;
+
     return (
-        <div class="modal-container">
+        <div class="modal-container open">
             <div class="modal-content">
-                <MdCancel class="cancel" />
+                <MdCancel class="cancel" onClick={onClose} />
 
                 <form class="login">
                     <h2>Login</h2>
@@ -74,7 +79,7 @@ export const LoginForm = () => {
                         <button><FaGoogle /> Google</button>
                     </div>
                     <div class="form-control-others">
-                        <label for="login">
+                        <label for="loginHere">
                             Already have an account? <a href="javascript:void(0)" id="Login">Log in</a>
                         </label>
                     </div>

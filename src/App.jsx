@@ -2,7 +2,7 @@ import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 
-import { Home, Exercises, Workouts, Login } from './components/pages'
+import { Home, Exercises, Workouts, Login } from './pages'
 
 function App() {
   return (

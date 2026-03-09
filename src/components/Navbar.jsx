@@ -1,11 +1,18 @@
 import "./Navbar.css"
 import React from 'react'
+import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom' 
 import { IoFitness } from "react-icons/io5";
 
 import { LoginForm } from "./LoginForm"
 
 export const Navbar = () => {
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+
     return (
         <div>
             <nav>          
@@ -20,12 +27,11 @@ export const Navbar = () => {
                         <NavLink to="/workouts">Workouts</NavLink>
                     </li>
                     <li>
-                        <NavLink to="/login">Log In</NavLink>
+                        <NavLink to="/" onClick={openModal}>Log In</NavLink>
                     </li>
                 </ul>
             </nav>
-
-            <LoginForm />
+            <LoginForm isOpen={isModalOpen} onClose={closeModal} />
         </div>
 
     )
