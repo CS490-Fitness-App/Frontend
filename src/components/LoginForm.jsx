@@ -30,9 +30,10 @@ export const LoginForm = ({ isOpen, onClose }) => {
     return (
         <div class="modal-container open">
             <div class="modal-content">
+                
                 <MdCancel class="cancel" onClick={onClose} />
-
                 <form className="login" style={loginStyle}>
+                    
                     <h1>Login</h1>
 
                     <div class="form-control">
@@ -59,6 +60,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                 </form>
 
                 <form className="registration" style={registrationStyle}>
+                    <MdCancel class="cancel" onClick={onClose} />
                     <h1>Create Account</h1>
 
                     <div class="horiz-form">
