@@ -1,0 +1,72 @@
+.modal-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(77,77,77,0.7);
+    transition: all 0.4s
+}
+
+.modal-content {
+    border-radius: 5px;
+    position: relative;
+    height: 600px;
+    width: 450px;
+    min-width: 90%;
+    background: #868BF7;
+    padding: 1em 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+form {
+    width: 450px;
+}
+
+h2 {
+    text-align: center;
+    margin: 20px;
+}
+
+.cancel {
+    cursor: pointer;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.horiz-form {
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.form-control {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px 8px;
+    /*border: 1px solid black;*/
+    border-radius: 4px;
+    margin-bottom: 20px;
+    transform: 0.3s;
+    background-color: #E9ECFF;
+}
+
+.form-control input {
+    outline: none;
+    border: none;
+    padding: 4px 0 0;
+    font-size: 14px;
+    background-color: #E9ECFF;
+}
+
+.form-control-others {
+    margin: 5% auto;
+    text-align: center;
+}

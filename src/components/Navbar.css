@@ -4,12 +4,15 @@
 
 nav {
     display: flex;
+    padding: 0 5%;
     justify-content: space-between;
     align-items: center;
     background-color: #E9ECFF;
+    position: sticky;
+    top: 0;
 }
 
-nav .title {
+nav .logo {
     font-size: 2rem;
     margin: 1rem;
     font-weight: bold;
@@ -36,4 +39,9 @@ nav ul li a {
 
 nav ul li a:hover {
     background-color: #4E548F;
+}
+
+nav li button{
+    width: 80px;
+    font-size: 14px;
 }
