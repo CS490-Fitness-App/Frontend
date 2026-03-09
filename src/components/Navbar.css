@@ -1,0 +1,39 @@
+.active {
+    background-color: #808CFD;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #E9ECFF;
+}
+
+nav .title {
+    font-size: 2rem;
+    margin: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+}
+
+nav ul {
+    display: flex;
+}
+
+nav ul li {
+    list-style: none;
+}
+
+nav ul li a {
+    display: block;
+    text-decoration: none;
+    color: black;
+    padding: 0.5rem;
+    margin: 0 0.5rem;
+    border-radius: 0.5rem;
+}
+
+nav ul li a:hover {
+    background-color: #4E548F;
+}

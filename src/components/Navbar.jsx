@@ -1,21 +1,26 @@
+import "./Navbar.css"
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom' 
+import { IoFitness } from "react-icons/io5";
 
 export const Navbar = () => {
     return (
         <nav>
-            <Link to="/">Primal Fitness</Link>
+                
+            <Link to="/" className="title">
+                <IoFitness/>  Primal Fitness
+            </Link>
             <ul>
                 <li>
-                    <Link to="/exercises">Exercises</Link>
+                    <NavLink to="/exercises">Exercises</NavLink>
                 </li>
                 <li>
-                    <Link to="/workouts">Workouts</Link>
+                    <NavLink to="/workouts">Workouts</NavLink>
                 </li>
                 <li>
-                    <Link to="/login">Log In</Link>
+                    <NavLink to="/login">Log In</NavLink>
                 </li>
             </ul>
         </nav>
-    );
-};
+    )
+}
