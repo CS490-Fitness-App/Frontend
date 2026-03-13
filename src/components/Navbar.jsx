@@ -16,7 +16,7 @@ export const Navbar = () => {
     return (
         <div>
             <nav>          
-                <Link to="/" class="logo">
+                <Link to="/" className="logo">
                     <IoFitness/>  Primal Fitness
                 </Link>
                 <ul>

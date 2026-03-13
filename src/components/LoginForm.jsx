@@ -28,31 +28,31 @@ export const LoginForm = ({ isOpen, onClose }) => {
 
 
     return (
-        <div class="modal-container open">
-            <div class="modal-content">
+        <div className="modal-container open">
+            <div className="modal-content">
                 
-                <MdCancel class="cancel" onClick={onClose} />
+                <MdCancel className="cancel" onClick={onClose} />
                 <form className="login" style={loginStyle}>
                     
                     <h1>Login</h1>
 
-                    <div class="form-control">
+                    <div className="form-control">
                         <label for="email"><MdEmail /> Email</label>
                         <input type="email" id="email" placeholder="Enter your email" />
                     </div>
 
-                    <div class="form-control">
+                    <div className="form-control">
                         <label for="password"><IoMdLock /> Password</label>
                         <input type="password" id="password" placeholder="Enter your password" />
                     </div>
-                    <div class="form-control-others">
+                    <div className="form-control-others">
                         <button>Login</button>
                     </div>
-                    <div class="form-control-others">
+                    <div className="form-control-others">
                         <p> -- Or sign in with -- </p>
                         <button><FaGoogle /> Google</button>
                     </div>
-                    <div class="form-control-others">
+                    <div className="form-control-others">
                         <label>
                             Don't have an account? <a href="#" onClick={() => setView('signup')}>Sign up now</a>
                         </label>
@@ -60,42 +60,42 @@ export const LoginForm = ({ isOpen, onClose }) => {
                 </form>
 
                 <form className="registration" style={registrationStyle}>
-                    <MdCancel class="cancel" onClick={onClose} />
+                    <MdCancel className="cancel" onClick={onClose} />
                     <h1>Create Account</h1>
 
-                    <div class="horiz-form">
-                        <div class="form-control">
+                    <div className="horiz-form">
+                        <div className="form-control">
                             <label for="first-name"><FaUser /> First Name</label>
                             <input type="first-name" id="first-name" placeholder="Enter your first name" />
                         </div>
-                        <div class="form-control">
+                        <div className="form-control">
                             <label for="last-name"><FaUser /> Last Name</label>
                             <input type="last-name" id="last-name" placeholder="Enter your last name" />
                         </div>
                     </div>
 
-                    <div class="form-control2">
+                    <div className="form-control2">
                         <label for="email"><MdEmail /> Email</label>
                         <input type="email" id="email" placeholder="Enter your email" />
                     </div>
 
-                    <div class="form-control2">
+                    <div className="form-control2">
                         <label for="password"><IoMdLock /> Password</label>
                         <input type="password" id="password" placeholder="Enter your password" />
                     </div>
-                    <div class="form-control2">
+                    <div className="form-control2">
                         <label for="password"><IoMdLock /> Confirm Password</label>
                         <input type="password" id="password" placeholder="Confirm your password" />
                     </div>
 
-                    <div class="form-control-others">
+                    <div className="form-control-others">
                         <button>Create Account</button>
                     </div>
-                    <div class="form-control-others">
+                    <div className="form-control-others">
                         <p> -- Or sign in with -- </p>
                         <button><FaGoogle /> Google</button>
                     </div>
-                    <div class="form-control-others">
+                    <div className="form-control-others">
                         <label>
                             Already have an account? <a href="#" onClick={() => setView('login')}>Log in</a>
                         </label>
