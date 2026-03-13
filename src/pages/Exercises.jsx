@@ -8,10 +8,6 @@ export const Exercises = () => {
             <h2>Exercises</h2>
             <div>
                 <ExerciseCard />
-                <ExerciseCard />
-                <ExerciseCard />
-                <ExerciseCard />
-                <ExerciseCard />
             </div>
         </div>
     )
