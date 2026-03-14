@@ -1,6 +1,5 @@
 import "./LoginForm.css"
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 import { MdEmail } from "react-icons/md";
 import { IoMdLock } from "react-icons/io";
@@ -12,7 +11,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
 
     const [view, setView] = useState('login');
 
-    if (!isOpen) return null;
+    //if (!isOpen) return null;
 
     const loginStyle = {
         transform: view === 'login' ? 'translateX(0)' : 'translateX(-500px)',
@@ -26,10 +25,9 @@ export const LoginForm = ({ isOpen, onClose }) => {
         top: 0
     };
 
-
     return (
-        <div className="modal-container open">
-            <div className="modal-content">
+        <div className={`modal-container ${isOpen ? 'open' : ''}`}>
+            <div className={`modal-content ${isOpen ? 'open' : ''}`}>
                 
                 <MdCancel className="cancel" onClick={onClose} />
                 <form className="login" style={loginStyle}>
@@ -54,7 +52,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                     </div>
                     <div className="form-control-others">
                         <label>
-                            Don't have an account? <a href="#" onClick={() => setView('signup')}>Sign up now</a>
+                            Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); setView('signup'); }}>Sign up now</a>
                         </label>
                     </div>
                 </form>
@@ -97,7 +95,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                     </div>
                     <div className="form-control-others">
                         <label>
-                            Already have an account? <a href="#" onClick={() => setView('login')}>Log in</a>
+                            Already have an account? <a href="#" onClick={(e) => { e.preventDefault(); setView('login'); }}>Log in</a>
                         </label>
                     </div>
                 </form>
