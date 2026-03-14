@@ -11,7 +11,7 @@ export const ExerciseCard = () => {
             <div className="card-tag">Beginner</div>
             <h2 className="card-title">Dumbbell Lateral Raise</h2>
 
-            {/* Stats Row */}
+            {/* Stats Row 
             <div className="block-grid">
                 <div className="info-block">
                     <div className="block-icon">
@@ -39,6 +39,7 @@ export const ExerciseCard = () => {
                     <p className="category">6 months</p>
                 </div>
             </div>
+            */}
 
             <Link className="card-btn">View Exercise</Link>
         </div>

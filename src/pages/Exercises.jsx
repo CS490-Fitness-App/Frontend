@@ -5,7 +5,11 @@ import { ExerciseCard } from "../components/ExerciseCard"
 export const Exercises = () => {
     return (
         <div>
-            <h2>Exercises</h2>
+            <div class="page-heading">
+                <div class="h1">
+                    <span class="text-black">Exercises </span>
+                </div>
+            </div>
             <div>
                 <ExerciseCard />
             </div>
