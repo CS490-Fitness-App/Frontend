@@ -1,5 +1,10 @@
 import "./Pages.css"
 import React from 'react'
+import { Link } from 'react-router-dom' 
+
+import { GiBiceps } from "react-icons/gi";
+import { IoIosFitness } from "react-icons/io";
+import { RiUserVoiceLine } from "react-icons/ri";
 
 export const Home = () => {
     return (
@@ -13,24 +18,31 @@ export const Home = () => {
 
             <div class="homepage-body">
                 <div class="home-container">
-                    <img src="https://picsum.photos/600/371" alt="image" />
+                    <img src="https://picsum.photos/600/320" alt="image" />
                     <div class="home-card">
                         <h2>FOR THE COMMITTED</h2>
-                        <p>Train like an athlete with top-tier equipment and expert programming. Whether you're building muscle or breaking PRs, we help you push past limits.</p>
+                        <p>Workout planning, coaching, nutrition guidance, and wellness tracking, all in one platform. Whether you're building muscle or just trying to stay fit, we're here to help you achieve your goals and unlock your full potential.</p>
+                        <Link className="btn">Let's get Started!</Link>
                     </div>
                 </div>
                 <div class="home-container">
                     <div class="home-card">
-                        <h2>Browse Exercises</h2>
-                        <p>We believe in creating a positive environment where you can thrive. We're here to help you achieve your goals and unlock your full potential.</p>
+                        <GiBiceps />
+                        <h2>Exercise Library</h2>
+                        <p>We provide thousands of exercises to choose from, including videos and instructions that show you how to correctly perform exercises for maximum results.</p>
+                        <Link to="/exercises" className="btn">Browse All Exercises</Link>
                     </div>
                     <div class="home-card">
-                        <h2>Browse Pre-Made Workout Plans</h2>
-                        <p>Our facility is the optimal environment for strength training and performance, fully equipped with top-of-the-line tools, ample training areas, and a focus on functional movement.</p>
+                        <IoIosFitness />
+                        <h2>Pre-Made Workout Plans</h2>
+                        <p>Our database of workout plans created by fitness experts will provide you with all the tools you need to build and maintain the body you want.</p>
+                        <Link to="/workouts" className="btn">Browse Workout Plans</Link>
                     </div>
                     <div class="home-card">
-                        <h2>Browse Coaches</h2>
-                        <p>Our facility is the optimal environment for strength training and performance, fully equipped with top-of-the-line tools, ample training areas, and a focus on functional movement.</p>
+                        <RiUserVoiceLine />
+                        <h2>Coaches</h2>
+                        <p>Connect with our wide range of speialized coaches for workout and meal planning assiatance. Match with whoever works best for you! Available 24/7 </p>
+                        <Link className="btn">Browse Coaches</Link>
                     </div>
                 </div>
             </div>

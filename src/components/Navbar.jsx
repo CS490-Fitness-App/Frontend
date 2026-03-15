@@ -17,7 +17,7 @@ export const Navbar = () => {
         <div>
             <nav>          
                 <Link to="/" className="logo">
-                    <IoFitness/>  Primal Fitness
+                    <IoFitness/> Primal Fitness
                 </Link>
                 <ul>
                     <li>

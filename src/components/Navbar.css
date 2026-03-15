@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Anek+Latin:wght@100..800&display=swap');
+
 .active {
     background-color: #808CFD;
 }
@@ -13,6 +15,7 @@ nav {
 }
 
 nav .logo {
+    font-family: 'Anek Latin', sans-serif;
     font-size: 2rem;
     margin: 1rem;
     font-weight: bold;
@@ -30,6 +33,7 @@ nav ul li {
 
 nav ul li a {
     display: block;
+    font-family: 'Anek Latin', sans-serif;
     text-decoration: none;
     color: black;
     padding: 0.5rem;
