@@ -2,7 +2,7 @@ import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 
-import { Home, Exercises, Workouts, Login } from './pages'
+import { Home, Exercises, Workouts, Login, ClientDashboard} from './pages'
 
 function App() {
   return (
@@ -13,6 +13,7 @@ function App() {
               <Route path="/exercises" element={<Exercises />} />
               <Route path="/workouts" element={<Workouts />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/client-dashboard" element={<ClientDashboard />} />
           </Routes>
       </div>
   )

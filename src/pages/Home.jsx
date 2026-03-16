@@ -22,7 +22,7 @@ export const Home = () => {
                     <div class="home-card">
                         <h2>FOR THE COMMITTED</h2>
                         <p>Workout planning, coaching, nutrition guidance, and wellness tracking, all in one platform. Whether you're building muscle or just trying to stay fit, we're here to help you achieve your goals and unlock your full potential.</p>
-                        <Link className="btn">Let's get Started!</Link>
+                        <Link to="/client-dashboard" className="btn">Let's get Started!</Link>
                     </div>
                 </div>
                 <div class="home-container">
