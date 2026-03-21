@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --periwinkle: #8B8BF5;
+  --periwinkle-light: #D6D6FF;
+  --black: #000000;
+  --white: #FFFFFF;
+  --slate-purple: #6B6BA0;
+  --input-bg: #7272B2;
+  --green: #34A853;
+  --red: #EA4335;
+  --orange: #F5A623;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--black); min-height: 100vh; }
+
+.navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; border-bottom: 2px solid var(--black); }
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--black); }
+.nav-logo svg { width: 32px; height: 32px; }
+.nav-logo span { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: -0.5px; }
+.nav-links { display: flex; align-items: center; gap: 40px; }
+.nav-links a { font-family: 'Space Mono', monospace; font-size: 13px; text-decoration: none; color: var(--black); letter-spacing: 1px; text-transform: uppercase; }
+.nav-links a.nav-btn { border: 1.5px solid var(--black); padding: 8px 20px; border-radius: 20px; }
+.nav-links a.active { border-bottom: 2px solid var(--periwinkle); padding-bottom: 2px; }
+
+.page-title { padding: 30px 40px 20px; }
+.page-title h1 { font-family: 'Anton', sans-serif; font-size: 80px; font-weight: 400; text-transform: uppercase; line-height: 1; letter-spacing: 2px; }
+.page-title h1 .accent { color: var(--periwinkle); }
+
+.form-input { background: var(--periwinkle-light); border: 1.5px solid transparent; padding: 16px 20px; font-family: 'Space Mono', monospace; font-size: 14px; color: var(--black); letter-spacing: 1px; width: 100%; outline: none; border-radius: 2px; transition: border-color 0.2s; }
+.form-input:focus { border-color: var(--periwinkle); }
+.form-input::placeholder { color: var(--slate-purple); text-transform: uppercase; }
+
+.form-input-dark { background: var(--input-bg); border: none; padding: 22px 28px; font-family: 'Space Mono', monospace; font-size: 16px; color: var(--white); text-transform: uppercase; letter-spacing: 2px; width: 100%; outline: none; border-radius: 4px; }
+.form-input-dark::placeholder { color: rgba(255, 255, 255, 0.75); }
+
+.form-label { font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--black); font-weight: 700; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.full-width { grid-column: 1 / -1; }
+
+select.form-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%236B6BA0' stroke-width='2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; cursor: pointer; text-transform: uppercase; }
+textarea.form-input { min-height: 100px; resize: vertical; }
+
+.btn-periwinkle { background: var(--periwinkle); border: none; padding: 18px 40px; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: var(--white); cursor: pointer; border-radius: 4px; transition: all 0.2s; }
+.btn-periwinkle:hover { background: var(--black); }
+.btn-outline { background: var(--white); border: 1.5px solid var(--black); padding: 18px 40px; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: var(--black); cursor: pointer; border-radius: 4px; transition: all 0.2s; }
+.btn-outline:hover { background: var(--black); color: var(--white); }
+
+.pill-selector { display: flex; gap: 10px; flex-wrap: wrap; }
+.pill-option { padding: 12px 24px; font-family: 'Space Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; border: 1.5px solid var(--black); background: var(--white); cursor: pointer; border-radius: 2px; transition: all 0.2s; color: var(--black); }
+.pill-option:hover { background: var(--periwinkle-light); }
+.pill-option.selected { background: var(--periwinkle); border-color: var(--periwinkle); color: var(--white); }
+
+.checkbox-group { display: flex; gap: 20px; flex-wrap: wrap; }
+.checkbox-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.checkbox-box { width: 22px; height: 22px; border: 2px solid var(--black); background: var(--white); display: flex; align-items: center; justify-content: center; border-radius: 2px; transition: all 0.2s; flex-shrink: 0; font-size: 14px; font-weight: 700; color: var(--white); }
+.checkbox-item.checked .checkbox-box { background: var(--periwinkle); border-color: var(--periwinkle); }
+.checkbox-text { font-family: 'Space Mono', monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; }
+
+.section-card { background: var(--white); border: 1.5px solid var(--black); padding: 36px; margin-bottom: 24px; }
+.section-title { font-family: 'Anton', sans-serif; font-size: 28px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 28px; padding-bottom: 12px; border-bottom: 2px solid var(--periwinkle); }
+
+.coach-section { background: var(--periwinkle-light); border: 1.5px solid var(--periwinkle); padding: 36px; margin-bottom: 24px; }
+.coach-badge { display: inline-block; background: var(--periwinkle); color: var(--white); font-family: 'Space Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; padding: 4px 12px; border-radius: 2px; margin-bottom: 20px; }
+
+.progress-section { padding: 0 40px 24px; }
+.progress-bar { width: 100%; height: 6px; background: var(--periwinkle-light); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--periwinkle); border-radius: 3px; transition: width 0.3s; }
+.progress-label { font-family: 'Space Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--slate-purple); margin-top: 8px; }
+
+.banner-divider { background: var(--periwinkle); height: 8px; margin: 0 0 24px; }
+.footer-spacer { height: 80px; }

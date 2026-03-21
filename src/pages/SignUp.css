@@ -1,0 +1,149 @@
+.signup-form-section {
+  background: var(--periwinkle);
+  padding: 50px 40px 60px;
+  display: flex;
+  justify-content: center;
+}
+
+.signup-form-container {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.signup-form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.signup-form-row .form-input-dark {
+  flex: 1;
+}
+
+.role-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.role-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.role-options {
+  display: flex;
+  gap: 16px;
+}
+
+.role-option {
+  flex: 1;
+  background: var(--input-bg);
+  border: 2px solid transparent;
+  padding: 16px 24px;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.role-option:hover {
+  border-color: var(--white);
+}
+
+.role-option.selected {
+  background: var(--white);
+  color: var(--black);
+  border-color: var(--white);
+  font-weight: 700;
+}
+
+.signup-btn {
+  background: var(--white);
+  border: none;
+  padding: 20px 40px;
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--black);
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 8px;
+  transition: all 0.2s;
+  align-self: center;
+}
+
+.signup-btn:hover {
+  background: var(--black);
+  color: var(--white);
+}
+
+.signup-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0;
+}
+
+.signup-divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.signup-divider-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--white);
+  border: none;
+  padding: 16px 40px;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--black);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  align-self: center;
+}
+
+.google-btn:hover {
+  background: #f0f0f0;
+}
+
+.login-link {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--white);
+  margin-top: 4px;
+}
+
+.login-link a {
+  color: var(--white);
+  font-weight: 600;
+  text-decoration: underline;
+}
