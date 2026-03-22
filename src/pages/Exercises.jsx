@@ -14,7 +14,8 @@ export const Exercises = () => {
         <div>
             <div className="page-heading">
                 <div className="h1">
-                    <span className="text-black">Exercises </span>
+                    <span className="text-black">Exercise </span>
+                    <span className="text-black">Library</span>
                 </div>
             </div>
             <div>
