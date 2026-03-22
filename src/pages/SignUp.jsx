@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
 import './SignUp.css';
 
-function SignUp() {
+export const SignUp = () => {
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -31,7 +31,6 @@ function SignUp() {
 
   return (
     <div>
-      <Navbar />
 
       <div className="page-title">
         <h1>CREATE <span className="accent">ACCOUNT</span></h1>
@@ -131,5 +130,3 @@ function SignUp() {
     </div>
   );
 }
-
-export default SignUp;
