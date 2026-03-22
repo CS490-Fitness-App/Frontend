@@ -1,0 +1,112 @@
+.modal-container {
+    visibility: hidden;
+    opacity: 0;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(77,77,77,0.7);
+    transition: all 0.4s
+}
+
+.modal-container.open {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-content {
+    border-radius: 5px;
+    position: relative;
+    height: 600px;
+    width: 450px;
+    max-width: 90%;
+    background: #868BF7;
+    padding: 1em 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    transform: scale(0.5);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+}
+
+.modal-content.open {
+    transform: scale(1);
+    opacity: 1;
+}
+
+form {
+    width: 450px;
+    flex-shrink: 0;
+    padding: 20px;
+}
+
+h1 {
+    color: white;
+    text-align: center;
+    margin: 20px;
+}
+
+.cancel {
+    cursor: pointer;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.form-control {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px 8px;
+    border: 1px solid black;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    background-color: #E9ECFF;
+}
+
+.horiz-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px 20px 8px;
+}
+
+.form-control2 {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px 8px;
+    border: 1px solid black;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+    margin-left: 20px;
+    background-color: #E9ECFF;
+}
+
+.form-control input {
+    outline: none;
+    border: none;
+    padding: 4px 0 0;
+    font-size: 14px;
+    background-color: #E9ECFF;
+}
+
+.form-control2 input {
+    outline: none;
+    border: none;
+    padding: 4px 0 0;
+    font-size: 14px;
+    background-color: #E9ECFF;
+}
+
+.form-control-others {
+    margin: 5% auto;
+    text-align: center;
+}
