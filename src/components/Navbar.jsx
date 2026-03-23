@@ -23,7 +23,7 @@ export const Navbar = () => {
                         <circle cx="16" cy="16" r="5" fill="black" />
                         <rect x="6" y="14" width="20" height="4" rx="2" fill="black" />
                     </svg>
-                    <span>PrimalTraining</span>
+                    <span>PrimalFitness</span>
                 </Link>
                 <ul>
                     <li>
@@ -36,7 +36,7 @@ export const Navbar = () => {
                         <NavLink to="/survey">Survey</NavLink>
                     </li>
                     <li>
-                        <NavLink to="/workouts" onClick={openModal}>Log In</NavLink>
+                        <NavLink onClick={openModal}>Log In</NavLink>
                     </li>
                 </ul>
             </nav>

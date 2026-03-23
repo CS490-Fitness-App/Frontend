@@ -1,4 +1,4 @@
-import "./LoginForm.css"
+﻿import "./LoginForm.css"
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react'
 
@@ -9,17 +9,30 @@ import { MdCancel } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 
 export const LoginForm = ({ isOpen, onClose }) => {
+    const navigate = useNavigate();
 
     const [view, setView] = useState('login');
 
+    const loginStyle = {
+        transform: view === 'login' ? 'translateX(0)' : 'translateX(-650px)',
+        transition: 'transform 0.3s ease',
+        top: 0
+    };
+
+    const registrationStyle = {
+        transform: view === 'signup' ? 'translateX(0)' : 'translateX(650px)',
+        transition: 'transform 0.3s ease',
+        position: 'absolute',
+        top: 0
+    };
+
+    const [rememberMe, setRememberMe] = useState(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [role, setRole] = useState('client');
-
-    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -30,25 +43,12 @@ export const LoginForm = ({ isOpen, onClose }) => {
         }
 
         console.log('Sign up:', { firstName, lastName, email, password, role });
-        navigate('/survey', { state: { role } });
+        navigate('/client-dashboard', { state: { role } });
+        onClose();
     };
 
     const handleGoogleSignUp = () => {
         console.log('Google sign up clicked');
-    };
-
-    //if (!isOpen) return null;
-
-    const loginStyle = {
-        transform: view === 'login' ? 'translateX(0)' : 'translateX(-650px)',
-        transition: 'transform 0.3s ease'
-    };
-
-    const registrationStyle = {
-        transform: view === 'signup' ? 'translateX(0)' : 'translateX(650px)',
-        transition: 'transform 0.3s ease',
-        position: 'absolute',
-        top: 0
     };
 
     return (
@@ -91,6 +91,32 @@ export const LoginForm = ({ isOpen, onClose }) => {
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
                             />
+
+                            <div className="forget-section">
+                                <div
+                                    className={`checkbox-item ${rememberMe ? 'checked' : ''}`}
+                                    onClick={() => setRememberMe(!rememberMe)}
+                                >
+                                    {/* Hidden real input for form data */}
+                                    <input
+                                        type="checkbox"
+                                        id="remember"
+                                        checked={rememberMe}
+                                        onChange={() => { }} // Handled by div click
+                                        style={{ display: 'none' }}
+                                    />
+
+                                    {/* Your custom styled box */}
+                                    <div className="checkbox-box">
+                                        {rememberMe && "✓"} {/* Shows checkmark when true */}
+                                    </div>
+
+                                    {/* Your text */}
+                                    <span className="checkbox-text">Remember Me</span>
+                                </div>
+
+                                <a href="#" className="login-link">Forget Password</a>
+                            </div>
 
                             <button type="submit" className="signup-btn">LOG IN</button>
 
