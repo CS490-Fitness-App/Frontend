@@ -4,7 +4,7 @@ import React from 'react'
 import { MdCancel } from "react-icons/md";
 import { MdFitnessCenter } from "react-icons/md";
 
-export const ViewExercise = ({ isOpen, onClose, level, type, equipment, muscleGroups }) => {
+export const ViewExercise = ({ isOpen, onClose, name, level, type, equipment, muscleGroups }) => {
     return (
         <div>
             <div className={`view-container ${isOpen ? 'open' : ''}`}>
@@ -12,7 +12,7 @@ export const ViewExercise = ({ isOpen, onClose, level, type, equipment, muscleGr
 
                     <MdCancel className="cancel" onClick={onClose} />
 
-                    <h1>Dumbbell Lateral Raise</h1>
+                    <h1>{name}</h1>
 
                     {/* Stats Row */}
                     <div className="stats-row">
@@ -21,6 +21,7 @@ export const ViewExercise = ({ isOpen, onClose, level, type, equipment, muscleGr
                                 <MdFitnessCenter />
                             </div>
                             <h5>Experience Level</h5>
+                            
                             <div className="stat-border">
                                 <p className="stat">{level}</p>
                             </div>
@@ -29,36 +30,27 @@ export const ViewExercise = ({ isOpen, onClose, level, type, equipment, muscleGr
                             <div className="stats-icon">
                                 <MdFitnessCenter />
                             </div>
-                            <h5>{type}</h5>
+                            <h5>Type</h5>
                             <div className="stat-border">
-                                <p className="stat">Strength</p>
+                                <p className="stat">{type}</p>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stats-icon">
                                 <MdFitnessCenter />
                             </div>
-                            <h5>Equipment Required</h5>
+                            <h5>Equipment</h5>
                             <div className="stat-border">
-                                <p className="stat">Dumbbell</p>
+                                <p className="stat">Bench</p>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stats-icon">
                                 <MdFitnessCenter />
                             </div>
-                            <h5>Mechanics</h5>
+                            <h5>Muscle Groups</h5>
                             <div className="stat-border">
                                 <p className="stat">Isolation</p>
-                            </div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stats-icon">
-                                <MdFitnessCenter />
-                            </div>
-                            <h5>Force Type</h5>
-                            <div className="stat-border">
-                                <p className="stat">Pull</p>
                             </div>
                         </div>
 

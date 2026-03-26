@@ -60,6 +60,7 @@ export const Exercises = () => {
                 
                 {selectedExercise && (
                     <ViewExercise 
+                        name={selectedExercise.name}
                         level={selectedExercise.experience_level}
                         type={selectedExercise.category}
                         equipment={selectedExercise.equipment}
