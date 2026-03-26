@@ -1,6 +1,7 @@
 ﻿import "./LoginForm.css"
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 
 import { MdEmail } from "react-icons/md";
 import { IoMdLock } from "react-icons/io";
@@ -10,6 +11,7 @@ import { FaUser } from "react-icons/fa";
 
 export const LoginForm = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
+    const { loginWithRedirect } = useAuth0();
 
     const [view, setView] = useState('login');
 
@@ -34,21 +36,48 @@ export const LoginForm = ({ isOpen, onClose }) => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [role, setRole] = useState('client');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (password !== confirmPassword) {
-            alert('Passwords do not match!');
+    
+        localStorage.setItem('pf_signup_role', role);
+
+        if (view === 'signup') {
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            await loginWithRedirect({
+                authorizationParams: {
+                    screen_hint: 'signup',
+                },
+                appState: { returnTo: '/client-dashboard' },
+            });
             return;
         }
 
-        console.log('Sign up:', { firstName, lastName, email, password, role });
+        await loginWithRedirect({
+            authorizationParams: {
+                screen_hint: 'login',
+            },
+            appState: { returnTo: '/client-dashboard' },
+        });
+
         navigate('/client-dashboard', { state: { role } });
-        onClose();
+        if (onClose) {
+            onClose();
+        }
     };
 
-    const handleGoogleSignUp = () => {
-        console.log('Google sign up clicked');
+    const handleGoogleSignUp = async () => {
+        localStorage.setItem('pf_signup_role', role);
+        await loginWithRedirect({
+            authorizationParams: {
+                connection: 'google-oauth2',
+            },
+            appState: { returnTo: '/client-dashboard' },
+        });
     };
 
     return (

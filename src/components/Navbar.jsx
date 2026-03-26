@@ -2,11 +2,12 @@ import "./Navbar.css"
 import React from 'react'
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom' 
-import { IoFitness } from "react-icons/io5";
+import { useAuth0 } from '@auth0/auth0-react'
 
 import { LoginForm } from "./LoginForm"
 
 export const Navbar = () => {
+    const { isAuthenticated, logout } = useAuth0()
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -36,7 +37,15 @@ export const Navbar = () => {
                         <NavLink to="/survey">Survey</NavLink>
                     </li>
                     <li>
-                        <NavLink onClick={openModal}>Log In</NavLink>
+                        {isAuthenticated ? (
+                            <NavLink
+                                onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+                            >
+                                Log Out
+                            </NavLink>
+                        ) : (
+                            <NavLink onClick={openModal}>Log In</NavLink>
+                        )}
                     </li>
                 </ul>
             </nav>
