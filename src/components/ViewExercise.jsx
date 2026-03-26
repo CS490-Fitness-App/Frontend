@@ -4,7 +4,7 @@ import React from 'react'
 import { MdCancel } from "react-icons/md";
 import { MdFitnessCenter } from "react-icons/md";
 
-export const ViewExercise = ({ isOpen, onClose }) => {
+export const ViewExercise = ({ isOpen, onClose, level, type, equipment, muscleGroups }) => {
     return (
         <div>
             <div className={`view-container ${isOpen ? 'open' : ''}`}>
@@ -22,14 +22,14 @@ export const ViewExercise = ({ isOpen, onClose }) => {
                             </div>
                             <h5>Experience Level</h5>
                             <div className="stat-border">
-                                <p className="stat">Beginner</p>
+                                <p className="stat">{level}</p>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stats-icon">
                                 <MdFitnessCenter />
                             </div>
-                            <h5>Exercise Type</h5>
+                            <h5>{type}</h5>
                             <div className="stat-border">
                                 <p className="stat">Strength</p>
                             </div>
