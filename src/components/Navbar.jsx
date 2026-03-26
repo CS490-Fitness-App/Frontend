@@ -1,8 +1,6 @@
 import "./Navbar.css"
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom' 
-import { IoFitness } from "react-icons/io5";
 
 import { LoginForm } from "./LoginForm"
 
