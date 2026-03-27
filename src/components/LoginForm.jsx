@@ -10,13 +10,13 @@ export const LoginForm = ({ isOpen, onClose }) => {
     const [view, setView] = useState('login');
 
     const loginStyle = {
-        transform: view === 'login' ? 'translate(0px, 500px)' : 'translate(-650px, 0px)',
+        transform: view === 'login' ? 'translate(0px, 0px)' : 'translate(-650px, 0px)',
         transition: 'transform 0.3s ease',
         top: 0
     };
 
     const registrationStyle = {
-        transform: view === 'signup' ? 'translate(0px, 500px)' : 'translate(650px, 0px)',
+        transform: view === 'signup' ? 'translate(0px, 0px)' : 'translate(650px, 0px)',
         transition: 'transform 0.3s ease',
         position: 'absolute',
         top: 0
