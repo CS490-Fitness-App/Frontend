@@ -1,12 +1,14 @@
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
+import { AuthSync } from './components/AuthSync'
 
 import { Home, Exercises, Workouts, Login, ClientDashboard, SignUp, Survey } from './pages'
 
 function App() {
     return (
         <div className="App">
+            <AuthSync />
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />

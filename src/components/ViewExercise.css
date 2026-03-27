@@ -19,10 +19,10 @@
 }
 
 .view-content {
-    border-radius: 5px;
+    border-radius: 10px;
     position: relative;
-    height: 600px;
-    width: 500px;
+    height: 300px;
+    width: 600px;
     max-width: 90%;
     background: #868BF7;
     padding: 1em 2em;
@@ -43,8 +43,9 @@
 
 .stats-row {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     padding: 1rem;
+    margin-top: 2rem;
     background-color: #f3f4f6;
     border-radius: 0.5rem;
     gap: 1rem;
@@ -83,4 +84,5 @@
     font-size: 12px;
     text-decoration: none;
     text-transform: uppercase;
+    text-overflow: clip;
 }

@@ -1,5 +1,28 @@
 ## CS490 Fitness App Frontend
 
+## Local Auth0 + Backend Setup
+
+1. Copy `.env.example` to `.env`.
+2. Fill in your Auth0 values:
+	- `VITE_AUTH0_DOMAIN`
+	- `VITE_AUTH0_CLIENT_ID`
+	- `VITE_AUTH0_AUDIENCE`
+3. Keep backend running at `http://127.0.0.1:8000` (or update `VITE_API_BASE_URL`).
+
+When a user logs in or signs up, frontend now:
+
+1. Authenticates with Auth0.
+2. Gets an Auth0 access token.
+3. Calls backend `/auth/login` with Bearer token.
+4. Backend creates or returns local user and role entity.
+
+Run frontend:
+
+```bash
+npm install
+npm run dev
+```
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
 import './SignUp.css';
 
 export const SignUp = () => {
+  const { loginWithRedirect } = useAuth0();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -13,7 +15,7 @@ export const SignUp = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -21,12 +23,24 @@ export const SignUp = () => {
       return;
     }
 
-    console.log('Sign up:', { firstName, lastName, email, password, role });
+    localStorage.setItem('pf_signup_role', role);
+    await loginWithRedirect({
+      authorizationParams: {
+        screen_hint: 'signup',
+      },
+      appState: { returnTo: '/survey' },
+    });
     navigate('/survey', { state: { role } });
   };
 
-  const handleGoogleSignUp = () => {
-    console.log('Google sign up clicked');
+  const handleGoogleSignUp = async () => {
+    localStorage.setItem('pf_signup_role', role);
+    await loginWithRedirect({
+      authorizationParams: {
+        connection: 'google-oauth2',
+      },
+      appState: { returnTo: '/survey' },
+    });
   };
 
   return (
