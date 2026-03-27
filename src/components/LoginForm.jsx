@@ -1,6 +1,6 @@
-﻿import "./LoginForm.css"
-import { useNavigate } from 'react-router-dom';
+import "./LoginForm.css"
 import React, { useState } from 'react'
+import { useAuth0 } from '@auth0/auth0-react';
 
 import { MdEmail } from "react-icons/md";
 import { IoMdLock } from "react-icons/io";
@@ -9,7 +9,7 @@ import { MdCancel } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 
 export const LoginForm = ({ isOpen, onClose }) => {
-    const navigate = useNavigate();
+    const { loginWithRedirect } = useAuth0();
 
     const [view, setView] = useState('login');
 
@@ -26,7 +26,6 @@ export const LoginForm = ({ isOpen, onClose }) => {
         top: 0
     };
 
-    const [rememberMe, setRememberMe] = useState(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -34,21 +33,26 @@ export const LoginForm = ({ isOpen, onClose }) => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [role, setRole] = useState('client');
 
-    const handleSubmit = (e) => {
+    const handleLoginSubmit = (e) => {
         e.preventDefault();
+        sessionStorage.setItem('pendingAuth', 'true');
+        loginWithRedirect({ authorizationParams: { login_hint: email } });
+    };
 
+    const handleSignupSubmit = (e) => {
+        e.preventDefault();
         if (password !== confirmPassword) {
             alert('Passwords do not match!');
             return;
         }
-
-        console.log('Sign up:', { firstName, lastName, email, password, role });
-        navigate('/client-dashboard', { state: { role } });
-        onClose();
+        sessionStorage.setItem('pendingSignup', JSON.stringify({ first_name: firstName, last_name: lastName, role }));
+        sessionStorage.setItem('pendingAuth', 'true');
+        loginWithRedirect({ authorizationParams: { screen_hint: 'signup', login_hint: email } });
     };
 
-    const handleGoogleSignUp = () => {
-        console.log('Google sign up clicked');
+    const handleGoogleLogin = () => {
+        sessionStorage.setItem('pendingAuth', 'true');
+        loginWithRedirect({ authorizationParams: { connection: 'google-oauth2' } });
     };
 
     return (
@@ -63,7 +67,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="signup-form-section">
-                        <form className="signup-form-container" onSubmit={handleSubmit}>
+                        <form className="signup-form-container" onSubmit={handleLoginSubmit}>
 
                             <input
                                 type="email"
@@ -74,50 +78,6 @@ export const LoginForm = ({ isOpen, onClose }) => {
                                 required
                             />
 
-                            <input
-                                type="password"
-                                className="form-input-dark"
-                                placeholder="PASSWORD"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-
-                            <input
-                                type="password"
-                                className="form-input-dark"
-                                placeholder="CONFIRM PASSWORD"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
-                            />
-
-                            <div className="forget-section">
-                                <div
-                                    className={`checkbox-item ${rememberMe ? 'checked' : ''}`}
-                                    onClick={() => setRememberMe(!rememberMe)}
-                                >
-                                    {/* Hidden real input for form data */}
-                                    <input
-                                        type="checkbox"
-                                        id="remember"
-                                        checked={rememberMe}
-                                        onChange={() => { }} // Handled by div click
-                                        style={{ display: 'none' }}
-                                    />
-
-                                    {/* Your custom styled box */}
-                                    <div className="checkbox-box">
-                                        {rememberMe && "✓"} {/* Shows checkmark when true */}
-                                    </div>
-
-                                    {/* Your text */}
-                                    <span className="checkbox-text">Remember Me</span>
-                                </div>
-
-                                <a href="#" className="login-link">Forget Password</a>
-                            </div>
-
                             <button type="submit" className="signup-btn">LOG IN</button>
 
                             <div className="signup-divider">
@@ -126,21 +86,21 @@ export const LoginForm = ({ isOpen, onClose }) => {
                                 <div className="signup-divider-line"></div>
                             </div>
 
-                            <button type="button" className="google-btn" onClick={handleGoogleSignUp}>
+                            <button type="button" className="google-btn" onClick={handleGoogleLogin}>
                                 <svg viewBox="0 0 24 24" width="20" height="20">
                                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
                                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                                 </svg>
-                                SIGN UP WITH GOOGLE
+                                LOG IN WITH GOOGLE
                             </button>
 
                             <div className="login-link">
                                 Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); setView('signup'); }}>Sign up now</a>
                             </div>
                         </form>
-                    </div> 
+                    </div>
                 </div>
 
                 <div className="registration" style={registrationStyle}>
@@ -151,7 +111,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="signup-form-section">
-                        <form className="signup-form-container" onSubmit={handleSubmit}>
+                        <form className="signup-form-container" onSubmit={handleSignupSubmit}>
                             <div className="signup-form-row">
                                 <input
                                     type="text"
@@ -224,7 +184,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                                 <div className="signup-divider-line"></div>
                             </div>
 
-                            <button type="button" className="google-btn" onClick={handleGoogleSignUp}>
+                            <button type="button" className="google-btn" onClick={handleGoogleLogin}>
                                 <svg viewBox="0 0 24 24" width="20" height="20">
                                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
                                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
