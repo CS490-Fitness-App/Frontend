@@ -1,6 +1,6 @@
 ﻿import './Pages.css'
 import './ClientDashboard.css'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Sidebar } from "../components/Sidebar"
 
@@ -9,6 +9,25 @@ import { BsBarChartFill } from "react-icons/bs";
 import { FaClipboardCheck } from "react-icons/fa6";
 
 export const ClientDashboard = () => {
+
+    const [data, setData] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
+
+    useEffect(() => {
+        fetch("http://127.0.0.1:8000/dashboard/client")
+            .then(res => res.json())
+            .then(data => {
+                setData(data)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error(err)
+                setError("Unable to load dashboard data.")
+                setLoading(false)
+            })
+    }, [])
+
     return (
         <div>
             <div className="client-dashboard-container">
@@ -17,21 +36,27 @@ export const ClientDashboard = () => {
                     <div class="page-heading">
                         <div class="h2">
                             <span class="text-black">Welcome back, </span>
-                            <span class="text-purple">NAME</span>
+                            <span class="text-purple">
+                                {loading ? "Loading..." : data?.name || "Client"}
+                            </span>
                         </div>
                     </div>
 
                     <div class="client-homepage-container">
                         <div class="section-quick-stats">
                             <div class="quick-stat-card">
-                                    <p class="stat-heading">TODAY'S WORKOUT</p>
-                                    <p class="stat">PUSH DAY</p>
-                                    <p class="stat-descriptor">Chest, Shoulders, Triceps</p>
+                                <p class="stat-heading">TODAY'S WORKOUT</p>
+                                <p class="stat">
+                                    {loading ? "Loading..." : data?.today_workout || "No workout available."}
+                                </p>
+                                <p class="stat-descriptor">Chest, Shoulders, Triceps</p>
                             </div>
                             <div class="quick-stat-card">
                                     <p class="stat-heading">WEEKLY STREAK</p>
-                                    <p class="stat">4 / 7</p>
-                                    <p class="stat-descriptor">Keep it up! 3 days left</p>
+                                <p class="stat">
+                                    {loading ? "Loading..." : data?.recent_activity || "0 / 7"}
+                                </p>
+                                <p class="stat-descriptor">Keep it up! 3 days left</p>
                             </div>
                             <div class="quick-stat-card">
                                     <p class="stat-heading">CURRENT WEIGHT</p>
