@@ -1,47 +1,219 @@
-.client-dashboard-page {
-    min-height: 100vh;
-    background-color: #f7f8fc;
-}
+@import url('https://fonts.googleapis.com/css2?family=Anek+Latin:wdth,wght@95.8,800&family=Oswald:wght@200..700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
 
-.client-dashboard-layout {
+.client-dashboard-container {
     display: flex;
-    align-items: flex-start;
-    gap: 24px;
-    padding: 24px;
+    flex-direction: row;
 }
 
-.client-dashboard-content {
-    flex: 1;
+.client-homepage-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 32px;
+    padding: 32px;
+    width: 100%;
 }
 
-.client-dashboard-card {
-    background-color: white;
-    border: 1px solid #d9def7;
-    border-radius: 16px;
+.section-quick-stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%
+}
+
+.quick-stat-card {
+    background-color: rgba(221, 224, 255, 1);
+    padding: 10px;
+    width: 100%;
+}
+
+.stat-heading {
+    text-align: left;
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 17px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: rgb(107, 114, 128);
+}
+
+.stat {
+    text-align: left;
+    font-family: "Oswald", sans-serif;
+    font-size: 36px;
+    line-height: 40px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
+}
+
+.stat-descriptor {
+    text-align: left;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    text-decoration: none;
+    text-transform: none;
+    color: rgb(75, 85, 99);
+}
+
+.section-2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%;
+}
+
+.workout-plan-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 38px;
     padding: 24px;
-    box-shadow: 0 8px 24px rgba(25, 33, 61, 0.08);
+    border: 2px solid black;
 }
 
-.client-dashboard-card h3 {
-    margin: 0 0 10px 0;
-    font-family: 'Anek Latin', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: #1a1a1a;
+.coach-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 23.2px;
+    padding: 24px;
+    border: 2px solid black;
 }
 
-.client-dashboard-card p {
-    margin: 0;
-    font-family: 'Anek Latin', sans-serif;
-    font-size: 20px;
-    color: #333333;
+.dashboard-heading {
+    padding: 0px 0px 16px 0px;
+    width: 100%;
+    border-bottom: 1px solid rgba(209, 213, 219, 1);
+    font-family: "Oswald", sans-serif;
+    font-size: 24px;
+    line-height: 32px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
 }
 
-@media (max-width: 900px) {
-    .client-dashboard-layout {
-        flex-direction: column;
-    }
+.dashboard-list-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 16px;
 }
+
+.dashboard-list-contents {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 275px;
+    width: 100%;
+}
+
+.dashboard-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    font-family: "Oswald", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    text-decoration: none;
+    color: black;
+}
+
+.btn-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.panel-btn-purple {
+    text-align: center;
+    width: 100%;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    background-color: #808CFD;
+    color: white;
+    text-decoration: none;
+}
+
+.panel-btn-white {
+    text-align: center;
+    width: 100%;
+    border-radius: 5px;
+    border: 2px solid black;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    color: black;
+    text-decoration: none;
+}
+
+.coach-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.profile-bg {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 9.5px 0px 10.5px 0px;
+    width: 9%;
+    background-color: rgba(140, 148, 255, 1);
+    color: white;
+    border-radius: 9999px;
+}
+
+.icon-bg {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 9.5px 0px 10.5px 0px;
+    width: 12%;
+    background-color: rgba(224, 231, 255, 1);
+    color: rgba(140, 148, 255, 1);
+    border-radius: 9999px;
+}
+
+.container-others {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-others {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0px 0px 8px 0px;
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 16px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
+}
+
