@@ -67,6 +67,7 @@
     justify-content: center;
     align-items: flex-start;
     gap: 24px;
+    width: 100%;
 }
 
 .workout-plan-panel {
@@ -114,7 +115,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    gap: 200px;
+    gap: 275px;
     width: 100%;
 }
 
@@ -175,8 +176,44 @@
     justify-content: center;
     align-items: center;
     padding: 9.5px 0px 10.5px 0px;
-    width: 11%;
+    width: 9%;
     background-color: rgba(140, 148, 255, 1);
     color: white;
     border-radius: 9999px;
 }
+
+.icon-bg {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 9.5px 0px 10.5px 0px;
+    width: 12%;
+    background-color: rgba(224, 231, 255, 1);
+    color: rgba(140, 148, 255, 1);
+    border-radius: 9999px;
+}
+
+.container-others {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-others {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0px 0px 8px 0px;
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 16px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
+}
+

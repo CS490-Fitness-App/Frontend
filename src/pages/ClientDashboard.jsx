@@ -4,7 +4,9 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Sidebar } from "../components/Sidebar"
 
-import { FaRegUser } from "react-icons/fa";
+import { FaRegUser, FaChartPie } from "react-icons/fa";
+import { BsBarChartFill } from "react-icons/bs";
+import { FaClipboardCheck } from "react-icons/fa6";
 
 export const ClientDashboard = () => {
     return (
@@ -37,7 +39,6 @@ export const ClientDashboard = () => {
                                 <p class="stat-descriptor">Goal: 165 lb - 3 lb this month</p>
                             </div>
                         </div>
-
 
                         <div class="section-2">
                             <div class="workout-plan-panel">
@@ -89,10 +90,50 @@ export const ClientDashboard = () => {
                             </div>
                         </div>
 
+
+                        <div class="section-2">
+                            <div class="workout-plan-panel">
+                                <div class="container-others">
+                                    <div class="icon-bg">
+                                        <BsBarChartFill />
+                                    </div>
+                                    <div class="header-others">LOG ACTIVITY</div>
+                                    <div class="stat-descriptor">Record your sets, reps, weights, and cardio for today's workout.</div>
+                                </div>
+                                <div className="btn-container">
+                                    <Link className="panel-btn-purple">Log Now</Link>
+                                </div>
+                            </div>
+                            <div class="workout-plan-panel">
+                                <div class="container-others">
+                                    <div class="icon-bg">
+                                        <FaClipboardCheck />
+                                    </div>
+                                    <div class="header-others">DAILY CHECK-IN</div>
+                                    <div class="stat-descriptor">Log your calories, steps, water intake, weight, and mood for today.</div>
+                                </div>
+                                <div className="btn-container">
+                                    <Link className="panel-btn-purple">Check In</Link>
+                                </div>
+                            </div>
+                            <div class="workout-plan-panel">
+                                <div class="container-others">
+                                    <div class="icon-bg">
+                                        <FaChartPie />
+                                    </div>
+                                    <div class="header-others">VIEW PROGRESS</div>
+                                    <div class="stat-descriptor">See your charts and trends over the past weeks and months.</div>
+                                </div>
+                                <div className="btn-container">
+                                    <Link className="panel-btn-purple">View Charts</Link>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
+
+
                 </div>
-                
             </div>
         </div>
     )
