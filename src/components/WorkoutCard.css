@@ -1,0 +1,66 @@
+.workout-card-container {
+    width: 15rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem;
+    background-color: white;
+    height: fit-content;
+    border: 1.5px solid black;
+    transition: all 0.4s;
+}
+
+.workout-card-container:hover {
+    box-shadow: 0px 0px 8px #999;
+    transform: scale(1.02);
+    transition: all 0.4s;
+}
+
+.workout-card-img {
+    width: 100%;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.workout-card-tag {
+    background-color: palegreen;
+    border-radius: 1rem;
+    margin: 0.5rem;
+    width: fit-content;
+    padding: 0.4rem;
+}
+
+.workout-card-title {
+    color: black;
+    margin: 0.5rem 5%;
+}
+
+.workout-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0.5rem 0.5rem;
+}
+
+.workout-card-meta span {
+    background-color: #e9ecff;
+    border-radius: 1rem;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+    color: #4E548F;
+}
+
+.workout-card-btn {
+    text-align: center;
+    width: 90%;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: #808CFD;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin: 0.5rem;
+}
+
+.workout-card-btn:hover {
+    background-color: #4E548F;
+}
