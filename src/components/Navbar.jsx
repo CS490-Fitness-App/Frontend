@@ -1,21 +1,36 @@
 import "./Navbar.css"
 import React from 'react'
 import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom' 
-import { IoFitness } from "react-icons/io5";
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
+import { useCustomAuth } from '../context/AuthContext'
 
 import { LoginForm } from "./LoginForm"
 
 export const Navbar = () => {
+    const { isAuthenticated, logout } = useAuth0()
+    const { customAuth, clearAuth } = useCustomAuth()
+    const navigate = useNavigate()
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const loggedIn = isAuthenticated || !!customAuth
 
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const openModal = () => setIsModalOpen(true)
+    const closeModal = () => setIsModalOpen(false)
+
+    const handleLogout = () => {
+        if (customAuth) {
+            clearAuth()
+            navigate('/')
+        }
+        if (isAuthenticated) {
+            logout({ logoutParams: { returnTo: window.location.origin } })
+        }
+    }
 
     return (
         <div>
-            <nav>          
+            <nav>
                 <Link to="/" className="nav-logo">
                     <svg viewBox="0 0 32 32" fill="none">
                         <circle cx="10" cy="16" r="7" fill="black" />
@@ -26,22 +41,18 @@ export const Navbar = () => {
                     <span>PrimalFitness</span>
                 </Link>
                 <ul>
+                    <li><NavLink to="/exercises">Exercises</NavLink></li>
+                    <li><NavLink to="/workouts">Workouts</NavLink></li>
+                    <li><NavLink to="/survey">Survey</NavLink></li>
                     <li>
-                        <NavLink to="/exercises">Exercises</NavLink>
-                    </li>
-                    <li>
-                        <NavLink to="/workouts">Workouts</NavLink>
-                    </li>
-                    <li>
-                        <NavLink to="/survey">Survey</NavLink>
-                    </li>
-                    <li>
-                        <NavLink onClick={openModal}>Log In</NavLink>
+                        {loggedIn
+                            ? <NavLink onClick={handleLogout}>Log Out</NavLink>
+                            : <NavLink onClick={openModal}>Log In</NavLink>
+                        }
                     </li>
                 </ul>
             </nav>
-            <LoginForm isOpen={isModalOpen} onClose={closeModal} />
+            {!loggedIn && <LoginForm isOpen={isModalOpen} onClose={closeModal} />}
         </div>
-
     )
 }
