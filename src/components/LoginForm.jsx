@@ -36,12 +36,12 @@ export const LoginForm = ({ isOpen, onClose }) => {
     const [role, setRole] = useState('client')
 
     const loginStyle = {
-        transform: view === 'login' ? 'translateX(0)' : 'translateX(-650px)',
+        transform: view === 'login' ? 'translate(0px, 0px)' : 'translate(-650px, 0px)',
         transition: 'transform 0.3s ease',
         top: 0,
     }
     const registrationStyle = {
-        transform: view === 'signup' ? 'translateX(0)' : 'translateX(650px)',
+        transform: view === 'signup' ? 'translate(0px, 0px)' : 'translate(650px, 0px)',
         transition: 'transform 0.3s ease',
         position: 'absolute',
         top: 0,

@@ -38,6 +38,13 @@ export const Exercises = () => {
         setSelectedExercise(null)
     }
 
+        getExercises();
+    }, []);
+
+    
+    const selectedExercise = exercises.find(
+        ex => ex.exercise_id === selectedExerciseId
+    );
     return (
         <div>
             <div className="page-heading">

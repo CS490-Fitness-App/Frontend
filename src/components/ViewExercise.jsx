@@ -21,6 +21,7 @@ export const ViewExercise = ({ isOpen, onClose, exercise }) => {
                         <div className="stat-card">
                             <div className="stats-icon"><MdFitnessCenter /></div>
                             <h5>Experience Level</h5>
+                            
                             <div className="stat-border">
                                 <p className="stat">{exercise.experience_level || 'N/A'}</p>
                             </div>

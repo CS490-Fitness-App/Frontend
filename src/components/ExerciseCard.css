@@ -21,8 +21,24 @@
     border-radius: 1rem 1rem 0 0;
 }
 
-.card-tag {
+.card-tag-beginner {
     background-color: palegreen;
+    border-radius: 1rem;
+    margin: 0.5rem;
+    width: fit-content;
+    padding: 0.4rem;
+}
+
+.card-tag-intermediate {
+    background-color: rgb(251, 251, 152);
+    border-radius: 1rem;
+    margin: 0.5rem;
+    width: fit-content;
+    padding: 0.4rem;
+}
+
+.card-tag-advanced {
+    background-color: rgb(251, 152, 152);
     border-radius: 1rem;
     margin: 0.5rem;
     width: fit-content;
@@ -32,6 +48,10 @@
 .card-title {
     color: black;
     margin: 0.5rem 5%;
+    font-size: clamp(1rem, 1.5vw, 1.5rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card-btn {
