@@ -3,33 +3,40 @@ import React, { useState, useEffect } from 'react'
 import { ExerciseCard } from "../components/ExerciseCard"
 import { ViewExercise } from "../components/ViewExercise"
 
-
-import './Exercises.css'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 export const Exercises = () => {
+    const [exercises, setExercises] = useState([])
+    const [selectedExercise, setSelectedExercise] = useState(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
-    const [exercises, setExercises] = useState([]);
-    const [selectedExerciseId, setSelectedExerciseId] = useState(null);
-    const openModal = (id) => setSelectedExerciseId(id);
-    const closeModal = () => setSelectedExerciseId(null);
-    const baseURL = "http://localhost:8000"; // LOCALHOST TODO
-        useEffect(() => {
-        async function getExercises() {
-            try
-            {
-                
-                const response = await fetch(`${baseURL}/exercises/`);
-                const exercises = await response.json();
-                console.log(exercises);
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/exercises`)
+            .then(res => {
+                if (!res.ok) throw new Error(`Failed to load exercises (${res.status})`)
+                return res.json()
+            })
+            .then(data => {
+                setExercises(data)
+                setLoading(false)
+            })
+            .catch(err => {
+                setError(err.message)
+                setLoading(false)
+            })
+    }, [])
 
-                setExercises(exercises);
+    const openModal = (exercise) => {
+        setSelectedExercise(exercise)
+        setIsModalOpen(true)
+    }
 
-            }
-            catch (err)
-            {
-                console.error("Failed to get Exercises", err);
-            }
-        }
+    const closeModal = () => {
+        setIsModalOpen(false)
+        setSelectedExercise(null)
+    }
 
         getExercises();
     }, []);
@@ -46,30 +53,21 @@ export const Exercises = () => {
                     <span className="text-black">Library</span>
                 </div>
             </div>
-            <div  className="exerciseCards">
-                {exercises.map(ex => (
-                    <ExerciseCard key={ex.exercise_id}
-                    name={ex.name} 
-                    level={ex.experience_level} 
-                    onClick={() => openModal(ex.exercise_id)} />
+
+            {loading && <p>Loading exercises...</p>}
+            {error && <p>Error: {error}</p>}
+
+            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                {exercises.map(exercise => (
+                    <ExerciseCard
+                        key={exercise.exercise_id}
+                        exercise={exercise}
+                        onClick={() => openModal(exercise)}
+                    />
                 ))}
             </div>
 
-            
-            <div className="viewExercises">
-                
-                {selectedExercise && (
-                    <ViewExercise 
-                        name={selectedExercise.name}
-                        level={selectedExercise.experience_level}
-                        type={selectedExercise.category}
-                        equipment={selectedExercise.equipment}
-                        muscleGroups={selectedExercise.muscleGroups}
-                        isOpen={true}
-                        onClose={closeModal}
-                        />
-                    )}
-            </div>
+            <ViewExercise isOpen={isModalOpen} onClose={closeModal} exercise={selectedExercise} />
         </div>
     )
 }
