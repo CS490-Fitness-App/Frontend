@@ -12,6 +12,16 @@ export const Exercises = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
+    const openModal = (exercise) => {
+        setSelectedExercise(exercise)
+        setIsModalOpen(true)
+    }
+
+    const closeModal = () => {
+        setIsModalOpen(false)
+        setSelectedExercise(null)
+    }
+
     useEffect(() => {
         fetch(`${API_BASE_URL}/exercises`)
             .then(res => {
@@ -26,31 +36,18 @@ export const Exercises = () => {
                 setError(err.message)
                 setLoading(false)
             })
-    }, [])
-
-    const openModal = (exercise) => {
-        setSelectedExercise(exercise)
-        setIsModalOpen(true)
-    }
-
-    const closeModal = () => {
-        setIsModalOpen(false)
-        setSelectedExercise(null)
-    }
-
-        getExercises();
     }, []);
 
-    
-    const selectedExercise = exercises.find(
+    /*const selectedExercise = exercises.find(
         ex => ex.exercise_id === selectedExerciseId
-    );
+    );*/
+
     return (
         <div>
             <div className="page-heading">
                 <div className="h1">
                     <span className="text-black">Exercise </span>
-                    <span className="text-black">Library</span>
+                    <span className="text-purple">Library</span>
                 </div>
             </div>
 

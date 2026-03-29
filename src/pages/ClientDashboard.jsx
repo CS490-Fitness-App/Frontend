@@ -45,13 +45,6 @@ export const ClientDashboard = () => {
         fetchDashboard()
     }, [isAuthenticated, customAuth, getAccessTokenSilently])
 
-    return (
-        <div>
-            <div className="page-heading">
-                <div className="h2">
-                    <span className="text-black">Welcome back, </span>
-                    <span className="text-purple">{name || '...'}</span>
-
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
