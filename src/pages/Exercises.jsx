@@ -51,6 +51,9 @@ export const Exercises = () => {
                 </div>
             </div>
 
+            {/*temporary for testing*/}
+            <button onClick={() => openModal()}>view exercise</button>
+
             {loading && <p>Loading exercises...</p>}
             {error && <p>Error: {error}</p>}
 
