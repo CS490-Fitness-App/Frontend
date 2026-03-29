@@ -1,12 +1,20 @@
 import "./Pages.css"
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom' 
+
+import { LoginForm } from "../components/LoginForm"
 
 import { GiBiceps } from "react-icons/gi";
 import { IoIosFitness } from "react-icons/io";
 import { RiUserVoiceLine } from "react-icons/ri";
 
 export const Home = () => {
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+
     return (
         <div>
             <div class="page-heading">
@@ -22,7 +30,7 @@ export const Home = () => {
                     <div class="home-card">
                         <h2>FOR THE COMMITTED</h2>
                         <p>Workout planning, coaching, nutrition guidance, and wellness tracking, all in one platform. Whether you're building muscle or just trying to stay fit, we're here to help you achieve your goals and unlock your full potential.</p>
-                        <Link to="/client-dashboard" className="btn">Let's get Started!</Link>
+                        <Link onClick={openModal} className="btn">Let's get Started!</Link>
                     </div>
                 </div>
                 <div class="home-container">
@@ -46,6 +54,7 @@ export const Home = () => {
                     </div>
                 </div>
             </div>
+            <LoginForm isOpen={isModalOpen} onClose={closeModal} />
         </div>
     )
 }

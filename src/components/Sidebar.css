@@ -1,8 +1,8 @@
 .sidebar-container {
     box-shadow: 0px 0px 8px #999;
     background-color: #E9ECFF;
-    width: 15%;
-    height: 500px;
+    width: 20%;
+    height: 100vh;
 }
 
 .sidebar-nav {

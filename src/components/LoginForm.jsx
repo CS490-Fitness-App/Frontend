@@ -3,11 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 
-import { MdEmail } from "react-icons/md";
-import { IoMdLock } from "react-icons/io";
-import { FaGoogle } from "react-icons/fa";
 import { MdCancel } from "react-icons/md";
-import { FaUser } from "react-icons/fa";
 
 export const LoginForm = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
@@ -16,13 +12,13 @@ export const LoginForm = ({ isOpen, onClose }) => {
     const [view, setView] = useState('login');
 
     const loginStyle = {
-        transform: view === 'login' ? 'translateX(0)' : 'translateX(-650px)',
+        transform: view === 'login' ? 'translate(0px, 0px)' : 'translate(-650px, 0px)',
         transition: 'transform 0.3s ease',
         top: 0
     };
 
     const registrationStyle = {
-        transform: view === 'signup' ? 'translateX(0)' : 'translateX(650px)',
+        transform: view === 'signup' ? 'translate(0px, 0px)' : 'translate(650px, 0px)',
         transition: 'transform 0.3s ease',
         position: 'absolute',
         top: 0
