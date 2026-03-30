@@ -30,8 +30,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /*flex-start*/
-    overflow: hidden;
+    justify-content: flex-start;
+    overflow-y: auto;
     transform: scale(0.5);
     opacity: 0;
     transition: transform 0.2s, opacity 0.2s ease;
@@ -42,13 +42,17 @@
     opacity: 1;
 }
 
+.view-content::-webkit-scrollbar {
+    width: 0px;
+}
+
 .header-section {
+    margin-top: 3rem;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     width: 90%;
-    font-size: 25px;
 }
 
 .view-header {
@@ -60,6 +64,12 @@
     text-decoration: none;
     text-transform: uppercase;
     color: black;
+}
+
+.star {
+    font-size: 25px;
+    background: none;
+    border: none;
 }
 
 .btn {
@@ -85,7 +95,6 @@
     justify-content: flex-start;
     align-items: center;
     border-bottom: 1px solid black;
-    border-top: 1px solid black;
 }
 
 .stat-card {
@@ -93,6 +102,7 @@
     gap: 30px;
     padding: 30px;
     width: 100%;
+    height: 100%;
     background-color: rgba(233, 236, 255, 1);
 }
 
@@ -109,12 +119,15 @@
 
 p {
     font-size: 12px;
+    white-space: pre-line;
+    line-height: 130%;
 }
 
 h4 {
     font-family: "Anek Latin", sans-serif;
     font-weight: 700;
     font-size: 25px;
+    padding: 10px 0px 10px 0px;
     text-transform: uppercase;
     color: black;
 }
@@ -138,4 +151,18 @@ h5 {
     text-decoration: none;
     text-transform: uppercase;
     text-overflow: clip;
+}
+
+.instructions-card {
+    text-align: start;
+    gap: 30px;
+    padding: 30px;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    border-left: 1px solid black;
+}
+
+.muscle-image {
+    margin-top: 2rem;
 }
