@@ -1,5 +1,5 @@
 .card-container {
-    width: 15rem;
+    width: 30rem;
     border-radius: 1rem;
     display: flex;
     flex-direction: column;
@@ -17,10 +17,17 @@
 }
 
 .card-img {
-    width: 100%;
-    border-radius: 1rem 1rem 0 0;
+    width: 25%;
+    
+    border-radius: 0rem 1rem 0rem 4rem;
 }
-
+.card-header
+{
+    display: flex;
+    flex-direction: row;
+    justify-content:space-between;
+    vertical-align: center;
+}
 .card-tag-beginner {
     background-color: palegreen;
     border-radius: 1rem;
@@ -47,8 +54,11 @@
 
 .card-title {
     color: black;
-    margin: 0.5rem 5%;
-    font-size: clamp(1rem, 1.5vw, 1.5rem);
+    margin: 2rem 5%;
+    text-align: left;
+    vertical-align:middle;
+    
+    font-size: clamp(2.5rem, 1.5vw, 1.5rem);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -62,9 +72,20 @@
     background-color: #808CFD;
     color: white;
     text-decoration: none;
-    margin: 0.5rem;
+    margin: 1rem auto;
+
 }
 
 .card-btn:hover {
     background-color: #4E548F;
+}
+
+.card-tags-container
+{
+    margin-top: 1rem;
+    margin-left: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    
 }

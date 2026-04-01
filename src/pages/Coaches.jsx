@@ -29,6 +29,7 @@ export const Coaches = () => {
                 return res.json()
             })
             .then(data => {
+                console.log(data);
                 setCoachs(data)
                 setLoading(false)
             })
@@ -54,7 +55,7 @@ export const Coaches = () => {
             {loading && <p>Loading coachs...</p>}
             {error && <p>Error: {error}</p>}
 
-            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', marginTop:'2rem', justifyContent: 'space-around', flexWrap: 'wrap' }}>
                 {coaches.map(coach => (
                     <CoachCard
                         key={coach.coach_id}
