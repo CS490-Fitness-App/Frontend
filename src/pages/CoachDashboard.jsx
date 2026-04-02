@@ -1,6 +1,8 @@
 ﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Sidebar } from "../components/Sidebar"
 import './CoachDashboard.css';
+import './ClientDashboard.css';
 
 export const CoachDashboard = () => {
     const [clients] = useState([
@@ -67,108 +69,120 @@ export const CoachDashboard = () => {
                 </div>
             </nav>
             */}
-
-            <div className="page-title">
-                <h1>COACH <span className="accent">DASHBOARD</span></h1>
-            </div>
-
-            <div className="dashboard">
-                <div className="stat-row-4">
-                    <div className="stat-card">
-                        <div className="stat-label">Active Clients</div>
-                        <div className="stat-value">12</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-label">Pending Requests</div>
-                        <div className="stat-value">3 <span className="pending-dot"></span></div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-label">Reviews</div>
-                        <div className="stat-value">4.8 ★</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-label">This Month's Earnings</div>
-                        <div className="stat-value">$2,340</div>
-                    </div>
-                </div>
-
-                <div className="two-col">
-                    <div className="card">
-                        <div className="card-title">My Clients</div>
-                        <table className="client-table">
-                            <thead>
-                                <tr>
-                                    <th>Client</th>
-                                    <th>Goal</th>
-                                    <th>Last Active</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {clients.map((client) => (
-                                    <tr key={client.id}>
-                                        <td>
-                                            <div className="client-row">
-                                                <div className="client-avatar">{client.initials}</div>
-                                                <span className="client-name">{client.name}</span>
-                                            </div>
-                                        </td>
-                                        <td><span className="goal-tag">{client.goal}</span></td>
-                                        <td>{client.lastActive}</td>
-                                        <td>
-                                            <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.id)}>
-                                                VIEW
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <a href="#" className="view-all">View All 12 Clients →</a>
+            <div className="dashboard-container">
+                <Sidebar />
+                <div>
+                    <div className="page-heading">
+                        <div className="h2">
+                            <span className="text-black">COACH </span>
+                            <span className="text-purple">DASHBOARD</span>
+                        </div>
                     </div>
 
-                    <div>
-                        <div className="card">
-                            <div className="card-title">Pending Requests</div>
-                            {pendingRequests.map((request) => (
-                                <div key={request.id} className="request-item">
-                                    <div className="request-info">
-                                        <div className="client-avatar">{request.initials}</div>
+                    <div class="dashboard-homepage-container">
+
+                        <div className="dashboard">
+                            <div className="section-quick-stats">
+                                <div className="quick-stat-card">
+                                    <div className="stat-heading">Active Clients</div>
+                                    <div className="stat">12</div>
+                                </div>
+                                <div className="quick-stat-card">
+                                    <div className="stat-heading">Pending Requests</div>
+                                    <div className="stat">3 <span className="pending-dot"></span></div>
+                                </div>
+                                <div className="quick-stat-card">
+                                    <div className="stat-heading">Reviews</div>
+                                    <div className="stat">4.8 ★</div>
+                                </div>
+                                <div className="quick-stat-card">
+                                    <div className="stat-heading">This Month's Earnings</div>
+                                    <div className="stat">$2,340</div>
+                                </div>
+                            </div>
+
+                            <div className="two-col">
+                                <div className="card">
+                                    <div className="dashboard-heading">My Clients</div>
+                                    <table className="client-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Client</th>
+                                                <th>Goal</th>
+                                                <th>Last Active</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {clients.map((client) => (
+                                                <tr key={client.id}>
+                                                    <td>
+                                                        <div className="client-row">
+                                                            <div className="client-avatar">{client.initials}</div>
+                                                            <span className="client-name">{client.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td><span className="goal-tag">{client.goal}</span></td>
+                                                    <td>{client.lastActive}</td>
+                                                    <td>
+                                                        <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.id)}>
+                                                            VIEW
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    <a href="#" className="view-all">View All 12 Clients →</a>
+                                </div>
+
+                                <div>
+                                    <div className="card">
                                         <div>
-                                            <div className="request-name">{request.name}</div>
-                                            <div className="request-goal">{request.goal}</div>
+                                            <div className="dashboard-heading">Pending Requests</div>
+                                            {pendingRequests.map((request) => (
+                                                <div key={request.id} className="request-item">
+                                                    <div className="request-info">
+                                                        <div className="client-avatar">{request.initials}</div>
+                                                        <div>
+                                                            <div className="request-name">{request.name}</div>
+                                                            <div className="request-goal">{request.goal}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="request-actions">
+                                                        <button className="btn-sm btn-green" onClick={() => handleAccept(request.id)}>ACCEPT</button>
+                                                        <button className="btn-sm btn-red" onClick={() => handleDecline(request.id)}>DECLINE</button>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
-                                    <div className="request-actions">
-                                        <button className="btn-sm btn-green" onClick={() => handleAccept(request.id)}>ACCEPT</button>
-                                        <button className="btn-sm btn-red" onClick={() => handleDecline(request.id)}>DECLINE</button>
+
+                                    <div className="card" style={{ marginTop: '20px' }}>
+                                        <div className="dashboard-heading">Notifications</div>
+                                        {notifications.map((notif) => (
+                                            <div key={notif.id} className="notif-item">
+                                                <div className="notif-dot"></div>
+                                                <div>
+                                                    <div className="notif-text">{notif.text}</div>
+                                                    <div className="notif-time">{notif.time}</div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
-                            ))}
+                            </div>
+
+                            <div className="bottom-actions">
+                                <button className="btn-periwinkle">SET AVAILABILITY</button>
+                                <button className="btn-outline">UPDATE QUALIFICATIONS</button>
+                            </div>
                         </div>
 
-                        <div className="card" style={{ marginTop: '20px' }}>
-                            <div className="card-title">Notifications</div>
-                            {notifications.map((notif) => (
-                                <div key={notif.id} className="notif-item">
-                                    <div className="notif-dot"></div>
-                                    <div>
-                                        <div className="notif-text">{notif.text}</div>
-                                        <div className="notif-time">{notif.time}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <div className="footer-spacer"></div>
                     </div>
                 </div>
-
-                <div className="bottom-actions">
-                    <button className="btn-periwinkle">SET AVAILABILITY</button>
-                    <button className="btn-outline">UPDATE QUALIFICATIONS</button>
-                </div>
             </div>
-
-            <div className="footer-spacer"></div>
         </div>
     );
 }
