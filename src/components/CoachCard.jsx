@@ -7,7 +7,7 @@ import { faX } from "@fortawesome/free-solid-svg-icons/faX";
 
 export const CoachCard = ({ coach, onClick }) => {
     let reviewDomElements = [];
-    let positiveStars = coach.avg_rating-1;
+    let positiveStars = coach.avg_rating;
     for (let i = 0; i < 5; i++)
     {
         if (positiveStars >= 1)
