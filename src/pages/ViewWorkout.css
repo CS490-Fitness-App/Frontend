@@ -7,3 +7,47 @@
 .workout-h5 {
     font-size: 15px;
 }
+
+.workout-table {
+    padding: 2rem;
+    width: 100%;
+}
+
+.workout-table th {
+    font-family: "Anek Latin", sans-serif;
+    font-weight: 700;
+    font-size: 25px;
+    padding: 10px 0px 10px 0px;
+    text-transform: uppercase;
+    color: #808CFD;
+    text-align: start;
+}
+
+.workout-table td {
+    font-family: "Anek Latin", sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    padding: 10px 0px 10px 0px;
+    text-transform: uppercase;
+    color: black;
+    text-align: start;
+    border: none;
+}
+
+.exercise-row-first {
+    border-radius: 5px 0 0 5px;
+}
+
+.exercise-row-last {
+    border-radius: 0 5px 5px 0;
+}
+
+.workout-exercise-row {
+    
+
+}
+
+.workout-exercise-row:hover {
+    border-radius: 10px;
+    background-color: #dadae3;
+}

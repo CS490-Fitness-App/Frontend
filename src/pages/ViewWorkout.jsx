@@ -67,6 +67,42 @@ export const ViewWorkout = () => {
                 </div>
 
             </div>
+
+            {/* note: should be able click on each exercise and it will bring up the view exercise popup */ }
+            <table className="workout-table">
+                <thead>
+                    <tr>
+                        <th>Exercise</th>
+                        <th>Sets</th>
+                        <th>Reps</th>
+                        <th>Rest</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {/* 
+                    {workout.exercises.map((item) => (
+                        <tr key={item.exercise_id}>
+                            <td>{item.exercise}</td>
+                            <td>{item.sets}</td>
+                            <td>{item.reps}</td>
+                            <td>{item.rest}</td>
+                        </tr>
+                    ))}*/}
+                    <tr className="workout-exercise-row">
+                        <td className="exercise-row-first">Dumbbell Exercise</td>
+                        <td>30</td>
+                        <td>30</td>
+                        <td className="exercise-row-last">30</td>
+                    </tr>
+                    <tr className="workout-exercise-row">
+                        <td className="exercise-row-first">Dumbbell Exercise 2</td>
+                        <td>30</td>
+                        <td>30</td>
+                        <td className="exercise-row-last">30</td>
+                    </tr>
+                </tbody>
+            </table>
+
         </div>
     )
 }
