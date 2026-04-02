@@ -12,16 +12,6 @@ export const Exercises = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
-    const openModal = (exercise) => {
-        setSelectedExercise(exercise)
-        setIsModalOpen(true)
-    }
-
-    const closeModal = () => {
-        setIsModalOpen(false)
-        setSelectedExercise(null)
-    }
-
     useEffect(() => {
         fetch(`${API_BASE_URL}/exercises`)
             .then(res => {
@@ -36,11 +26,17 @@ export const Exercises = () => {
                 setError(err.message)
                 setLoading(false)
             })
-    }, []);
+    }, [])
 
-    /*const selectedExercise = exercises.find(
-        ex => ex.exercise_id === selectedExerciseId
-    );*/
+    const openModal = (exercise) => {
+        setSelectedExercise(exercise)
+        setIsModalOpen(true)
+    }
+
+    const closeModal = () => {
+        setIsModalOpen(false)
+        setSelectedExercise(null)
+    }
 
     return (
         <div>
@@ -50,9 +46,6 @@ export const Exercises = () => {
                     <span className="text-purple">Library</span>
                 </div>
             </div>
-
-            {/*temporary button for testing view exercise*/}
-            <button onClick={() => openModal()}>view exercise</button>
 
             {loading && <p>Loading exercises...</p>}
             {error && <p>Error: {error}</p>}
