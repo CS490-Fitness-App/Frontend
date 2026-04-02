@@ -50,7 +50,7 @@ export const Home = () => {
                         <RiUserVoiceLine />
                         <h2>Coaches</h2>
                         <p>Connect with our wide range of speialized coaches for workout and meal planning assiatance. Match with whoever works best for you! Available 24/7 </p>
-                        <Link className="btn">Browse Coaches</Link>
+                        <Link to="/coaches" className="btn">Browse Coaches</Link>
                     </div>
                 </div>
             </div>
