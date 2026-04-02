@@ -65,7 +65,7 @@ export const ClientDashboard = () => {
 
     return (
         <div>
-            <div className="client-dashboard-container">
+            <div className="dashboard-container">
                 <Sidebar />
                 <div>
                     <div class="page-heading">
@@ -77,7 +77,7 @@ export const ClientDashboard = () => {
                         </div>
                     </div>
 
-                    <div class="client-homepage-container">
+                    <div class="dashboard-homepage-container">
                         <div class="section-quick-stats">
                             <div class="quick-stat-card">
                                 <p class="stat-heading">TODAY'S WORKOUT</p>
@@ -123,26 +123,26 @@ export const ClientDashboard = () => {
                                 </div>
                             </div>
                             <div class="coach-panel">
-                                    <div class="dashboard-heading">MY COACH</div>
-                                    <div class="coach-container">
-                                        <div class="profile-bg">
-                                            <FaRegUser/>
-                                        </div>
-                                        <div class="container-59">
-                                            <div class="dashboard-list">Marcus Rivera</div>
-                                            <div class="stat-heading">WORKOUT COACH ★ 4.9</div>
-                                        </div>
+                                <div class="dashboard-heading">MY COACH</div>
+                                <div class="coach-container">
+                                    <div class="profile-bg">
+                                        <FaRegUser/>
                                     </div>
-                                    <div class="dashboard-list-container">
-                                        <div class="dashboard-list-contents">
-                                            <div class="stat-heading">STATUS</div>
-                                            <div class="dashboard-list">Active</div>
-                                        </div>
-                                        <div class="dashboard-list-contents">
-                                            <div class="stat-heading">NEXT SESSION</div>
-                                            <div class="dashboard-list">Wed, 3:00 PM</div>
-                                        </div>
+                                    <div class="container-59">
+                                        <div class="dashboard-list">Marcus Rivera</div>
+                                        <div class="stat-heading">WORKOUT COACH ★ 4.9</div>
                                     </div>
+                                </div>
+                                <div class="dashboard-list-container">
+                                    <div class="dashboard-list-contents">
+                                        <div class="stat-heading">STATUS</div>
+                                        <div class="dashboard-list">Active</div>
+                                    </div>
+                                    <div class="dashboard-list-contents">
+                                        <div class="stat-heading">NEXT SESSION</div>
+                                        <div class="dashboard-list">Wed, 3:00 PM</div>
+                                    </div>
+                                </div>
                                 <div className="btn-container">
                                     <Link className="panel-btn-purple">Message</Link>
                                     <Link className="panel-btn-white">View Profile</Link>

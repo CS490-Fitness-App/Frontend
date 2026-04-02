@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { AuthSync } from './components/AuthSync'
 
-import { Home, Exercises, Workouts, Login, ClientDashboard, SignUp, Survey } from './pages'
+import { Home, Exercises, Workouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey } from './pages'
 
 function App() {
     return (
@@ -16,6 +16,8 @@ function App() {
                 <Route path="/workouts" element={<Workouts />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/client-dashboard" element={<ClientDashboard />} />
+                <Route path="/coach-dashboard" element={<CoachDashboard />} />
+                <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/survey" element={<Survey />} />
             </Routes>
