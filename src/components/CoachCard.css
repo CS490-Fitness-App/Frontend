@@ -1,4 +1,4 @@
-.card-container {
+.coach-card-container {
     width: 34rem;
     border-radius: 1rem;
     display: flex;
@@ -10,25 +10,25 @@
     transition: all 0.4s;
 }
 
-.card-container:hover {
+.coach-card-container:hover {
     box-shadow: 0px 0px 8px #999;
     transform: scale(1.02);
     transition: all 0.4s;
 }
 
-.card-img {
+.coach-card-img {
     width: 25%;
     
     border-radius: 0rem 1rem 0rem 4rem;
 }
-.card-header
+.coach-card-header
 {
     display: flex;
     flex-direction: row;
     justify-content:space-between;
     vertical-align: center;
 }
-.card-tag-beginner {
+.coach-card-tag-beginner {
     background-color: palegreen;
     border-radius: 1rem;
     margin: 0.5rem;
@@ -36,7 +36,7 @@
     padding: 0.4rem;
 }
 
-.card-tag-intermediate {
+.coach-card-tag-intermediate {
     background-color: rgb(251, 251, 152);
     border-radius: 1rem;
     margin: 0.5rem;
@@ -44,7 +44,7 @@
     padding: 0.4rem;
 }
 
-.card-tag-advanced {
+.coach-card-tag-advanced {
     background-color: rgb(251, 152, 152);
     border-radius: 1rem;
     margin: 0.5rem;
@@ -52,7 +52,7 @@
     padding: 0.4rem;
 }
 
-.card-title {
+.coach-card-title {
     color: black;
     margin: 2rem 5%;
     text-align: left;
@@ -64,7 +64,7 @@
     text-overflow: ellipsis;
 }
 
-.card-btn {
+.coach-card-btn {
     text-align: center;
     width: 90%;
     border-radius: 5px;
@@ -76,11 +76,11 @@
 
 }
 
-.card-btn:hover {
+.coach-card-btn:hover {
     background-color: #4E548F;
 }
 
-.card-tags-container
+.coach-card-tags-container
 {
     margin-top: 1rem;
     margin-left: 2rem;

@@ -26,11 +26,11 @@ export const CoachCard = ({ coach, onClick }) => {
         }
     }
     return (
-        <div className="card-container" onClick={onClick} style={{ cursor: 'pointer' }}>
-            <div className="card-header">
+        <div className="coach-card-container" onClick={onClick} style={{ cursor: 'pointer' }}>
+            <div className="coach-card-header">
                 <div style={{flex:2}}>
-                    <h2 className="card-title">{coach.first_name || "N/A"} {coach.last_name || "N/A"}</h2>
-                    <div className="card-tags-container">
+                    <h2 className="coach-card-title">{coach.first_name || "N/A"} {coach.last_name || "N/A"}</h2>
+                    <div className="coach-card-tags-container">
                         <div style={{flex:1}} className="card-tag">${coach.hourly_rate || 'N/A'}/hr</div>
                         <FontAwesomeIcon style={{flex:1}} icon={coach.is_trainer ? faPersonRunning : faX} />  
                         <FontAwesomeIcon style={{flex:1}} icon={coach.is_nutrionist ? faCutlery : faX} />
@@ -41,7 +41,7 @@ export const CoachCard = ({ coach, onClick }) => {
                 </div>
 
                 <img
-                className="card-img"
+                className="coach-card-img"
                 src={coach.profile_picture || 'https://picsum.photos/300/200'}
                 alt={coach.first_name}
                 />
@@ -50,7 +50,7 @@ export const CoachCard = ({ coach, onClick }) => {
 
             
 
-            <span className="card-btn">View Coach Bio</span>
+            <span className="coach-card-btn">View Coach Bio</span>
         </div>
     )
 }
