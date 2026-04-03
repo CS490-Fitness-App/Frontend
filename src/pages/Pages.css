@@ -35,6 +35,15 @@
     color: black;
 }
 
+.h3 {
+    font-family: 'Anek Latin', sans-serif;
+    font-weight: 800;
+    font-size: 35px;
+    letter-spacing: -3%;
+    text-transform: uppercase;
+    color: black;
+}
+
 .p {
     font-family: 'Anek Latin', sans-serif;
 }

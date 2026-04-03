@@ -1,6 +1,7 @@
 import "./Pages.css"
 import "./ViewWorkout.css"
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { FaRegStar } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
@@ -78,16 +79,7 @@ export const ViewWorkout = () => {
                         <th>Rest</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {/* 
-                    {workout.exercises.map((item) => (
-                        <tr key={item.exercise_id}>
-                            <td>{item.exercise}</td>
-                            <td>{item.sets}</td>
-                            <td>{item.reps}</td>
-                            <td>{item.rest}</td>
-                        </tr>
-                    ))}*/}
+                <tbody> 
                     <tr className="workout-exercise-row">
                         <td className="exercise-row-first">Dumbbell Exercise</td>
                         <td>30</td>
@@ -102,6 +94,10 @@ export const ViewWorkout = () => {
                     </tr>
                 </tbody>
             </table>
+
+            <Link to="/edit-workout" className="edit-workout-plan-btn">
+                <div className="btn">Edit Workout</div>
+            </Link>
 
         </div>
     )
