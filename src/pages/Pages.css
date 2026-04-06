@@ -57,6 +57,7 @@
     color: white;
     text-decoration: none;
     margin: 0.5rem;
+    border: none;
 }
 
 .btn:hover {

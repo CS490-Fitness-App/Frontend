@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar'
 import { AuthSync } from './components/AuthSync'
 
 import { Home, Exercises, Workouts, Login, ClientDashboard, SignUp, Survey, ViewWorkout, EditWorkout } from './pages'
+import { CalendarComponent } from './components/CalendarComponent'
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/survey" element={<Survey />} />
                 <Route path="/view-workout" element={<ViewWorkout />} />
                 <Route path="/edit-workout" element={<EditWorkout />} />
+                <Route path="/calendar" element={<CalendarComponent />} />
             </Routes>
         </div>
     )
