@@ -1,5 +1,6 @@
 import './CalendarPopup.css'
 import React, { useEffect, useState } from "react"
+import moment from 'moment'
 
 export const CalendarPopup = ({ isOpen, onClose, onSave, date, event }) => {
     const [workout, setWorkout] = useState('');
@@ -10,26 +11,30 @@ export const CalendarPopup = ({ isOpen, onClose, onSave, date, event }) => {
         console.log('Event popup', event)
         if (event) {
             setWorkout(event.workout);
-            setStart(event.start.toISOString().slice(0, 10));
-            setEnd(event.end.toISOString().slice(0, 10));
+            setStart(moment(event.start).format('YYYY-MM-DD'));
+            setEnd(moment(event.end).subtract(1, 'day').format('YYYY-MM-DD'));
         }
         else if (date) {
             const defaultStart = new Date(date);
             const defaultEnd = new Date(date);
-            setStart(defaultStart.toISOString().slice(0, 10));
-            setEnd(defaultEnd.toISOString().slice(0, 10));
+            setStart(moment(defaultStart).format('YYYY-MM-DD'));
+            setEnd(moment(defaultEnd).format('YYYY-MM-DD'));
         }
     }, [event, date])
 
     const handleSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault()
         console.log(e)
+
+        const startDate = moment(start).startOf('day').toDate()
+        const endDate = moment(end).add(1, 'day').startOf('day').toDate()
+
         onSave({
             id: event?.id,
             title: workout,
             allDay: true,
-            start: new Date(start),
-            end: new Date(end),
+            start: startDate,
+            end: endDate
         })
     }
 
@@ -46,6 +51,7 @@ export const CalendarPopup = ({ isOpen, onClose, onSave, date, event }) => {
 
                         {/* here would be a list of the client's saved workouts */}
                         <select className="calendar-form-input" required value={workout} onChange={(e) => setWorkout(e.target.value)}>
+                            <option value={workout}>{workout}</option>
                             <option value="Workout 1">Workout 1</option>
                             <option value="Workout 2">Workout 2</option>
                             <option value="Workout 3">Workout 3</option>

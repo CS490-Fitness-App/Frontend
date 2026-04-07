@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { AuthSync } from './components/AuthSync'
 
-import { Home, Exercises, Workouts, Login, ClientDashboard, SignUp, Survey, ViewWorkout, EditWorkout } from './pages'
+import { Home, Exercises, Workouts, Login, ClientDashboard, SignUp, Survey, ViewWorkout, EditWorkout, ClientCalendar } from './pages'
 import { CalendarComponent } from './components/CalendarComponent'
 
 function App() {
@@ -21,7 +21,7 @@ function App() {
                 <Route path="/survey" element={<Survey />} />
                 <Route path="/view-workout" element={<ViewWorkout />} />
                 <Route path="/edit-workout" element={<EditWorkout />} />
-                <Route path="/calendar" element={<CalendarComponent />} />
+                <Route path="/calendar" element={<ClientCalendar />} />
             </Routes>
         </div>
     )

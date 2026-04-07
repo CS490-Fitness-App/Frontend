@@ -76,6 +76,18 @@
     border-bottom: 2px solid black;
 }
 
+.dashboard-page-heading {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 20px 20px 20px;
+    background-color: white;
+    border-bottom: 2px solid black;
+    width: 86vw;
+}
 
 .homepage-body {
     display: flex;

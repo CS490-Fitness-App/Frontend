@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
+import "./CalendarPopup.css"
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop"
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css"
@@ -8,6 +9,7 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css"
 import { CalendarPopup } from './CalendarPopup'
 
 const localizer = momentLocalizer(moment)
+const DnDCalendar = withDragAndDrop(Calendar)
 
 const testWorkouts = [
     {
@@ -38,7 +40,7 @@ export const CalendarComponent = () => {
     const [selectedDate, setSelectedDate] = useState(null)
     const [isOpenEvent, setIsOpenEvent] = useState(false)
     const [selectedEvent, setSelectedEvent] = useState(null)
-    const DnDCalendar = withDragAndDrop(Calendar)
+    
 
     const handleSelectEvent = (event) => {
         console.log(event)
@@ -82,7 +84,7 @@ export const CalendarComponent = () => {
 
     return (
         <>
-            <div style={{ marginLeft: "50px", marginRight: "50px", marginTop: "50px"} }>
+            <div style={{ margin: "50px"} }>
                 <DnDCalendar
                     selectable
                     localizer={localizer}

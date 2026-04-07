@@ -95,3 +95,11 @@
     .calendar-btn-delete:hover {
         background-color: var(--periwinkle-light);
     }
+
+.rbc-time-content {
+    display: none;
+}
+
+.rbc-time-header-content {
+    border-bottom: none;
+}
