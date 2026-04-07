@@ -103,3 +103,18 @@
 .rbc-time-header-content {
     border-bottom: none;
 }
+
+.rbc-calendar .rbc-time-view .rbc-time-content {
+    display: none !important;
+}
+
+.rbc-calendar .rbc-time-view .rbc-time-gutter {
+    display: none !important;
+}
+
+.rbc-calendar .rbc-time-view .rbc-time-header-gutter {
+    display: none !important;
+}
+.rbc-calendar .rbc-time-view .rbc-time-header-content {
+    border-bottom: none;
+}

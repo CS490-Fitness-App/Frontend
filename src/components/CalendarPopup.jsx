@@ -10,7 +10,7 @@ export const CalendarPopup = ({ isOpen, onClose, onSave, date, event }) => {
     useEffect(() => {
         console.log('Event popup', event)
         if (event) {
-            setWorkout(event.workout);
+            setWorkout(event.title);
             setStart(moment(event.start).format('YYYY-MM-DD'));
             setEnd(moment(event.end).subtract(1, 'day').format('YYYY-MM-DD'));
         }
