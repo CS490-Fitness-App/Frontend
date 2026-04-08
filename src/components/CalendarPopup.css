@@ -1,0 +1,121 @@
+.calendar-popup-background {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.calendar-popup-container {
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    background-color: white;
+}
+
+.calendar-popup-contents {
+    padding: 10px;
+}
+
+.calendar-form-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: black;
+    font-weight: 700;
+}
+
+.calendar-form-input {
+    background: var(--periwinkle-light);
+    border: 1.5px solid transparent;
+    padding: 7px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--black);
+    width: 100%;
+    outline: none;
+    border-radius: 2px;
+    transition: border-color 0.2s;
+}
+
+.calendar-form-input:focus {
+    border-color: var(--periwinkle);
+}
+
+.calendar-form-input::placeholder {
+    color: var(--slate-purple);
+    text-transform: uppercase;
+}
+
+.calendar-btn {
+    text-align: center;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: #808CFD;
+    color: white;
+    text-decoration: none;
+    margin: 0.5rem;
+    border: 1.5px solid var(--periwinkle);
+}
+
+.calendar-btn:hover {
+    background-color: #4E548F;
+}
+
+.calendar-btn-outline {
+    text-align: center;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: white;
+    text-decoration: none;
+    margin: 0.5rem;
+    border: 1.5px solid black;
+}
+
+.calendar-btn-outline:hover {
+    background-color: var(--periwinkle-light);
+}
+
+.calendar-btn-delete {
+    color: var(--red);
+    text-align: center;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: white;
+    text-decoration: none;
+    margin: 0.5rem;
+    border: 1.5px solid var(--red);
+}
+
+.calendar-btn-delete:hover {
+    background-color: var(--periwinkle-light);
+}
+
+.rbc-time-content {
+    display: none;
+}
+
+.rbc-time-header-content {
+    border-bottom: none;
+}
+
+.rbc-calendar .rbc-time-view .rbc-time-content {
+    display: none !important;
+}
+
+.rbc-calendar .rbc-time-view .rbc-time-gutter {
+    display: none !important;
+}
+
+.rbc-calendar .rbc-time-view .rbc-time-header-gutter {
+    display: none !important;
+}
+
+.rbc-calendar .rbc-time-view .rbc-time-header-content {
+    border-bottom: none;
+}
