@@ -171,6 +171,44 @@
     gap: 6px;
 }
 
+.admin-feedback {
+    margin: 0 0 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.admin-feedback.error {
+    color: #EA4335;
+}
+
+.btn-green {
+    background: #34A853;
+    border: 1.5px solid #34A853;
+    color: var(--white);
+    padding: 8px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.btn-green:hover {
+    background: #2a8643;
+    border-color: #2a8643;
+}
+
+.btn-green:disabled,
+.btn-red-outline:disabled,
+.btn-outline-sm:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .btn-outline-sm {
     background: var(--white);
     border: 1.5px solid var(--black);

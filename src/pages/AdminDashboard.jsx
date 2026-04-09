@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react'
+import { useCustomAuth } from '../context/AuthContext'
 import { Sidebar } from "../components/Sidebar"
 import './AdminDashboard.css';
 import './ClientDashboard.css';
 
-export const AdminDashboard = () => {
-    const [activeTab, setActiveTab] = useState(0);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
-    const [coaches] = useState([
-        { id: 1, name: 'Marcus Rivera', email: 'marcus@email.com', spec: 'Workout Coach', status: 'Approved', active: true },
-        { id: 2, name: 'Sarah Martinez', email: 'sarah.m@email.com', spec: 'Nutritionist', status: 'Approved', active: true },
-        { id: 3, name: 'Derek Williams', email: 'derek.w@email.com', spec: 'Both', status: 'Pending', active: false },
-        { id: 4, name: 'Amy Chen', email: 'amy.c@email.com', spec: 'Workout Coach', status: 'Pending', active: false },
-        { id: 5, name: 'Ryan Foster', email: 'ryan.f@email.com', spec: 'Nutritionist', status: 'Rejected', active: false },
-    ]);
+export const AdminDashboard = () => {
+    const { getAccessTokenSilently, isAuthenticated } = useAuth0()
+    const { customAuth } = useCustomAuth()
+    const [activeTab, setActiveTab] = useState(0);
+    const [coaches, setCoaches] = useState([]);
+    const [coachLoading, setCoachLoading] = useState(true);
+    const [coachError, setCoachError] = useState('');
+    const [coachActionId, setCoachActionId] = useState(null);
 
     const [exercises] = useState([
         { id: 1, name: 'Barbell Bench Press', muscle: 'Chest', equipment: 'Barbell' },
@@ -27,12 +29,88 @@ export const AdminDashboard = () => {
     const [coachSearch, setCoachSearch] = useState('');
     const [exerciseSearch, setExerciseSearch] = useState('');
 
+    const getToken = async () => {
+        if (isAuthenticated) {
+            return getAccessTokenSilently({
+                authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+            })
+        }
+        return customAuth || null
+    }
+
+    const fetchCoaches = async () => {
+        setCoachLoading(true)
+        setCoachError('')
+        try {
+            const token = await getToken()
+            if (!token) {
+                setCoachError('Log in as an admin to view coach applications.')
+                setCoachLoading(false)
+                return
+            }
+
+            const res = await fetch(`${API_BASE_URL}/admin/coaches`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            const data = await res.json().catch(() => ([]))
+            if (!res.ok) {
+                throw new Error(data.detail || 'Failed to load coach applications')
+            }
+            setCoaches(data)
+        } catch (err) {
+            setCoachError(err.message || 'Failed to load coach applications')
+        } finally {
+            setCoachLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchCoaches()
+    }, [isAuthenticated, customAuth])
+
+    const updateCoachStatus = async (coachId, action) => {
+        setCoachActionId(coachId)
+        setCoachError('')
+        try {
+            const token = await getToken()
+            if (!token) {
+                throw new Error('Log in as an admin to manage coach applications.')
+            }
+
+            const res = await fetch(`${API_BASE_URL}/admin/coaches/${coachId}/${action}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            const data = await res.json().catch(() => ({}))
+            if (!res.ok) {
+                throw new Error(data.detail || `Failed to ${action} coach application`)
+            }
+
+            setCoaches((current) =>
+                current.map((coach) =>
+                    coach.coach_id === coachId
+                        ? {
+                            ...coach,
+                            status: data.status,
+                            active: data.status === 'Active',
+                            accepting_clients: data.status === 'Active',
+                        }
+                        : coach
+                )
+            )
+        } catch (err) {
+            setCoachError(err.message || `Failed to ${action} coach application`)
+        } finally {
+            setCoachActionId(null)
+        }
+    }
+
     const handleApprove = (coachId) => {
-        console.log('Approved coach:', coachId);
+        updateCoachStatus(coachId, 'approve')
     };
 
     const handleReject = (coachId) => {
-        console.log('Rejected coach:', coachId);
+        updateCoachStatus(coachId, 'reject')
     };
 
     const handleDeleteExercise = (exerciseId) => {
@@ -44,7 +122,7 @@ export const AdminDashboard = () => {
     };
 
     const filteredCoaches = coaches.filter((c) =>
-        c.name.toLowerCase().includes(coachSearch.toLowerCase()) ||
+        `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase().includes(coachSearch.toLowerCase()) ||
         c.email.toLowerCase().includes(coachSearch.toLowerCase())
     );
 
@@ -54,7 +132,7 @@ export const AdminDashboard = () => {
     );
 
     const getStatusClass = (status) => {
-        if (status === 'Approved') return 'status-approved';
+        if (status === 'Active' || status === 'Approved') return 'status-approved';
         if (status === 'Pending') return 'status-pending';
         return 'status-rejected';
     };
@@ -104,11 +182,11 @@ export const AdminDashboard = () => {
                                 </div>
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">Active Coaches</div>
-                                    <div className="stat">34</div>
+                                    <div className="stat">{coaches.filter((coach) => coach.status === 'Active').length}</div>
                                 </div>
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">Pending Approvals</div>
-                                    <div className="stat">5 <span className="pending-dot" style={{ background: '#F5A623' }}></span></div>
+                                    <div className="stat">{coaches.filter((coach) => coach.status === 'Pending').length} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div>
                                 </div>
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">Revenue This Month</div>
@@ -145,6 +223,7 @@ export const AdminDashboard = () => {
                                             />
                                         </div>
                                     </div>
+                                    {coachError && <p className="admin-feedback error">{coachError}</p>}
                                     <table className="admin-table">
                                         <thead>
                                             <tr>
@@ -157,23 +236,35 @@ export const AdminDashboard = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredCoaches.map((coach) => (
-                                                <tr key={coach.id}>
-                                                    <td><strong>{coach.name}</strong></td>
+                                            {coachLoading ? (
+                                                <tr>
+                                                    <td colSpan="6">Loading coach applications...</td>
+                                                </tr>
+                                            ) : filteredCoaches.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan="6">No coach applications found.</td>
+                                                </tr>
+                                            ) : filteredCoaches.map((coach) => (
+                                                <tr key={coach.coach_id}>
+                                                    <td><strong>{coach.first_name} {coach.last_name}</strong></td>
                                                     <td>{coach.email}</td>
-                                                    <td>{coach.spec}</td>
+                                                    <td>{coach.specialization}</td>
                                                     <td><span className={`status-badge ${getStatusClass(coach.status)}`}>{coach.status}</span></td>
                                                     <td>
                                                         <label className="toggle-switch">
-                                                            <input type="checkbox" defaultChecked={coach.active} disabled={coach.status !== 'Approved'} />
+                                                            <input type="checkbox" checked={coach.active} readOnly disabled />
                                                             <span className="toggle-slider"></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         {coach.status === 'Pending' ? (
                                                             <div className="actions-cell">
-                                                                <button className="btn-sm btn-green" onClick={() => handleApprove(coach.id)}>APPROVE</button>
-                                                                <button className="btn-sm btn-red-outline" onClick={() => handleReject(coach.id)}>REJECT</button>
+                                                                <button className="btn-sm btn-green" disabled={coachActionId === coach.coach_id} onClick={() => handleApprove(coach.coach_id)}>
+                                                                    {coachActionId === coach.coach_id ? 'WORKING...' : 'APPROVE'}
+                                                                </button>
+                                                                <button className="btn-sm btn-red-outline" disabled={coachActionId === coach.coach_id} onClick={() => handleReject(coach.coach_id)}>
+                                                                    {coachActionId === coach.coach_id ? 'WORKING...' : 'REJECT'}
+                                                                </button>
                                                             </div>
                                                         ) : (
                                                             <button className="btn-sm btn-outline-sm">VIEW</button>
