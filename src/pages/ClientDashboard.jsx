@@ -16,6 +16,9 @@ export const ClientDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
     const { customAuth } = useCustomAuth()
     const [name, setName] = useState('')
+    const [data, setData] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
 
     useEffect(() => {
         const fetchDashboard = async () => {
@@ -28,6 +31,7 @@ export const ClientDashboard = () => {
                 } else if (customAuth) {
                     token = customAuth
                 } else {
+                    setLoading(false)
                     return
                 }
 
@@ -35,33 +39,19 @@ export const ClientDashboard = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 })
                 if (res.ok) {
-                    const data = await res.json()
-                    setName(data.name)
+                    const json = await res.json()
+                    setData(json)
+                    setName(json.name || '')
                 }
             } catch (err) {
                 console.error('Failed to load dashboard:', err)
+                setError('Unable to load dashboard data.')
+            } finally {
+                setLoading(false)
             }
         }
         fetchDashboard()
     }, [isAuthenticated, customAuth, getAccessTokenSilently])
-
-    const [data, setData] = useState(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState("")
-
-    useEffect(() => {
-        fetch(`${API_BASE_URL}/dashboard/client`)
-            .then(res => res.json())
-            .then(data => {
-                setData(data)
-                setLoading(false)
-            })
-            .catch(err => {
-                console.error(err)
-                setError("Unable to load dashboard data.")
-                setLoading(false)
-            })
-    }, [])
 
     return (
         <div>
@@ -72,7 +62,7 @@ export const ClientDashboard = () => {
                         <div class="h2">
                             <span class="text-black">Welcome back, </span>
                             <span class="text-purple">
-                                {loading ? "Loading..." : data?.name || "Client"}
+                                {loading ? "Loading..." : name || "Client"}
                             </span>
                         </div>
                     </div>
@@ -82,7 +72,7 @@ export const ClientDashboard = () => {
                             <div class="quick-stat-card">
                                 <p class="stat-heading">TODAY'S WORKOUT</p>
                                 <p class="stat">
-                                    {loading ? "Loading..." : data?.today_workout || "No workout available."}
+                                    {loading ? "Loading..." : (data?.today_workouts?.[0] || "No workout scheduled.")}
                                 </p>
                                 <p class="stat-descriptor">Chest, Shoulders, Triceps</p>
                             </div>
@@ -95,8 +85,12 @@ export const ClientDashboard = () => {
                             </div>
                             <div class="quick-stat-card">
                                     <p class="stat-heading">CURRENT WEIGHT</p>
-                                    <p class="stat">172 LB</p>
-                                <p class="stat-descriptor">Goal: 165 lb - 3 lb this month</p>
+                                    <p class="stat">
+                                        {loading ? "Loading..." : data?.weight_lbs != null ? `${data.weight_lbs} LB` : "—"}
+                                    </p>
+                                <p class="stat-descriptor">
+                                    {data?.goal_weight_lbs != null ? `Goal: ${data.goal_weight_lbs} lb` : "No goal set"}
+                                </p>
                             </div>
                         </div>
 
@@ -124,29 +118,38 @@ export const ClientDashboard = () => {
                             </div>
                             <div class="coach-panel">
                                 <div class="dashboard-heading">MY COACH</div>
-                                <div class="coach-container">
-                                    <div class="profile-bg">
-                                        <FaRegUser/>
+                                {data?.active_coach ? (
+                                    <>
+                                        <div class="coach-container">
+                                            <div class="profile-bg">
+                                                <FaRegUser/>
+                                            </div>
+                                            <div class="container-59">
+                                                <div class="dashboard-list">
+                                                    {data.active_coach.first_name} {data.active_coach.last_name}
+                                                </div>
+                                                <div class="stat-heading">
+                                                    {data.active_coach.specialization.toUpperCase()}
+                                                    {data.active_coach.avg_rating != null && ` ★ ${data.active_coach.avg_rating}`}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="dashboard-list-container">
+                                            <div class="dashboard-list-contents">
+                                                <div class="stat-heading">STATUS</div>
+                                                <div class="dashboard-list">{data.active_coach.status}</div>
+                                            </div>
+                                        </div>
+                                        <div className="btn-container">
+                                            <Link className="panel-btn-purple">Message</Link>
+                                            <Link className="panel-btn-white">View Profile</Link>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div style={{ color: '#888', fontSize: '0.9rem', padding: '1rem 0' }}>
+                                        {loading ? 'Loading...' : 'No active coach. Browse coaches to get started.'}
                                     </div>
-                                    <div class="container-59">
-                                        <div class="dashboard-list">Marcus Rivera</div>
-                                        <div class="stat-heading">WORKOUT COACH ★ 4.9</div>
-                                    </div>
-                                </div>
-                                <div class="dashboard-list-container">
-                                    <div class="dashboard-list-contents">
-                                        <div class="stat-heading">STATUS</div>
-                                        <div class="dashboard-list">Active</div>
-                                    </div>
-                                    <div class="dashboard-list-contents">
-                                        <div class="stat-heading">NEXT SESSION</div>
-                                        <div class="dashboard-list">Wed, 3:00 PM</div>
-                                    </div>
-                                </div>
-                                <div className="btn-container">
-                                    <Link className="panel-btn-purple">Message</Link>
-                                    <Link className="panel-btn-white">View Profile</Link>
-                                </div>
+                                )}
                             </div>
                         </div>
 
