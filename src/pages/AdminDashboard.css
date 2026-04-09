@@ -221,9 +221,113 @@
     border-radius: 2px;
 }
 
-    .btn-add:hover {
+.btn-add:hover {
         background: var(--black);
     }
+
+.admin-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 1000;
+}
+
+.admin-modal {
+    width: min(760px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--white);
+    border: 2px solid var(--black);
+    padding: 24px;
+}
+
+.admin-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.admin-modal-close {
+    border: 1.5px solid var(--black);
+    background: var(--white);
+    color: var(--black);
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+}
+
+.admin-exercise-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-exercise-form label,
+.admin-form-label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.admin-exercise-form input,
+.admin-exercise-form select,
+.admin-exercise-form textarea {
+    border: 1.5px solid var(--black);
+    background: var(--white);
+    color: var(--black);
+    padding: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+.admin-exercise-form textarea {
+    resize: vertical;
+}
+
+.admin-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.admin-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px 16px;
+}
+
+.admin-checkbox-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 8px !important;
+    font-size: 12px !important;
+}
+
+.admin-checkbox-item input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+.admin-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
 
 .finance-grid {
     display: grid;
@@ -306,3 +410,9 @@
     .line-bar.highlight {
         background: var(--periwinkle);
     }
+
+@media (max-width: 900px) {
+    .admin-form-row {
+        grid-template-columns: 1fr;
+    }
+}
