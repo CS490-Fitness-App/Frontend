@@ -283,7 +283,6 @@ export const LoginForm = ({ isOpen, onClose }) => {
                                 <div className="role-options">
                                     <div className={`role-option ${role === 'client' ? 'selected' : ''}`} onClick={() => setRole('client')}>CLIENT</div>
                                     <div className={`role-option ${role === 'coach' ? 'selected' : ''}`} onClick={() => setRole('coach')}>COACH</div>
-                                    <div className={`role-option ${role === 'admin' ? 'selected' : ''}`} onClick={() => setRole('admin')}>ADMIN</div>
                                 </div>
                             </div>
 
