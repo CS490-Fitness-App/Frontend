@@ -204,9 +204,10 @@ export const CalendarComponent = () => {
 
     return (
         <>
-            {loading && <p style={{ padding: '0 50px' }}>Loading calendar...</p>}
-            {error && <p style={{ padding: '0 50px', color: '#b91c1c' }}>Error: {error}</p>}
-            <div style={{ margin: "50px"} }>
+            <div className="calendar-shell">
+            {loading && <p className="calendar-feedback">Loading calendar...</p>}
+            {error && <p className="calendar-feedback" style={{ color: '#b91c1c' }}>Error: {error}</p>}
+            <div>
                 <DnDCalendar
                     selectable
                     localizer={localizer}
@@ -225,6 +226,7 @@ export const CalendarComponent = () => {
                         return { style: { backgroundColor } };
                     }}
                 />
+            </div>
             </div>
 
             {isOpenEvent && (

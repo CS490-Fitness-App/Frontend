@@ -96,6 +96,22 @@
     background-color: var(--periwinkle-light);
 }
 
+.calendar-shell {
+    width: 100%;
+}
+
+.calendar-feedback {
+    padding: 0 0 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+}
+
+.calendar-shell .rbc-calendar {
+    min-height: 77vh;
+    background: white;
+    border: 1px solid #d8ddee;
+}
+
 .rbc-time-content {
     display: none;
 }
