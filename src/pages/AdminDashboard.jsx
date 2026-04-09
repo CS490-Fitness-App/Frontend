@@ -113,6 +113,14 @@ export const AdminDashboard = () => {
         updateCoachStatus(coachId, 'reject')
     };
 
+    const handleSuspend = (coachId) => {
+        updateCoachStatus(coachId, 'suspend')
+    };
+
+    const handleReactivate = (coachId) => {
+        updateCoachStatus(coachId, 'reactivate')
+    };
+
     const handleDeleteExercise = (exerciseId) => {
         console.log('Delete exercise:', exerciseId);
     };
@@ -134,6 +142,7 @@ export const AdminDashboard = () => {
     const getStatusClass = (status) => {
         if (status === 'Active' || status === 'Approved') return 'status-approved';
         if (status === 'Pending') return 'status-pending';
+        if (status === 'Suspended') return 'status-suspended';
         return 'status-rejected';
     };
 
@@ -266,6 +275,14 @@ export const AdminDashboard = () => {
                                                                     {coachActionId === coach.coach_id ? 'WORKING...' : 'REJECT'}
                                                                 </button>
                                                             </div>
+                                                        ) : coach.status === 'Active' ? (
+                                                            <button className="btn-sm btn-warn-outline" disabled={coachActionId === coach.coach_id} onClick={() => handleSuspend(coach.coach_id)}>
+                                                                {coachActionId === coach.coach_id ? 'WORKING...' : 'SUSPEND'}
+                                                            </button>
+                                                        ) : coach.status === 'Suspended' ? (
+                                                            <button className="btn-sm btn-green" disabled={coachActionId === coach.coach_id} onClick={() => handleReactivate(coach.coach_id)}>
+                                                                {coachActionId === coach.coach_id ? 'WORKING...' : 'REACTIVATE'}
+                                                            </button>
                                                         ) : (
                                                             <button className="btn-sm btn-outline-sm">VIEW</button>
                                                         )}
