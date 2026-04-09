@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import { useAuth0 } from '@auth0/auth0-react';
 import './SignUp.css';
 
-function SignUp() {
+export const SignUp = () => {
+  const { loginWithRedirect } = useAuth0();
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -13,7 +15,7 @@ function SignUp() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -21,17 +23,28 @@ function SignUp() {
       return;
     }
 
-    console.log('Sign up:', { firstName, lastName, email, password, role });
+    localStorage.setItem('pf_signup_role', role);
+    await loginWithRedirect({
+      authorizationParams: {
+        screen_hint: 'signup',
+      },
+      appState: { returnTo: '/survey' },
+    });
     navigate('/survey', { state: { role } });
   };
 
-  const handleGoogleSignUp = () => {
-    console.log('Google sign up clicked');
+  const handleGoogleSignUp = async () => {
+    localStorage.setItem('pf_signup_role', role);
+    await loginWithRedirect({
+      authorizationParams: {
+        connection: 'google-oauth2',
+      },
+      appState: { returnTo: '/survey' },
+    });
   };
 
   return (
     <div>
-      <Navbar />
 
       <div className="page-title">
         <h1>CREATE <span className="accent">ACCOUNT</span></h1>
@@ -131,5 +144,3 @@ function SignUp() {
     </div>
   );
 }
-
-export default SignUp;

@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Anek+Latin:wght@100..800&display=swap');
+
+.active {
+    background-color: #808CFD;
+}
+
+nav {
+    display: flex;
+    padding: 0 5%;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #E9ECFF;
+    position: sticky;
+    top: 0;
+}
+
+nav .nav-logo {
+    font-family: 'Anek Latin', sans-serif;
+    font-size: 2rem;
+    margin: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+}
+
+nav ul {
+    display: flex;
+}
+
+nav ul li {
+    list-style: none;
+}
+
+nav ul li a {
+    display: block;
+    font-family: 'Anek Latin', sans-serif;
+    text-decoration: none;
+    color: black;
+    padding: 0.5rem;
+    margin: 0 0.5rem;
+    border-radius: 0.5rem;
+}
+
+nav ul li a:hover {
+    background-color: #4E548F;
+}
+
+nav li button{
+    width: 80px;
+    font-size: 14px;
+}

@@ -1,292 +1,219 @@
-.dashboard {
-  padding: 0 40px 60px;
+@import url('https://fonts.googleapis.com/css2?family=Anek+Latin:wdth,wght@95.8,800&family=Oswald:wght@200..700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+
+.dashboard-container {
+    display: flex;
+    flex-direction: row;
 }
 
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+.dashboard-homepage-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 32px;
+    padding: 32px;
+    width: 100%;
 }
 
-.nav-bell {
-  width: 22px;
-  height: 22px;
-  cursor: pointer;
-  position: relative;
+.section-quick-stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%
 }
 
-.nav-bell-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 10px;
-  height: 10px;
-  background: var(--periwinkle);
-  border-radius: 50%;
-  border: 2px solid var(--white);
+.quick-stat-card {
+    background-color: rgba(221, 224, 255, 1);
+    padding: 10px;
+    width: 100%;
 }
 
-.nav-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--periwinkle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Space Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--white);
-  cursor: pointer;
+.stat-heading {
+    text-align: left;
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 17px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: rgb(107, 114, 128);
 }
 
-.stat-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 28px;
+.stat {
+    text-align: left;
+    font-family: "Oswald", sans-serif;
+    font-size: 36px;
+    line-height: 40px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
 }
 
-.stat-card {
-  background: var(--periwinkle-light);
-  padding: 28px;
-  border-radius: 2px;
+.stat-descriptor {
+    text-align: left;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    text-decoration: none;
+    text-transform: none;
+    color: rgb(75, 85, 99);
 }
 
-.stat-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--slate-purple);
-  margin-bottom: 10px;
+.section-2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%;
 }
 
-.stat-value {
-  font-family: 'Anton', sans-serif;
-  font-size: 36px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 1.1;
+.workout-plan-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 38px;
+    padding: 24px;
+    border: 2px solid black;
 }
 
-.stat-sub {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: var(--slate-purple);
-  margin-top: 6px;
+.coach-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 23.2px;
+    padding: 24px;
+    border: 2px solid black;
 }
 
-.main-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 28px;
+.dashboard-heading {
+    padding: 0px 0px 16px 0px;
+    width: 100%;
+    border-bottom: 1px solid rgba(209, 213, 219, 1);
+    font-family: "Oswald", sans-serif;
+    font-size: 24px;
+    line-height: 32px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
 }
 
-.card {
-  border: 1.5px solid var(--black);
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.dashboard-list-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 16px;
 }
 
-.card-title {
-  font-family: 'Anton', sans-serif;
-  font-size: 24px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--periwinkle);
+.dashboard-list-contents {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 275px;
+    width: 100%;
 }
 
-.card-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.dashboard-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    font-family: "Oswald", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    text-decoration: none;
+    color: black;
 }
 
-.card-info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.btn-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
-.card-info-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--slate-purple);
+.panel-btn-purple {
+    text-align: center;
+    width: 100%;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    background-color: #808CFD;
+    color: white;
+    text-decoration: none;
 }
 
-.card-info-value {
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
+.panel-btn-white {
+    text-align: center;
+    width: 100%;
+    border-radius: 5px;
+    border: 2px solid black;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    color: black;
+    text-decoration: none;
 }
 
-.card-btn {
-  background: var(--periwinkle);
-  border: none;
-  padding: 14px 28px;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--white);
-  cursor: pointer;
-  border-radius: 2px;
-  transition: all 0.2s;
-  text-align: center;
-  margin-top: auto;
+.coach-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
 }
 
-.card-btn:hover {
-  background: var(--black);
+.profile-bg {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 9.5px 0px 10.5px 0px;
+    width: 9%;
+    background-color: rgba(140, 148, 255, 1);
+    color: white;
+    border-radius: 9999px;
 }
 
-.card-btn-outline {
-  background: var(--white);
-  border: 1.5px solid var(--black);
-  color: var(--black);
+.icon-bg {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 9.5px 0px 10.5px 0px;
+    width: 12%;
+    background-color: rgba(224, 231, 255, 1);
+    color: rgba(140, 148, 255, 1);
+    border-radius: 9999px;
 }
 
-.card-btn-outline:hover {
-  background: var(--black);
-  color: var(--white);
+.container-others {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
 }
 
-.coach-info {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 8px 0;
+.header-others {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0px 0px 8px 0px;
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 16px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
 }
 
-.coach-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--periwinkle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Space Mono', monospace;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--white);
-}
-
-.coach-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.coach-name {
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.coach-spec {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--slate-purple);
-}
-
-.action-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 28px;
-}
-
-.action-card {
-  border: 1.5px solid var(--black);
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-}
-
-.action-icon {
-  width: 52px;
-  height: 52px;
-  background: var(--periwinkle-light);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.action-title {
-  font-family: 'Space Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-
-.action-desc {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: var(--slate-purple);
-  line-height: 1.5;
-}
-
-.action-card .card-btn {
-  width: 100%;
-}
-
-.quick-links-banner {
-  background: var(--periwinkle);
-  padding: 24px 40px;
-  display: flex;
-  align-items: center;
-  gap: 40px;
-}
-
-.quick-links-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--white);
-}
-
-.quick-links {
-  display: flex;
-  gap: 32px;
-}
-
-.quick-links a {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--white);
-  text-decoration: none;
-  opacity: 0.85;
-  transition: opacity 0.2s;
-}
-
-.quick-links a:hover {
-  opacity: 1;
-  text-decoration: underline;
-}

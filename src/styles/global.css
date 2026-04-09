@@ -25,8 +25,16 @@ body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--
 .nav-links a.active { border-bottom: 2px solid var(--periwinkle); padding-bottom: 2px; }
 
 .page-title { padding: 30px 40px 20px; }
-.page-title h1 { font-family: 'Anton', sans-serif; font-size: 80px; font-weight: 400; text-transform: uppercase; line-height: 1; letter-spacing: 2px; }
-.page-title h1 .accent { color: var(--periwinkle); }
+.page-title h1 { font-family: 'Anton', sans-serif; font-size: 80px; font-weight: 400; text-transform: uppercase; line-height: 1; letter-spacing: 2px; color: black; }
+    .page-title h1 .accent {
+        font-family: 'Anton', sans-serif;
+        font-size: 80px;
+        font-weight: 400;
+        text-transform: uppercase;
+        line-height: 1;
+        letter-spacing: 2px;
+        color: var(--periwinkle);
+    }
 
 .form-input { background: var(--periwinkle-light); border: 1.5px solid transparent; padding: 16px 20px; font-family: 'Space Mono', monospace; font-size: 14px; color: var(--black); letter-spacing: 1px; width: 100%; outline: none; border-radius: 2px; transition: border-color 0.2s; }
 .form-input:focus { border-color: var(--periwinkle); }

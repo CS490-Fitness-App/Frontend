@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import '../styles/global.css'
 import './Survey.css';
 
-function Survey() {
+export const Survey = () => {
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -59,7 +60,7 @@ function Survey() {
         education, bio, hourlyRate, pricingModel,
         availableDays, startTime, endTime, maxClients, sessionFormat,
       });
-      navigate('/dashboard');
+      navigate('/client-dashboard');
     }
   };
 
@@ -72,9 +73,8 @@ function Survey() {
 
   return (
     <div>
-      <Navbar />
 
-      <div className="page-title">
+      <div className="page-title ">
         <h1>TELL US ABOUT <span className="accent">YOURSELF</span></h1>
       </div>
 
@@ -380,5 +380,3 @@ function Survey() {
     </div>
   );
 }
-
-export default Survey;
