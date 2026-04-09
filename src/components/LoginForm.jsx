@@ -47,6 +47,12 @@ export const LoginForm = ({ isOpen, onClose }) => {
         top: 0,
     }
 
+    const getDashboardRoute = (role) => {
+        if (role === 'admin') return '/admin-dashboard'
+        if (role === 'coach') return '/coach-dashboard'
+        return '/client-dashboard'
+    }
+
     // --- shared: get token via ROPG then sync to backend ---
     const loginWithPassword = async (email, password, payload) => {
         const tokenRes = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
@@ -68,7 +74,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
         }
 
         // Sync user to our backend
-        await fetch(`${API_BASE_URL}/auth/login`, {
+        const syncRes = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -77,7 +83,15 @@ export const LoginForm = ({ isOpen, onClose }) => {
             body: JSON.stringify(payload),
         })
 
-        return tokenData.access_token
+        const syncData = await syncRes.json().catch(() => ({}))
+        if (!syncRes.ok) {
+            throw new Error(syncData.detail || 'Failed to sync account with backend')
+        }
+
+        return {
+            access_token: tokenData.access_token,
+            role: syncData.role || payload.role || 'client',
+        }
     }
 
     // --- Login ---
@@ -86,16 +100,16 @@ export const LoginForm = ({ isOpen, onClose }) => {
         setError(null)
         setLoading(true)
         try {
-            const token = await loginWithPassword(email, password, {
+            const result = await loginWithPassword(email, password, {
                 email,
                 first_name: null,
                 last_name: null,
                 profile_picture: null,
                 role: 'client',
             })
-            setAuth(token)
+            setAuth(result.access_token)
             onClose()
-            navigate('/client-dashboard')
+            navigate(getDashboardRoute(result.role))
         } catch (err) {
             setError(err.message)
         } finally {
@@ -132,16 +146,16 @@ export const LoginForm = ({ isOpen, onClose }) => {
             }
 
             // Step 2: get access token via ROPG
-            const token = await loginWithPassword(email, password, {
+            const result = await loginWithPassword(email, password, {
                 email,
                 first_name: firstName,
                 last_name: lastName,
                 profile_picture: null,
                 role,
             })
-            setAuth(token)
+            setAuth(result.access_token)
             onClose()
-            navigate('/client-dashboard')
+            navigate(getDashboardRoute(result.role))
         } catch (err) {
             setError(err.message)
         } finally {
@@ -269,6 +283,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                                 <div className="role-options">
                                     <div className={`role-option ${role === 'client' ? 'selected' : ''}`} onClick={() => setRole('client')}>CLIENT</div>
                                     <div className={`role-option ${role === 'coach' ? 'selected' : ''}`} onClick={() => setRole('coach')}>COACH</div>
+                                    <div className={`role-option ${role === 'admin' ? 'selected' : ''}`} onClick={() => setRole('admin')}>ADMIN</div>
                                 </div>
                             </div>
 
