@@ -50,7 +50,7 @@ export const ClientDashboard = () => {
     const [error, setError] = useState("")
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/dashboard/client")
+        fetch(`${API_BASE_URL}/dashboard/client`)
             .then(res => res.json())
             .then(data => {
                 setData(data)
