@@ -1,8 +1,9 @@
 import "./Pages.css"
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom' 
+import { Link } from 'react-router-dom'
 
 import { LoginForm } from "../components/LoginForm"
+import { TopCoaches } from "../components/TopCoaches"
 
 import { GiBiceps } from "react-icons/gi";
 import { IoIosFitness } from "react-icons/io";
@@ -50,10 +51,13 @@ export const Home = () => {
                         <RiUserVoiceLine />
                         <h2>Coaches</h2>
                         <p>Connect with our wide range of speialized coaches for workout and meal planning assiatance. Match with whoever works best for you! Available 24/7 </p>
-                        <Link className="btn">Browse Coaches</Link>
+                        <Link to="/coaches" className="btn">Browse Coaches</Link>
                     </div>
                 </div>
             </div>
+
+            <TopCoaches />
+
             <LoginForm isOpen={isModalOpen} onClose={closeModal} />
         </div>
     )

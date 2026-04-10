@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useCustomAuth } from '../context/AuthContext';
 import '../styles/global.css'
 import './Survey.css';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 export const Survey = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { customAuth } = useCustomAuth();
+
+  const role = location.state?.role || 'client';
+  const totalSteps = role === 'coach' ? 2 : 1;
 
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 2;
 
   const [heightFeet, setHeightFeet] = useState('5');
   const [heightInches, setHeightInches] = useState('7');
@@ -17,6 +25,7 @@ export const Survey = () => {
   const [goalWeight, setGoalWeight] = useState('');
   const [weightUnit, setWeightUnit] = useState('lb');
   const [fitnessGoal, setFitnessGoal] = useState('Build Muscle');
+  const [selectedGoalTypeId, setSelectedGoalTypeId] = useState(null);
   const [experienceLevel, setExperienceLevel] = useState('Beginner');
 
   const [specializations, setSpecializations] = useState([]);
@@ -31,6 +40,20 @@ export const Survey = () => {
   const [endTime, setEndTime] = useState('5:00 PM');
   const [maxClients, setMaxClients] = useState('15');
   const [sessionFormat, setSessionFormat] = useState('Virtual');
+
+  const [goalTypes, setGoalTypes] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/users/goal-types`)
+      .then(res => res.json())
+      .then(data => {
+        setGoalTypes(data);
+        if (data.length > 0) setSelectedGoalTypeId(data[0].goal_type_id);
+      })
+      .catch(err => console.error('Failed to fetch goal types:', err));
+  }, []);
 
   const handleToggleSpecialization = (spec) => {
     if (specializations.includes(spec)) {
@@ -48,19 +71,100 @@ export const Survey = () => {
     }
   };
 
-  const handleNext = () => {
+  const to24Hour = (timeStr) => {
+    const [time, period] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+  };
+
+  const handleNext = async () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
       window.scrollTo(0, 0);
-    } else {
-      console.log('Survey complete:', {
-        heightFeet, heightInches, currentWeight, goalWeight,
-        weightUnit, fitnessGoal, experienceLevel,
-        specializations, certifications, yearsExperience,
-        education, bio, hourlyRate, pricingModel,
-        availableDays, startTime, endTime, maxClients, sessionFormat,
+      return;
+    }
+
+    // --- Submit ---
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      let token;
+      if (isAuthenticated) {
+        token = await getAccessTokenSilently({
+          authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+        });
+      } else if (customAuth) {
+        token = customAuth;
+      } else {
+        throw new Error('You must be logged in to complete setup.');
+      }
+
+      const heightCm = Math.round(parseFloat(heightFeet) * 30.48 + parseFloat(heightInches) * 2.54);
+      const toGrams = (val, unit) =>
+        unit === 'lb' ? Math.round(parseFloat(val) * 453.592) : Math.round(parseFloat(val) * 1000);
+      // POST /users/register
+      const clientRes = await fetch(`${API_BASE_URL}/users/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          DOB: null,
+          height: heightCm || null,
+          weight: toGrams(currentWeight, weightUnit) || null,
+          goal_weight: toGrams(goalWeight, weightUnit) || null,
+          sex: null,
+          goal_type_ids: selectedGoalTypeId ? [selectedGoalTypeId] : [],
+        }),
       });
-      navigate('/client-dashboard');
+      if (!clientRes.ok && clientRes.status !== 409) {
+        const err = await clientRes.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to save client profile.');
+      }
+
+      // POST /coaches/register (coach only)
+      if (role === 'coach') {
+        const yearsMap = {
+          'Less than 1 year': 0,
+          '1 - 2 years': 1,
+          '3 - 5 years': 3,
+          '5 - 10 years': 5,
+          '10+ years': 10,
+        };
+        const dayMap = { Mon: 'MON', Tue: 'TUE', Wed: 'WED', Thu: 'THU', Fri: 'FRI', Sat: 'SAT', Sun: 'SUN' };
+        const coachRes = await fetch(`${API_BASE_URL}/coaches/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            gender: 'Other',
+            hourly_rate: parseFloat(hourlyRate) || 0,
+            is_trainer: specializations.includes('Workout Coach') || specializations.includes('Both'),
+            is_nutritionist: specializations.includes('Nutritionist') || specializations.includes('Both'),
+            bio: bio || null,
+            years_of_experience: yearsMap[yearsExperience] ?? null,
+            max_clients: parseInt(maxClients) || null,
+            accepting_clients: true,
+            certifications: certifications.split(',').map(s => s.trim()).filter(Boolean),
+            availability: availableDays.map(day => ({
+              day_of_week: dayMap[day],
+              start_time: to24Hour(startTime),
+              end_time: to24Hour(endTime),
+            })),
+            session_format: sessionFormat,
+            specialty_goal_type_ids: [],
+          }),
+        });
+        if (!coachRes.ok && coachRes.status !== 409) {
+          const err = await coachRes.json().catch(() => ({}));
+          throw new Error(err.detail || 'Failed to save coach profile.');
+        }
+      }
+
+      navigate(role === 'coach' ? '/coach-dashboard' : '/client-dashboard');
+    } catch (err) {
+      setSubmitError(err.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -158,13 +262,13 @@ export const Survey = () => {
               <div className="form-group">
                 <label className="form-label">What is your primary goal?</label>
                 <div className="pill-selector">
-                  {['Lose Weight', 'Build Muscle', 'Improve Endurance', 'Stay Healthy', 'Other'].map((goal) => (
+                  {goalTypes.map((gt) => (
                     <div
-                      key={goal}
-                      className={`pill-option ${fitnessGoal === goal ? 'selected' : ''}`}
-                      onClick={() => setFitnessGoal(goal)}
+                      key={gt.goal_type_id}
+                      className={`pill-option ${selectedGoalTypeId === gt.goal_type_id ? 'selected' : ''}`}
+                      onClick={() => setSelectedGoalTypeId(gt.goal_type_id)}
                     >
-                      {goal}
+                      {gt.goal_type_name}
                     </div>
                   ))}
                 </div>
@@ -366,12 +470,14 @@ export const Survey = () => {
           </>
         )}
 
+        {submitError && <p style={{ color: 'red', textAlign: 'center', marginBottom: '1rem' }}>{submitError}</p>}
+
         <div className="survey-buttons">
           {currentStep > 1 && (
             <button className="btn-outline" onClick={handleBack}>← BACK</button>
           )}
-          <button className="btn-periwinkle" onClick={handleNext}>
-            {currentStep < totalSteps ? 'NEXT →' : 'COMPLETE SETUP'}
+          <button className="btn-periwinkle" onClick={handleNext} disabled={submitting}>
+            {submitting ? 'SAVING...' : currentStep < totalSteps ? 'NEXT →' : 'COMPLETE SETUP'}
           </button>
         </div>
       </div>
