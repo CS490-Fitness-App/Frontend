@@ -5,7 +5,7 @@ import { AuthSync } from './components/AuthSync'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 
-import { Home, Exercises, Workouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches } from './pages'
+import { Home, Exercises, Workouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches, PaymentCards } from './pages'
 
 function App() {
     return (
@@ -23,6 +23,7 @@ function App() {
                 <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/survey" element={<ProtectedRoute><Survey /></ProtectedRoute>} />
+                <Route path="/payment-cards" element={<ProtectedRoute><PaymentCards /></ProtectedRoute>} />
             </Routes>
         </div>
     )
