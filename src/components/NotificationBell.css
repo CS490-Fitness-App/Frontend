@@ -1,0 +1,149 @@
+.notif-bell-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.notif-bell-btn {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    transition: background-color 0.15s;
+}
+
+.notif-bell-btn:hover {
+    background-color: #4E548F;
+    color: white;
+}
+
+.notif-bell-btn svg {
+    width: 22px;
+    height: 22px;
+}
+
+.notif-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #e53e3e;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.notif-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 320px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.notif-dropdown-header {
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #E9ECFF;
+    font-family: 'Anek Latin', sans-serif;
+}
+
+.notif-empty {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-family: 'Anek Latin', sans-serif;
+}
+
+.notif-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.15s;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+.notif-item:hover {
+    background-color: #f9fafb;
+}
+
+.notif-unread {
+    background-color: #f0f2ff;
+}
+
+.notif-unread:hover {
+    background-color: #e6e9ff;
+}
+
+.notif-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-message {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.875rem;
+    color: #111827;
+    line-height: 1.4;
+    font-family: 'Anek Latin', sans-serif;
+    word-break: break-word;
+}
+
+.notif-time {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-family: 'Anek Latin', sans-serif;
+}
+
+.notif-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 0.2rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: color 0.15s, background-color 0.15s;
+}
+
+.notif-delete-btn:hover {
+    color: #e53e3e;
+    background-color: #fee2e2;
+}
