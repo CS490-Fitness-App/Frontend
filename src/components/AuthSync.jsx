@@ -8,6 +8,12 @@ export const AuthSync = () => {
   const { isAuthenticated, isLoading, getAccessTokenSilently, user } = useAuth0()
   const navigate = useNavigate()
 
+  const getDashboardRoute = (role) => {
+    if (role === 'admin') return '/admin-dashboard'
+    if (role === 'coach') return '/coach-dashboard'
+    return '/client-dashboard'
+  }
+
   useEffect(() => {
     const syncToBackend = async () => {
       if (!isAuthenticated || isLoading || !user) return
@@ -21,7 +27,7 @@ export const AuthSync = () => {
       const signupData = raw ? JSON.parse(raw) : null
       if (raw) sessionStorage.removeItem('pendingSignup')
 
-      const role = signupData?.role || 'client'
+      const requestedRole = signupData?.role || 'client'
 
       try {
         const token = await getAccessTokenSilently({
@@ -47,13 +53,23 @@ export const AuthSync = () => {
             first_name: signupData?.first_name || user.given_name || user.name || null,
             last_name: signupData?.last_name || user.family_name || null,
             profile_picture: user.picture || null,
-            role,
+            role: requestedRole,
           }),
         })
 
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
           console.error(`[AuthSync] Backend returned ${res.status}:`, body.detail ?? body)
+        } else {
+          const body = await res.json().catch(() => ({}))
+          if (shouldNavigate) {
+            if (body.is_new_user) {
+              navigate('/survey', { state: { role: body.role || requestedRole } })
+            } else {
+              navigate(getDashboardRoute(body.role || requestedRole))
+            }
+          }
+          return
         }
       } catch (error) {
         console.error('Auth sync failed:', error)

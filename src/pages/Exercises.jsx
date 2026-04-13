@@ -38,19 +38,12 @@ export const Exercises = () => {
         setSelectedExercise(null)
     }
 
-        getExercises();
-    }, []);
-
-    
-    const selectedExercise = exercises.find(
-        ex => ex.exercise_id === selectedExerciseId
-    );
     return (
         <div>
             <div className="page-heading">
                 <div className="h1">
                     <span className="text-black">Exercise </span>
-                    <span className="text-black">Library</span>
+                    <span className="text-purple">Library</span>
                 </div>
             </div>
 

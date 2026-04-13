@@ -1,0 +1,91 @@
+.coach-card-container {
+    width: 34rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem;
+    background-color: white;
+    height: fit-content;
+    border: 1.5px solid black;
+    transition: all 0.4s;
+}
+
+.coach-card-container:hover {
+    box-shadow: 0px 0px 8px #999;
+    transform: scale(1.02);
+    transition: all 0.4s;
+}
+
+.coach-card-img {
+    width: 25%;
+    
+    border-radius: 0rem 1rem 0rem 4rem;
+}
+.coach-card-header
+{
+    display: flex;
+    flex-direction: row;
+    justify-content:space-between;
+    vertical-align: center;
+}
+.coach-card-tag-beginner {
+    background-color: palegreen;
+    border-radius: 1rem;
+    margin: 0.5rem;
+    width: fit-content;
+    padding: 0.4rem;
+}
+
+.coach-card-tag-intermediate {
+    background-color: rgb(251, 251, 152);
+    border-radius: 1rem;
+    margin: 0.5rem;
+    width: fit-content;
+    padding: 0.4rem;
+}
+
+.coach-card-tag-advanced {
+    background-color: rgb(251, 152, 152);
+    border-radius: 1rem;
+    margin: 0.5rem;
+    width: fit-content;
+    padding: 0.4rem;
+}
+
+.coach-card-title {
+    color: black;
+    margin: 2rem 5%;
+    text-align: left;
+    vertical-align:middle;
+    
+    font-size: clamp(2.5rem, 1.5vw, 1.5rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.coach-card-btn {
+    text-align: center;
+    width: 90%;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: #808CFD;
+    color: white;
+    text-decoration: none;
+    margin: 1rem auto;
+
+}
+
+.coach-card-btn:hover {
+    background-color: #4E548F;
+}
+
+.coach-card-tags-container
+{
+    margin-top: 1rem;
+    margin-left: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    
+}
