@@ -5,7 +5,6 @@ import { AuthSync } from './components/AuthSync'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 import { Home, Exercises, Workouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches, PaymentCards, ViewWorkout, EditWorkout, ClientCalendar } from './pages'
-import { CalendarComponent } from './components/CalendarComponent'
 
 function App() {
     return (
@@ -14,6 +13,7 @@ function App() {
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/coaches" element={<Coaches />} />
                 <Route path="/exercises" element={<Exercises />} />
                 <Route path="/workouts" element={<Workouts />} />
                 <Route path="/login" element={<Login />} />
