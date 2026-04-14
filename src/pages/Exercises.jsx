@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react'
-
+import './Pages.css'
+import './Exercises.css'
 import { ExerciseCard } from "../components/ExerciseCard"
 import { ViewExercise } from "../components/ViewExercise"
+
+import { IoMdSearch } from "react-icons/io";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
@@ -11,6 +14,8 @@ export const Exercises = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+
+    const [exerciseSearch, setExerciseSearch] = useState('');
 
     useEffect(() => {
         fetch(`${API_BASE_URL}/exercises`)
@@ -44,6 +49,14 @@ export const Exercises = () => {
                 <div className="h1">
                     <span className="text-black">Exercise </span>
                     <span className="text-purple">Library</span>
+                </div>
+            </div>
+
+            {/* Searchbar */}
+            <div className="search-section">
+                <div className="search-box">
+                    <input className="search-input" type="text" placeholder="Search exercises..." value={exerciseSearch} onChange={(e) => setExerciseSearch(e.target.value)} />
+                    <IoMdSearch />
                 </div>
             </div>
 
