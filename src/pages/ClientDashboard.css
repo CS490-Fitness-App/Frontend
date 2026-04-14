@@ -1,22 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Anek+Latin:wdth,wght@95.8,800&family=Oswald:wght@200..700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
-
-.dashboard-container {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-}
-
 .client-dashboard-container {
     display: flex;
     flex-direction: row;
     align-items: stretch;
 }
 
-.client-dashboard-container > div:last-child,
-.dashboard-container > div:last-child {
-    flex: 1;
-    min-width: 0;
-}
+    .client-dashboard-container > div:last-child,
+    .dashboard-container > div:last-child {
+        flex: 1;
+        min-width: 0;
+    }
 
 .dashboard-homepage-container {
     display: flex;

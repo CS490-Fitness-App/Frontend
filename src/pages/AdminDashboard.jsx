@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
-import { Sidebar } from "../components/Sidebar";
 import './AdminDashboard.css';
 import './ClientDashboard.css';
 
@@ -329,229 +328,224 @@ export const AdminDashboard = () => {
 
     return (
         <div>
-            <div className="dashboard-container">
-                <Sidebar />
-                <div>
-                    <div className="page-heading">
-                        <div className="h2">
-                            <span className="text-black">ADMIN </span>
-                            <span className="text-purple">PANEL</span>
-                        </div>
+            <div className="page-heading">
+                <div className="h2">
+                    <span className="text-black">ADMIN </span>
+                    <span className="text-purple">PANEL</span>
+                </div>
+            </div>
+            <div className="dashboard-homepage-container">
+                <div className="dashboard">
+                    <div className="section-quick-stats">
+                        <div className="quick-stat-card"><div className="stat-heading">Total Users</div><div className="stat">847</div></div>
+                        <div className="quick-stat-card"><div className="stat-heading">Active Coaches</div><div className="stat">{coaches.filter((coach) => coach.status === 'Active').length}</div></div>
+                        <div className="quick-stat-card"><div className="stat-heading">Pending Approvals</div><div className="stat">{coaches.filter((coach) => coach.status === 'Pending').length} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div></div>
+                        <div className="quick-stat-card"><div className="stat-heading">Revenue This Month</div><div className="stat">$18,420</div></div>
                     </div>
-                    <div className="dashboard-homepage-container">
-                        <div className="dashboard">
-                            <div className="section-quick-stats">
-                                <div className="quick-stat-card"><div className="stat-heading">Total Users</div><div className="stat">847</div></div>
-                                <div className="quick-stat-card"><div className="stat-heading">Active Coaches</div><div className="stat">{coaches.filter((coach) => coach.status === 'Active').length}</div></div>
-                                <div className="quick-stat-card"><div className="stat-heading">Pending Approvals</div><div className="stat">{coaches.filter((coach) => coach.status === 'Pending').length} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div></div>
-                                <div className="quick-stat-card"><div className="stat-heading">Revenue This Month</div><div className="stat">$18,420</div></div>
+                    <div className="tabs">
+                        {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT'].map((tab, i) => (
+                            <div key={i} className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{tab}</div>
+                        ))}
+                    </div>
+                    {activeTab === 0 && (
+                        <div className="tab-content">
+                            <div className="section-header">
+                                <div className="admin-section-title">Coach Applications & Accounts</div>
+                                <div className="search-bar">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
+                                        <circle cx="11" cy="11" r="8" />
+                                        <path d="m21 21-4.35-4.35" />
+                                    </svg>
+                                    <input type="text" placeholder="SEARCH COACHES..." value={coachSearch} onChange={(e) => setCoachSearch(e.target.value)} />
+                                </div>
                             </div>
-                            <div className="tabs">
-                                {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT'].map((tab, i) => (
-                                    <div key={i} className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{tab}</div>
+                            {coachError && <p className="admin-feedback error">{coachError}</p>}
+                            <table className="admin-table">
+                                <thead>
+                                    <tr><th>Coach</th><th>Email</th><th>Specialization</th><th>Status</th><th>Active</th><th>Actions</th></tr>
+                                </thead>
+                                <tbody>
+                                    {coachLoading ? (
+                                        <tr><td colSpan="6">Loading coach applications...</td></tr>
+                                    ) : filteredCoaches.length === 0 ? (
+                                        <tr><td colSpan="6">No coach applications found.</td></tr>
+                                    ) : filteredCoaches.map((coach) => (
+                                        <tr key={coach.coach_id}>
+                                            <td><strong>{coach.first_name} {coach.last_name}</strong></td>
+                                            <td>{coach.email}</td>
+                                            <td>{coach.specialization}</td>
+                                            <td><span className={`status-badge ${getStatusClass(coach.status)}`}>{coach.status}</span></td>
+                                            <td><label className="toggle-switch"><input type="checkbox" checked={coach.active} readOnly disabled /><span className="toggle-slider"></span></label></td>
+                                            <td>
+                                                {coach.status === 'Pending' ? (
+                                                    <div className="actions-cell">
+                                                        <button className="btn-sm btn-green" disabled={coachActionId === coach.coach_id} onClick={() => handleApprove(coach.coach_id)}>{coachActionId === coach.coach_id ? 'WORKING...' : 'APPROVE'}</button>
+                                                        <button className="btn-sm btn-red-outline" disabled={coachActionId === coach.coach_id} onClick={() => handleReject(coach.coach_id)}>{coachActionId === coach.coach_id ? 'WORKING...' : 'REJECT'}</button>
+                                                    </div>
+                                                ) : coach.status === 'Active' ? (
+                                                    <button className="btn-sm btn-warn-outline" disabled={coachActionId === coach.coach_id} onClick={() => handleSuspend(coach.coach_id)}>{coachActionId === coach.coach_id ? 'WORKING...' : 'SUSPEND'}</button>
+                                                ) : coach.status === 'Suspended' ? (
+                                                    <button className="btn-sm btn-green" disabled={coachActionId === coach.coach_id} onClick={() => handleReactivate(coach.coach_id)}>{coachActionId === coach.coach_id ? 'WORKING...' : 'REACTIVATE'}</button>
+                                                ) : (
+                                                    <button className="btn-sm btn-outline-sm">VIEW</button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                    {activeTab === 1 && (
+                        <div className="tab-content">
+                            {exerciseLoading && <p>Loading exercises...</p>}
+                            {exerciseError && <p className="admin-feedback error">{exerciseError}</p>}
+                            <div className="section-header">
+                                <div className="search-bar">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
+                                        <circle cx="11" cy="11" r="8" />
+                                        <path d="m21 21-4.35-4.35" />
+                                    </svg>
+                                    <input type="text" placeholder="SEARCH EXERCISES..." value={exerciseSearch} onChange={(e) => setExerciseSearch(e.target.value)} />
+                                </div>
+                                <button className="btn-add" onClick={openAddExerciseModal}>+ ADD EXERCISE</button>
+                            </div>
+                            {exerciseError && <p className="admin-feedback error">{exerciseError}</p>}
+                            <table className="admin-table">
+                                <thead>
+                                    <tr><th>Exercise Name</th><th>Muscle Group</th><th>Equipment</th><th>Actions</th></tr>
+                                </thead>
+                                <tbody>
+                                    {exerciseLoading ? (
+                                        <tr><td colSpan="4">Loading exercise inventory...</td></tr>
+                                    ) : filteredExercises.length === 0 ? (
+                                        <tr><td colSpan="4">No exercises found.</td></tr>
+                                    ) : filteredExercises.map((exercise) => (
+                                        <tr key={exercise.exercise_id}>
+                                            <td><strong>{exercise.name}</strong></td>
+                                            <td>{exercise.muscle_groups.join(' / ') || 'None'}</td>
+                                            <td>{exercise.equipment || 'None'}</td>
+                                            <td>
+                                                <div className="actions-cell">
+                                                    <button className="btn-sm btn-outline-sm" disabled={exerciseActionId === exercise.exercise_id} onClick={() => handleEditExercise(exercise.exercise_id)}>EDIT</button>
+                                                    <button className="btn-sm btn-red-outline" disabled={exerciseActionId === exercise.exercise_id} onClick={() => handleDeleteExercise(exercise.exercise_id)}>{exerciseActionId === exercise.exercise_id ? 'WORKING...' : 'DELETE'}</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {isExerciseModalOpen && (
+                                <div className="admin-modal-overlay" onClick={closeExerciseModal}>
+                                    <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+                                        <div className="admin-modal-header">
+                                            <div className="admin-section-title">{exerciseFormMode === 'edit' ? 'Edit Exercise' : 'Add Exercise'}</div>
+                                            <button className="admin-modal-close" onClick={closeExerciseModal}>X</button>
+                                        </div>
+                                        <form className="admin-exercise-form" onSubmit={handleExerciseSubmit}>
+                                            <label>
+                                                Exercise Name
+                                                <input type="text" value={exerciseForm.name} onChange={(e) => handleExerciseInputChange('name', e.target.value)} required />
+                                            </label>
+                                            <div className="admin-form-row">
+                                                <label>
+                                                    Category
+                                                    <select value={exerciseForm.category_id} onChange={(e) => handleExerciseInputChange('category_id', e.target.value)} required>
+                                                        <option value="">Select category</option>
+                                                        {exerciseMeta.categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+                                                    </select>
+                                                </label>
+                                                <label>
+                                                    Experience Level
+                                                    <select value={exerciseForm.experience_level_id} onChange={(e) => handleExerciseInputChange('experience_level_id', e.target.value)}>
+                                                        <option value="">Not set</option>
+                                                        {exerciseMeta.experience_levels.map((level) => <option key={level.id} value={level.id}>{level.name}</option>)}
+                                                    </select>
+                                                </label>
+                                            </div>
+                                            <label>
+                                                Equipment
+                                                <input type="text" value={exerciseForm.equipment} onChange={(e) => handleExerciseInputChange('equipment', e.target.value)} />
+                                            </label>
+                                            <div className="admin-form-row">
+                                                <label>
+                                                    Image URL
+                                                    <input type="url" value={exerciseForm.image_url} onChange={(e) => handleExerciseInputChange('image_url', e.target.value)} />
+                                                </label>
+                                                <label>
+                                                    Video URL
+                                                    <input type="url" value={exerciseForm.video_url} onChange={(e) => handleExerciseInputChange('video_url', e.target.value)} />
+                                                </label>
+                                            </div>
+                                            <label>
+                                                Instructions
+                                                <textarea value={exerciseForm.instructions} onChange={(e) => handleExerciseInputChange('instructions', e.target.value)} rows="4" />
+                                            </label>
+                                            <label>
+                                                Tips
+                                                <textarea value={exerciseForm.tips} onChange={(e) => handleExerciseInputChange('tips', e.target.value)} rows="3" />
+                                            </label>
+                                            <div>
+                                                <div className="admin-form-label">Muscle Groups</div>
+                                                <div className="admin-checkbox-grid">
+                                                    {exerciseMeta.muscle_groups.map((muscleGroup) => (
+                                                        <label key={muscleGroup.id} className="admin-checkbox-item">
+                                                            <input type="checkbox" checked={exerciseForm.muscle_group_ids.includes(muscleGroup.id)} onChange={() => toggleMuscleGroup(muscleGroup.id)} />
+                                                            <span>{muscleGroup.name}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="admin-modal-actions">
+                                                <button type="button" className="btn-sm btn-outline-sm" onClick={closeExerciseModal}>CANCEL</button>
+                                                <button type="submit" className="btn-sm btn-green" disabled={exerciseActionId !== null}>{exerciseActionId !== null ? 'SAVING...' : exerciseFormMode === 'edit' ? 'SAVE CHANGES' : 'CREATE EXERCISE'}</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {activeTab === 2 && (
+                        <div className="tab-content">
+                            <div className="finance-grid">
+                                <div className="finance-card"><div className="stat-label">Total Revenue</div><div className="finance-value">$18,420</div></div>
+                                <div className="finance-card"><div className="stat-label">Transactions This Month</div><div className="finance-value">156</div></div>
+                                <div className="finance-card"><div className="stat-label">Average Per Transaction</div><div className="finance-value">$118</div></div>
+                            </div>
+                            <div className="admin-section-title" style={{ marginBottom: '16px' }}>Monthly Revenue</div>
+                            <div className="bar-chart">
+                                {[{ label: 'Sep', height: '40%' }, { label: 'Oct', height: '55%' }, { label: 'Nov', height: '48%' }, { label: 'Dec', height: '65%' }, { label: 'Jan', height: '72%' }, { label: 'Feb', height: '85%' }].map((bar) => (
+                                    <div key={bar.label} className="bar-col"><div className="bar" style={{ height: bar.height }}></div><div className="bar-label">{bar.label}</div></div>
                                 ))}
                             </div>
-                            {activeTab === 0 && (
-                                <div className="tab-content">
-                                    <div className="section-header">
-                                        <div className="admin-section-title">Coach Applications & Accounts</div>
-                                        <div className="search-bar">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
-                                                <circle cx="11" cy="11" r="8" />
-                                                <path d="m21 21-4.35-4.35" />
-                                            </svg>
-                                            <input type="text" placeholder="SEARCH COACHES..." value={coachSearch} onChange={(e) => setCoachSearch(e.target.value)} />
-                                        </div>
-                                    </div>
-                                    {coachError && <p className="admin-feedback error">{coachError}</p>}
-                                    <table className="admin-table">
-                                        <thead>
-                                            <tr><th>Coach</th><th>Email</th><th>Specialization</th><th>Status</th><th>Active</th><th>Actions</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            {coachLoading ? (
-                                                <tr><td colSpan="6">Loading coach applications...</td></tr>
-                                            ) : filteredCoaches.length === 0 ? (
-                                                <tr><td colSpan="6">No coach applications found.</td></tr>
-                                            ) : filteredCoaches.map((coach) => (
-                                                <tr key={coach.coach_id}>
-                                                    <td><strong>{coach.first_name} {coach.last_name}</strong></td>
-                                                    <td>{coach.email}</td>
-                                                    <td>{coach.specialization}</td>
-                                                    <td><span className={`status-badge ${getStatusClass(coach.status)}`}>{coach.status}</span></td>
-                                                    <td><label className="toggle-switch"><input type="checkbox" checked={coach.active} readOnly disabled /><span className="toggle-slider"></span></label></td>
-                                                    <td>
-                                                        {coach.status === 'Pending' ? (
-                                                            <div className="actions-cell">
-                                                                <button className="btn-sm btn-green" disabled={coachActionId === coach.coach_id} onClick={() => handleApprove(coach.coach_id)}>{coachActionId === coach.coach_id ? 'WORKING...' : 'APPROVE'}</button>
-                                                                <button className="btn-sm btn-red-outline" disabled={coachActionId === coach.coach_id} onClick={() => handleReject(coach.coach_id)}>{coachActionId === coach.coach_id ? 'WORKING...' : 'REJECT'}</button>
-                                                            </div>
-                                                        ) : coach.status === 'Active' ? (
-                                                            <button className="btn-sm btn-warn-outline" disabled={coachActionId === coach.coach_id} onClick={() => handleSuspend(coach.coach_id)}>{coachActionId === coach.coach_id ? 'WORKING...' : 'SUSPEND'}</button>
-                                                        ) : coach.status === 'Suspended' ? (
-                                                            <button className="btn-sm btn-green" disabled={coachActionId === coach.coach_id} onClick={() => handleReactivate(coach.coach_id)}>{coachActionId === coach.coach_id ? 'WORKING...' : 'REACTIVATE'}</button>
-                                                        ) : (
-                                                            <button className="btn-sm btn-outline-sm">VIEW</button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                            {activeTab === 1 && (
-                                <div className="tab-content">
-                                    {exerciseLoading && <p>Loading exercises...</p>}
-                                    {exerciseError && <p className="admin-feedback error">{exerciseError}</p>}
-                                    <div className="section-header">
-                                        <div className="search-bar">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
-                                                <circle cx="11" cy="11" r="8" />
-                                                <path d="m21 21-4.35-4.35" />
-                                            </svg>
-                                            <input type="text" placeholder="SEARCH EXERCISES..." value={exerciseSearch} onChange={(e) => setExerciseSearch(e.target.value)} />
-                                        </div>
-                                        <button className="btn-add" onClick={openAddExerciseModal}>+ ADD EXERCISE</button>
-                                    </div>
-                                    {exerciseError && <p className="admin-feedback error">{exerciseError}</p>}
-                                    <table className="admin-table">
-                                        <thead>
-                                            <tr><th>Exercise Name</th><th>Muscle Group</th><th>Equipment</th><th>Actions</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            {exerciseLoading ? (
-                                                <tr><td colSpan="4">Loading exercise inventory...</td></tr>
-                                            ) : filteredExercises.length === 0 ? (
-                                                <tr><td colSpan="4">No exercises found.</td></tr>
-                                            ) : filteredExercises.map((exercise) => (
-                                                <tr key={exercise.exercise_id}>
-                                                    <td><strong>{exercise.name}</strong></td>
-                                                    <td>{exercise.muscle_groups.join(' / ') || 'None'}</td>
-                                                    <td>{exercise.equipment || 'None'}</td>
-                                                    <td>
-                                                        <div className="actions-cell">
-                                                            <button className="btn-sm btn-outline-sm" disabled={exerciseActionId === exercise.exercise_id} onClick={() => handleEditExercise(exercise.exercise_id)}>EDIT</button>
-                                                            <button className="btn-sm btn-red-outline" disabled={exerciseActionId === exercise.exercise_id} onClick={() => handleDeleteExercise(exercise.exercise_id)}>{exerciseActionId === exercise.exercise_id ? 'WORKING...' : 'DELETE'}</button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                    {isExerciseModalOpen && (
-                                        <div className="admin-modal-overlay" onClick={closeExerciseModal}>
-                                            <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-                                                <div className="admin-modal-header">
-                                                    <div className="admin-section-title">{exerciseFormMode === 'edit' ? 'Edit Exercise' : 'Add Exercise'}</div>
-                                                    <button className="admin-modal-close" onClick={closeExerciseModal}>X</button>
-                                                </div>
-                                                <form className="admin-exercise-form" onSubmit={handleExerciseSubmit}>
-                                                    <label>
-                                                        Exercise Name
-                                                        <input type="text" value={exerciseForm.name} onChange={(e) => handleExerciseInputChange('name', e.target.value)} required />
-                                                    </label>
-                                                    <div className="admin-form-row">
-                                                        <label>
-                                                            Category
-                                                            <select value={exerciseForm.category_id} onChange={(e) => handleExerciseInputChange('category_id', e.target.value)} required>
-                                                                <option value="">Select category</option>
-                                                                {exerciseMeta.categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-                                                            </select>
-                                                        </label>
-                                                        <label>
-                                                            Experience Level
-                                                            <select value={exerciseForm.experience_level_id} onChange={(e) => handleExerciseInputChange('experience_level_id', e.target.value)}>
-                                                                <option value="">Not set</option>
-                                                                {exerciseMeta.experience_levels.map((level) => <option key={level.id} value={level.id}>{level.name}</option>)}
-                                                            </select>
-                                                        </label>
-                                                    </div>
-                                                    <label>
-                                                        Equipment
-                                                        <input type="text" value={exerciseForm.equipment} onChange={(e) => handleExerciseInputChange('equipment', e.target.value)} />
-                                                    </label>
-                                                    <div className="admin-form-row">
-                                                        <label>
-                                                            Image URL
-                                                            <input type="url" value={exerciseForm.image_url} onChange={(e) => handleExerciseInputChange('image_url', e.target.value)} />
-                                                        </label>
-                                                        <label>
-                                                            Video URL
-                                                            <input type="url" value={exerciseForm.video_url} onChange={(e) => handleExerciseInputChange('video_url', e.target.value)} />
-                                                        </label>
-                                                    </div>
-                                                    <label>
-                                                        Instructions
-                                                        <textarea value={exerciseForm.instructions} onChange={(e) => handleExerciseInputChange('instructions', e.target.value)} rows="4" />
-                                                    </label>
-                                                    <label>
-                                                        Tips
-                                                        <textarea value={exerciseForm.tips} onChange={(e) => handleExerciseInputChange('tips', e.target.value)} rows="3" />
-                                                    </label>
-                                                    <div>
-                                                        <div className="admin-form-label">Muscle Groups</div>
-                                                        <div className="admin-checkbox-grid">
-                                                            {exerciseMeta.muscle_groups.map((muscleGroup) => (
-                                                                <label key={muscleGroup.id} className="admin-checkbox-item">
-                                                                    <input type="checkbox" checked={exerciseForm.muscle_group_ids.includes(muscleGroup.id)} onChange={() => toggleMuscleGroup(muscleGroup.id)} />
-                                                                    <span>{muscleGroup.name}</span>
-                                                                </label>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                    <div className="admin-modal-actions">
-                                                        <button type="button" className="btn-sm btn-outline-sm" onClick={closeExerciseModal}>CANCEL</button>
-                                                        <button type="submit" className="btn-sm btn-green" disabled={exerciseActionId !== null}>{exerciseActionId !== null ? 'SAVING...' : exerciseFormMode === 'edit' ? 'SAVE CHANGES' : 'CREATE EXERCISE'}</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                            {activeTab === 2 && (
-                                <div className="tab-content">
-                                    <div className="finance-grid">
-                                        <div className="finance-card"><div className="stat-label">Total Revenue</div><div className="finance-value">$18,420</div></div>
-                                        <div className="finance-card"><div className="stat-label">Transactions This Month</div><div className="finance-value">156</div></div>
-                                        <div className="finance-card"><div className="stat-label">Average Per Transaction</div><div className="finance-value">$118</div></div>
-                                    </div>
-                                    <div className="admin-section-title" style={{ marginBottom: '16px' }}>Monthly Revenue</div>
-                                    <div className="bar-chart">
-                                        {[{ label: 'Sep', height: '40%' }, { label: 'Oct', height: '55%' }, { label: 'Nov', height: '48%' }, { label: 'Dec', height: '65%' }, { label: 'Jan', height: '72%' }, { label: 'Feb', height: '85%' }].map((bar) => (
-                                            <div key={bar.label} className="bar-col"><div className="bar" style={{ height: bar.height }}></div><div className="bar-label">{bar.label}</div></div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                            {activeTab === 3 && (
-                                <div className="tab-content">
-                                    <div className="engage-row">
-                                        <div className="engage-card">
-                                            <div className="stat-label">Daily Active Users (Last 14 Days)</div>
-                                            <div className="finance-value" style={{ margin: '8px 0 16px' }}>312</div>
-                                            <div className="line-chart">
-                                                {[45, 52, 48, 60, 55, 42, 38, 58, 65, 70, 62, 75, 80, 85].map((h, i) => <div key={i} className={`line-bar ${i >= 12 ? 'highlight' : ''}`} style={{ height: `${h}%` }}></div>)}
-                                            </div>
-                                        </div>
-                                        <div className="engage-card">
-                                            <div className="stat-label">Workouts Logged This Week</div>
-                                            <div className="finance-value" style={{ margin: '8px 0 16px' }}>1,247</div>
-                                            <div className="line-chart">
-                                                {[30, 65, 80, 70, 85, 55, 25].map((h, i) => <div key={i} className={`line-bar ${i === 5 ? 'highlight' : ''}`} style={{ height: `${h}%` }}></div>)}
-                                            </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 2px' }}>
-                                                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => <span key={d} className="bar-label">{d}</span>)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                         </div>
-                        <div className="footer-spacer"></div>
-                    </div>
+                    )}
+                    {activeTab === 3 && (
+                        <div className="tab-content">
+                            <div className="engage-row">
+                                <div className="engage-card">
+                                    <div className="stat-label">Daily Active Users (Last 14 Days)</div>
+                                    <div className="finance-value" style={{ margin: '8px 0 16px' }}>312</div>
+                                    <div className="line-chart">
+                                        {[45, 52, 48, 60, 55, 42, 38, 58, 65, 70, 62, 75, 80, 85].map((h, i) => <div key={i} className={`line-bar ${i >= 12 ? 'highlight' : ''}`} style={{ height: `${h}%` }}></div>)}
+                                    </div>
+                                </div>
+                                <div className="engage-card">
+                                    <div className="stat-label">Workouts Logged This Week</div>
+                                    <div className="finance-value" style={{ margin: '8px 0 16px' }}>1,247</div>
+                                    <div className="line-chart">
+                                        {[30, 65, 80, 70, 85, 55, 25].map((h, i) => <div key={i} className={`line-bar ${i === 5 ? 'highlight' : ''}`} style={{ height: `${h}%` }}></div>)}
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 2px' }}>
+                                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => <span key={d} className="bar-label">{d}</span>)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
+                <div className="footer-spacer"></div>
             </div>
         </div>
     );
