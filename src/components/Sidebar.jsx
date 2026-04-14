@@ -6,7 +6,7 @@ import { Link, NavLink } from 'react-router-dom'
 
 const links = [
     { name: 'Dashboard', path: '/client-dashboard' },
-    { name: 'User Profile', path: '/' },
+    { name: 'User Profile', path: '/user-profile' },
     { name: 'My Workout Plans', path: '/workouts' },
     { name: 'Calendar', path: '/calendar' },
     { name: 'Activity Logger', path: '/' },

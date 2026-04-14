@@ -1,0 +1,115 @@
+.user-profile-contents {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 3rem;
+    gap: 30px;
+}
+
+.user-header {
+    display: flex;
+    align-items: center;
+    left: 0;
+    right: 0;
+    top: 0;
+    gap: 10px;
+}
+
+.user-temp-pfp {
+    background-color: #818bf8;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-radius: 40px;
+    font-family: 'Anek Latin', sans-serif;
+    font-size: 30px;
+    color: white;
+}
+
+.user-name {
+    display: flex;
+    font-family: 'Anek Latin', sans-serif;
+    text-align: left;
+    letter-spacing: 5%;
+    text-transform: uppercase;
+    font-size: 30px;
+}
+
+.user-type {
+    background-color: #818bf8;
+    font-family: 'Anek Latin', sans-serif;
+    text-align: center;
+    letter-spacing: 5%;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: white;
+    padding: 2px;
+    border-radius: 3px;
+    width: 30%;
+}
+
+.user-info-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 3rem;
+    border: 1px solid black;
+}
+
+.coach-info-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 3rem;
+    background-color: var(--periwinkle-light);
+}
+
+.profile-heading {
+    padding: 0px 0px 5px 0px;
+    width: 100%;
+    border-bottom: 2px solid #818bf8;
+    font-family: "Oswald", sans-serif;
+    font-size: 32px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
+}
+
+.personal-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    margin-top: 2rem;
+    grid-row-gap: 2rem;
+    grid-column-gap: 10rem;
+}
+
+.personal-info-heading {
+    text-align: left;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: rgb(107, 114, 128);
+}
+
+.personal-info {
+    text-align: left;
+    font-family: 'Anek Latin', sans-serif;
+    text-align: left;
+    font-size: 20px;
+    letter-spacing: 5%;
+    color: black;
+}
+
+.edit-profile-btn {
+    text-decoration: none;
+}
+
+.form-group2 {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    width: 100%;
+}
