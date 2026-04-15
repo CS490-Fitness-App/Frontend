@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './ChatPage.css';
 
-function ChatPage() {
+export const ChatPage = () => {
   const [conversations] = useState([
     { id: 1, initials: 'MR', name: 'Marcus Rivera', preview: "Sounds good! Let's bump up the weight on squats this week.", time: '2:34 PM', unread: 2, type: 'coach', online: true },
     { id: 2, initials: 'SN', name: 'Sarah Nguyen', preview: 'Thanks for the meal plan update!', time: 'Yesterday', unread: 0, type: 'client', online: false },
@@ -64,33 +64,6 @@ function ChatPage() {
 
   return (
     <div className="chat-page">
-      <nav className="navbar">
-        <Link to="/" className="nav-logo">
-          <svg viewBox="0 0 32 32" fill="none">
-            <circle cx="10" cy="16" r="7" fill="black" />
-            <circle cx="22" cy="16" r="7" fill="black" />
-            <circle cx="16" cy="16" r="5" fill="black" />
-            <rect x="6" y="14" width="20" height="4" rx="2" fill="black" />
-          </svg>
-          <span>PrimalTraining</span>
-        </Link>
-        <div className="nav-links">
-          <Link to="/">HOME</Link>
-          <Link to="/exercises">EXERCISES</Link>
-          <Link to="/client-dashboard">DASHBOARD</Link>
-          <Link to="/chat" className="active">CHAT</Link>
-        </div>
-        <div className="nav-right">
-          <div className="nav-bell">
-            <svg viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-            <div className="nav-bell-badge"></div>
-          </div>
-          <div className="nav-avatar">AJ</div>
-        </div>
-      </nav>
 
       <div className="chat-layout">
         <div className="chat-sidebar">
@@ -199,5 +172,3 @@ function ChatPage() {
     </div>
   );
 }
-
-export default ChatPage;
