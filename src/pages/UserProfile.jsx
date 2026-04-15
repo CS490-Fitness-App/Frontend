@@ -85,7 +85,7 @@ export const UserProfile = () => {
                 </div>
 
                 <Link to={"/edit-profile"} className="edit-profile-btn">
-                    <div className="btn">Edit Profile</div>
+                    <div className="profile-btn">Edit Profile</div>
                 </Link>
 
             </div>
