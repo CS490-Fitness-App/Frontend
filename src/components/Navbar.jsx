@@ -9,10 +9,16 @@ import { LoginForm } from "./LoginForm"
 
 export const Navbar = () => {
     const { isAuthenticated, logout } = useAuth0()
-    const { customAuth, clearAuth } = useCustomAuth()
+    const { customAuth, userRole, clearAuth } = useCustomAuth()
     const navigate = useNavigate()
 
     const loggedIn = isAuthenticated || !!customAuth
+
+    const getDashboardRoute = () => {
+        if (userRole === 'admin') return '/admin-dashboard'
+        if (userRole === 'coach') return '/coach-dashboard'
+        return '/client-dashboard'
+    }
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const openModal = () => setIsModalOpen(true)
@@ -44,6 +50,9 @@ export const Navbar = () => {
                     <li><NavLink to="/exercises">Exercises</NavLink></li>
                     <li><NavLink to="/workouts">Workouts</NavLink></li>
                     <li><NavLink to="/survey">Survey</NavLink></li>
+                    {loggedIn && (
+                        <li><NavLink to={getDashboardRoute()}>Dashboard</NavLink></li>
+                    )}
                     <li>
                         {loggedIn
                             ? <NavLink onClick={handleLogout}>Log Out</NavLink>
