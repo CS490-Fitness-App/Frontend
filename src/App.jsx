@@ -2,9 +2,9 @@ import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { AuthSync } from './components/AuthSync'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
-import { Home, Exercises, Workouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, ViewWorkout, EditWorkout, ClientCalendar } from './pages'
-import { CalendarComponent } from './components/CalendarComponent'
+import { Home, Exercises, Workouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches, PaymentCards, ViewWorkout, EditWorkout, ClientCalendar, ChatPage } from './pages'
 
 function App() {
     return (
@@ -13,17 +13,20 @@ function App() {
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/coaches" element={<Coaches />} />
                 <Route path="/exercises" element={<Exercises />} />
                 <Route path="/workouts" element={<Workouts />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/client-dashboard" element={<ClientDashboard />} />
-                <Route path="/coach-dashboard" element={<CoachDashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/client-dashboard" element={<ProtectedRoute><ClientDashboard /></ProtectedRoute>} />
+                <Route path="/coach-dashboard" element={<ProtectedRoute><CoachDashboard /></ProtectedRoute>} />
+                <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/signup" element={<SignUp />} />
-                <Route path="/survey" element={<Survey />} />
+                <Route path="/survey" element={<ProtectedRoute><Survey /></ProtectedRoute>} />
+                <Route path="/payment-cards" element={<ProtectedRoute><PaymentCards /></ProtectedRoute>} />
                 <Route path="/view-workout/:workoutId" element={<ViewWorkout />} />
                 <Route path="/edit-workout/:workoutId" element={<EditWorkout />} />
                 <Route path="/calendar" element={<ClientCalendar />} />
+                <Route path="/chat" element={<ChatPage />} />
             </Routes>
         </div>
     )

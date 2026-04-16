@@ -71,13 +71,14 @@ export const ClientDashboard = () => {
                 <Sidebar />
                 <div>
                     <div className="page-heading">
-                        <div className="h2">
-                            <span className="text-black">Welcome back, </span>
-                            <span className="text-purple">
-                                {loading ? "Loading..." : data?.full_name || "Client"}
-                            </span>
+                      <div className="h2">
+                        <span className="text-black">Welcome back, </span>
+                          <span className="text-purple">
+                            {loading ? "Loading..." : data?.full_name || "Client"}
+                          </span>
                         </div>
-                    </div>
+                      </div>
+
 
                     <div className="dashboard-homepage-container">
                         {error && <p className="stat-descriptor">{error}</p>}

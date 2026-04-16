@@ -62,7 +62,13 @@ export const AuthSync = () => {
           console.error(`[AuthSync] Backend returned ${res.status}:`, body.detail ?? body)
         } else {
           const body = await res.json().catch(() => ({}))
-          if (shouldNavigate) navigate(getDashboardRoute(body.role || requestedRole))
+          if (shouldNavigate) {
+            if (body.is_new_user) {
+              navigate('/survey', { state: { role: body.role || requestedRole } })
+            } else {
+              navigate(getDashboardRoute(body.role || requestedRole))
+            }
+          }
           return
         }
       } catch (error) {

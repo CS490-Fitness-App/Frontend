@@ -1,37 +1,97 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useCustomAuth } from '../context/AuthContext';
 import { Sidebar } from "../components/Sidebar"
 import './CoachDashboard.css';
 import './ClientDashboard.css';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+
 export const CoachDashboard = () => {
-    const [clients] = useState([
-        { id: 1, initials: 'AJ', name: 'Alex Johnson', goal: 'Build Muscle', lastActive: 'Today' },
-        { id: 2, initials: 'SK', name: 'Sarah Kim', goal: 'Lose Weight', lastActive: 'Yesterday' },
-        { id: 3, initials: 'JD', name: 'James Davis', goal: 'Endurance', lastActive: '2 days ago' },
-        { id: 4, initials: 'LP', name: 'Lisa Park', goal: 'Stay Healthy', lastActive: '3 days ago' },
-        { id: 5, initials: 'TW', name: 'Tom Wilson', goal: 'Build Muscle', lastActive: 'Today' },
-    ]);
+    const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+    const { customAuth } = useCustomAuth();
+    const [clients, setClients] = useState([]);
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [notifications] = useState([]);
+    const [coachId, setCoachId] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    const [pendingRequests] = useState([
-        { id: 1, initials: 'RN', name: 'Rachel Nguyen', goal: 'Lose Weight' },
-        { id: 2, initials: 'MB', name: 'Mike Brown', goal: 'Build Muscle' },
-        { id: 3, initials: 'EC', name: 'Emily Chen', goal: 'Endurance' },
-    ]);
-
-    const [notifications] = useState([
-        { id: 1, text: 'Alex Johnson logged a workout — Push Day completed', time: '12 min ago' },
-        { id: 2, text: 'Sarah Kim sent you a message', time: '1 hour ago' },
-        { id: 3, text: 'Tom Wilson completed his daily check-in', time: '3 hours ago' },
-        { id: 4, text: 'New review from Lisa Park — ★★★★★', time: 'Yesterday' },
-    ]);
-
-    const handleAccept = (requestId) => {
-        console.log('Accepted request:', requestId);
+    const getToken = async () => {
+        if (isAuthenticated) {
+            return getAccessTokenSilently({
+                authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+            });
+        }
+        return customAuth || null;
     };
 
-    const handleDecline = (requestId) => {
-        console.log('Declined request:', requestId);
+    const loadDashboard = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const token = await getToken();
+            if (!token) { setError('Not authenticated'); setLoading(false); return; }
+
+            const meRes = await fetch(`${API_BASE_URL}/coaches/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!meRes.ok) throw new Error('Failed to load coach profile.');
+            const meData = await meRes.json();
+            const myCoachId = meData.coach_id;
+            setCoachId(myCoachId);
+
+            const clientsRes = await fetch(`${API_BASE_URL}/coaches/${myCoachId}/clients`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!clientsRes.ok) throw new Error('Failed to load clients.');
+            const clientsData = await clientsRes.json();
+            setClients(clientsData.active_clients);
+            setPendingRequests(clientsData.pending_requests);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadDashboard();
+    }, [isAuthenticated, customAuth]);
+
+    const handleAccept = async (clientId) => {
+        try {
+            const token = await getToken();
+            const res = await fetch(`${API_BASE_URL}/coaches/request/accept?client_id=${clientId}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || 'Failed to accept request.');
+            }
+            await loadDashboard();
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    const handleDecline = async (clientId) => {
+        try {
+            const token = await getToken();
+            const res = await fetch(`${API_BASE_URL}/coaches/request/decline?client_id=${clientId}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || 'Failed to decline request.');
+            }
+            await loadDashboard();
+        } catch (err) {
+            setError(err.message);
+        }
     };
 
     const handleViewClient = (clientId) => {
@@ -40,35 +100,6 @@ export const CoachDashboard = () => {
 
     return (
         <div>
-            {/*
-            <nav className="navbar">
-                <Link to="/" className="nav-logo">
-                    <svg viewBox="0 0 32 32" fill="none">
-                        <circle cx="10" cy="16" r="7" fill="black" />
-                        <circle cx="22" cy="16" r="7" fill="black" />
-                        <circle cx="16" cy="16" r="5" fill="black" />
-                        <rect x="6" y="14" width="20" height="4" rx="2" fill="black" />
-                    </svg>
-                    <span>PrimalTraining</span>
-                </Link>
-                <div className="nav-links">
-                    <Link to="/">HOME</Link>
-                    <Link to="/exercises">EXERCISES</Link>
-                    <Link to="/coach-dashboard" className="active">DASHBOARD</Link>
-                    <Link to="/clients">CLIENTS</Link>
-                </div>
-                <div className="nav-right">
-                    <div className="nav-bell">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                        </svg>
-                        <div className="nav-bell-badge"></div>
-                    </div>
-                    <div className="nav-avatar">MR</div>
-                </div>
-            </nav>
-            */}
             <div className="dashboard-container">
                 <Sidebar />
                 <div>
@@ -82,22 +113,24 @@ export const CoachDashboard = () => {
                     <div class="dashboard-homepage-container">
 
                         <div className="dashboard">
+                            {error && <p style={{ color: 'red', padding: '1rem' }}>{error}</p>}
+
                             <div className="section-quick-stats">
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">Active Clients</div>
-                                    <div className="stat">12</div>
+                                    <div className="stat">{loading ? '...' : clients.length}</div>
                                 </div>
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">Pending Requests</div>
-                                    <div className="stat">3 <span className="pending-dot"></span></div>
+                                    <div className="stat">{loading ? '...' : pendingRequests.length} <span className="pending-dot"></span></div>
                                 </div>
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">Reviews</div>
-                                    <div className="stat">4.8 ★</div>
+                                    <div className="stat">—</div>
                                 </div>
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">This Month's Earnings</div>
-                                    <div className="stat">$2,340</div>
+                                    <div className="stat">—</div>
                                 </div>
                             </div>
 
@@ -108,59 +141,73 @@ export const CoachDashboard = () => {
                                         <thead>
                                             <tr>
                                                 <th>Client</th>
-                                                <th>Goal</th>
-                                                <th>Last Active</th>
+                                                <th>Since</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {clients.map((client) => (
-                                                <tr key={client.id}>
-                                                    <td>
-                                                        <div className="client-row">
-                                                            <div className="client-avatar">{client.initials}</div>
-                                                            <span className="client-name">{client.name}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td><span className="goal-tag">{client.goal}</span></td>
-                                                    <td>{client.lastActive}</td>
-                                                    <td>
-                                                        <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.id)}>
-                                                            VIEW
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {loading ? (
+                                                <tr><td colSpan="3">Loading...</td></tr>
+                                            ) : clients.length === 0 ? (
+                                                <tr><td colSpan="3">No active clients yet.</td></tr>
+                                            ) : clients.map((client) => {
+                                                const initials = `${client.first_name?.[0] || ''}${client.last_name?.[0] || ''}`;
+                                                const fullName = `${client.first_name} ${client.last_name}`;
+                                                return (
+                                                    <tr key={client.client_id}>
+                                                        <td>
+                                                            <div className="client-row">
+                                                                <div className="client-avatar">{initials}</div>
+                                                                <span className="client-name">{fullName}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td>{client.since ? new Date(client.since).toLocaleDateString() : '—'}</td>
+                                                        <td>
+                                                            <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.client_id)}>
+                                                                VIEW
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
-                                    <a href="#" className="view-all">View All 12 Clients →</a>
                                 </div>
 
                                 <div>
                                     <div className="card">
                                         <div>
                                             <div className="dashboard-heading">Pending Requests</div>
-                                            {pendingRequests.map((request) => (
-                                                <div key={request.id} className="request-item">
-                                                    <div className="request-info">
-                                                        <div className="client-avatar">{request.initials}</div>
-                                                        <div>
-                                                            <div className="request-name">{request.name}</div>
-                                                            <div className="request-goal">{request.goal}</div>
+                                            {loading ? (
+                                                <p>Loading...</p>
+                                            ) : pendingRequests.length === 0 ? (
+                                                <p>No pending requests.</p>
+                                            ) : pendingRequests.map((request) => {
+                                                const initials = `${request.first_name?.[0] || ''}${request.last_name?.[0] || ''}`;
+                                                const fullName = `${request.first_name} ${request.last_name}`;
+                                                return (
+                                                    <div key={request.client_id} className="request-item">
+                                                        <div className="request-info">
+                                                            <div className="client-avatar">{initials}</div>
+                                                            <div>
+                                                                <div className="request-name">{fullName}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="request-actions">
+                                                            <button className="btn-sm btn-green" onClick={() => handleAccept(request.client_id)}>ACCEPT</button>
+                                                            <button className="btn-sm btn-red" onClick={() => handleDecline(request.client_id)}>DECLINE</button>
                                                         </div>
                                                     </div>
-                                                    <div className="request-actions">
-                                                        <button className="btn-sm btn-green" onClick={() => handleAccept(request.id)}>ACCEPT</button>
-                                                        <button className="btn-sm btn-red" onClick={() => handleDecline(request.id)}>DECLINE</button>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     </div>
 
                                     <div className="card" style={{ marginTop: '20px' }}>
                                         <div className="dashboard-heading">Notifications</div>
-                                        {notifications.map((notif) => (
+                                        {notifications.length === 0 ? (
+                                            <p style={{ color: '#888', fontSize: '0.9rem' }}>No notifications.</p>
+                                        ) : notifications.map((notif) => (
                                             <div key={notif.id} className="notif-item">
                                                 <div className="notif-dot"></div>
                                                 <div>
