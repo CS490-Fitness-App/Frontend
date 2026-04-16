@@ -47,6 +47,26 @@ export const AdminDashboard = () => {
         return customAuth || null;
     };
 
+    const fetchExercises = async () => {
+        setExerciseLoading(true)
+        setExerciseError('')
+        try {
+            const res = await fetch(`${API_BASE_URL}/exercises`)
+            const data = await res.json().catch(() => [])
+            if (!res.ok) throw new Error(data.detail || 'Failed to load exercises')
+            setExercises(data.map(e => ({
+                id: e.exercise_id,
+                name: e.name,
+                muscle: e.muscle_groups?.[0] || '—',
+                equipment: e.equipment || '—',
+            })))
+        } catch (err) {
+            setExerciseError(err.message || 'Failed to load exercises')
+        } finally {
+            setExerciseLoading(false)
+        }
+    }
+
     const fetchCoaches = async () => {
         setCoachLoading(true);
         setCoachError('');
@@ -412,6 +432,8 @@ export const AdminDashboard = () => {
                             )}
                             {activeTab === 1 && (
                                 <div className="tab-content">
+                                    {exerciseLoading && <p>Loading exercises...</p>}
+                                    {exerciseError && <p className="admin-feedback error">{exerciseError}</p>}
                                     <div className="section-header">
                                         <div className="search-bar">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">

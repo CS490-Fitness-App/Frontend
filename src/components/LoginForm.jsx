@@ -91,6 +91,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
         return {
             access_token: tokenData.access_token,
             role: syncData.role || payload.role || 'client',
+            is_new_user: syncData.is_new_user ?? false,
         }
     }
 
@@ -107,7 +108,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                 profile_picture: null,
                 role: 'client',
             })
-            setAuth(result.access_token)
+            setAuth(result.access_token, result.role)
             onClose()
             navigate(getDashboardRoute(result.role))
         } catch (err) {
@@ -118,6 +119,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
     }
 
     // --- Signup ---
+
     const handleSignupSubmit = async (e) => {
         e.preventDefault()
         if (password !== confirmPassword) {
@@ -153,9 +155,13 @@ export const LoginForm = ({ isOpen, onClose }) => {
                 profile_picture: null,
                 role,
             })
-            setAuth(result.access_token)
+            setAuth(result.access_token, result.role)
             onClose()
-            navigate(getDashboardRoute(result.role))
+            if (result.is_new_user) {
+                navigate('/survey', { state: { role: result.role } })
+            } else {
+                navigate(getDashboardRoute(result.role))
+            }
         } catch (err) {
             setError(err.message)
         } finally {

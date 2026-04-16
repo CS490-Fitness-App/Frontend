@@ -12,6 +12,7 @@ const links = [
     { name: 'Activity Logger', path: '/' },
     { name: 'View Progress', path: '/' },
     { name: 'Coach Chat', path: '/' },
+    { name: 'Payment Methods', path: '/payment-cards' },
 ];
 
 export const Sidebar = () => {
