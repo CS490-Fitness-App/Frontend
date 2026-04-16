@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
+import { Link } from 'react-router-dom'
+import { FaRegUser, FaChartPie } from "react-icons/fa"
+import { BsBarChartFill } from "react-icons/bs"
+import { FaClipboardCheck } from "react-icons/fa6"
+
 import { useCustomAuth } from '../context/AuthContext'
+import { Sidebar } from "../components/Sidebar"
 import './Pages.css'
 import './ClientDashboard.css'
-import { Link } from 'react-router-dom'
-import { Sidebar } from "../components/Sidebar"
-
-import { FaRegUser, FaChartPie } from "react-icons/fa";
-import { BsBarChartFill } from "react-icons/bs";
-import { FaClipboardCheck } from "react-icons/fa6";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 export const ClientDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
     const { customAuth } = useCustomAuth()
-    const [name, setName] = useState('')
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
+    const [error, setError] = useState("")
 
     useEffect(() => {
         const fetchDashboard = async () => {
@@ -38,154 +37,178 @@ export const ClientDashboard = () => {
                 const res = await fetch(`${API_BASE_URL}/dashboard/client`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
-                if (res.ok) {
-                    const json = await res.json()
-                    setData(json)
-                    setName(json.name || '')
+
+                if (!res.ok) {
+                    throw new Error("Unable to load dashboard data.")
                 }
+
+                const dashboardData = await res.json()
+                setData(dashboardData)
+                setError("")
             } catch (err) {
                 console.error('Failed to load dashboard:', err)
-                setError('Unable to load dashboard data.')
+                setError("Unable to load dashboard data.")
             } finally {
                 setLoading(false)
             }
         }
+
         fetchDashboard()
     }, [isAuthenticated, customAuth, getAccessTokenSilently])
+
+    const formatWeight = (weight) => {
+        if (weight === null || weight === undefined) return "Not set"
+        return `${weight} LB`
+    }
+
+    const progressText = data?.intended_duration_weeks
+        ? `${data?.weeks_completed || 0} of ${data.intended_duration_weeks}`
+        : `${data?.weeks_completed || 0} completed`
 
     return (
         <div>
             <div className="dashboard-container">
                 <Sidebar />
                 <div>
-                    <div class="page-heading">
-                        <div class="h2">
-                            <span class="text-black">Welcome back, </span>
-                            <span class="text-purple">
-                                {loading ? "Loading..." : name || "Client"}
+                    <div className="page-heading">
+                        <div className="h2">
+                            <span className="text-black">Welcome back, </span>
+                            <span className="text-purple">
+                                {loading ? "Loading..." : data?.full_name || "Client"}
                             </span>
                         </div>
                     </div>
 
-                    <div class="dashboard-homepage-container">
-                        <div class="section-quick-stats">
-                            <div class="quick-stat-card">
-                                <p class="stat-heading">TODAY'S WORKOUT</p>
-                                <p class="stat">
-                                    {loading ? "Loading..." : (data?.today_workouts?.[0] || "No workout scheduled.")}
+                    <div className="dashboard-homepage-container">
+                        {error && <p className="stat-descriptor">{error}</p>}
+
+                        <div className="section-quick-stats">
+                            <div className="quick-stat-card">
+                                <p className="stat-heading">TODAY'S WORKOUT</p>
+                                <p className="stat">
+                                    {loading ? "Loading..." : data?.today_workout || "No workout available."}
                                 </p>
-                                <p class="stat-descriptor">Chest, Shoulders, Triceps</p>
-                            </div>
-                            <div class="quick-stat-card">
-                                    <p class="stat-heading">WEEKLY STREAK</p>
-                                <p class="stat">
-                                    {loading ? "Loading..." : data?.recent_activity || "0 / 7"}
+                                <p className="stat-descriptor">
+                                    {loading ? "Loading..." : data?.today_descriptor || "Nothing scheduled for today"}
                                 </p>
-                                <p class="stat-descriptor">Keep it up! 3 days left</p>
                             </div>
-                            <div class="quick-stat-card">
-                                    <p class="stat-heading">CURRENT WEIGHT</p>
-                                    <p class="stat">
-                                        {loading ? "Loading..." : data?.weight_lbs != null ? `${data.weight_lbs} LB` : "—"}
-                                    </p>
-                                <p class="stat-descriptor">
-                                    {data?.goal_weight_lbs != null ? `Goal: ${data.goal_weight_lbs} lb` : "No goal set"}
+                            <div className="quick-stat-card">
+                                <p className="stat-heading">WEEKLY STREAK</p>
+                                <p className="stat">
+                                    {loading ? "Loading..." : `${data?.weekly_streak ?? 0} / 7`}
+                                </p>
+                                <p className="stat-descriptor">
+                                    {loading ? "Loading..." : data?.streak_descriptor || "No recent activity."}
+                                </p>
+                            </div>
+                            <div className="quick-stat-card">
+                                <p className="stat-heading">CURRENT WEIGHT</p>
+                                <p className="stat">{loading ? "Loading..." : formatWeight(data?.current_weight_lb)}</p>
+                                <p className="stat-descriptor">
+                                    {loading ? "Loading..." : data?.weight_descriptor || "No goal weight set"}
                                 </p>
                             </div>
                         </div>
 
-                        <div class="section-2">
-                            <div class="workout-plan-panel">
-                                <div class="dashboard-heading">MY WORKOUT PLAN</div>
-                                <div class="dashboard-list-container">
-                                    <div class="dashboard-list-contents">
-                                        <div class="stat-heading">CURRENT PLAN</div>
-                                        <div class="dashboard-list">PPL — Push Pull Legs</div>
+                        <div className="section-2">
+                            <div className="workout-plan-panel">
+                                <div className="dashboard-heading">MY WORKOUT PLAN</div>
+                                <div className="dashboard-list-container">
+                                    <div className="dashboard-list-contents">
+                                        <div className="stat-heading">CURRENT PLAN</div>
+                                        <div className="dashboard-list">
+                                            {loading ? "Loading..." : data?.current_plan_name || "No active workout plan"}
+                                        </div>
                                     </div>
-                                    <div class="dashboard-list-contents">
-                                        <div class="stat-heading">NEXT WORKOUT</div>
-                                        <div class="dashboard-list">Pull Day — Tomorrow</div>
+                                    <div className="dashboard-list-contents">
+                                        <div className="stat-heading">NEXT WORKOUT</div>
+                                        <div className="dashboard-list">
+                                            {loading ? "Loading..." : data?.next_workout_name || "No upcoming workout"}
+                                        </div>
                                     </div>
-                                    <div class="dashboard-list-contents">
-                                        <div class="stat-heading">WEEKS COMPLETED</div>
-                                        <div class="dashboard-list">6 of 12</div>
+                                    <div className="dashboard-list-contents">
+                                        <div className="stat-heading">SCHEDULE</div>
+                                        <div className="dashboard-list">
+                                            {loading ? "Loading..." : data?.next_workout_date || "No workout scheduled"}
+                                        </div>
                                     </div>
-
+                                    <div className="dashboard-list-contents">
+                                        <div className="stat-heading">WEEKS COMPLETED</div>
+                                        <div className="dashboard-list">
+                                            {loading ? "Loading..." : progressText}
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link className="panel-btn-purple">View Plan</Link>
+                                    <Link to="/workouts" className="panel-btn-purple">View Plan</Link>
                                 </div>
                             </div>
-                            <div class="coach-panel">
-                                <div class="dashboard-heading">MY COACH</div>
-                                {data?.active_coach ? (
-                                    <>
-                                        <div class="coach-container">
-                                            <div class="profile-bg">
-                                                <FaRegUser/>
-                                            </div>
-                                            <div class="container-59">
-                                                <div class="dashboard-list">
-                                                    {data.active_coach.first_name} {data.active_coach.last_name}
-                                                </div>
-                                                <div class="stat-heading">
-                                                    {data.active_coach.specialization.toUpperCase()}
-                                                    {data.active_coach.avg_rating != null && ` ★ ${data.active_coach.avg_rating}`}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="dashboard-list-container">
-                                            <div class="dashboard-list-contents">
-                                                <div class="stat-heading">STATUS</div>
-                                                <div class="dashboard-list">{data.active_coach.status}</div>
-                                            </div>
-                                        </div>
-                                        <div className="btn-container">
-                                            <Link className="panel-btn-purple">Message</Link>
-                                            <Link className="panel-btn-white">View Profile</Link>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div style={{ color: '#888', fontSize: '0.9rem', padding: '1rem 0' }}>
-                                        {loading ? 'Loading...' : 'No active coach. Browse coaches to get started.'}
+                            <div className="coach-panel">
+                                <div className="dashboard-heading">MY COACH</div>
+                                <div className="coach-container">
+                                    <div className="profile-bg">
+                                        <FaRegUser />
                                     </div>
-                                )}
+                                    <div className="container-59">
+                                        <div className="dashboard-list">
+                                            {loading ? "Loading..." : data?.coach_name || "No coach assigned"}
+                                        </div>
+                                        <div className="stat-heading">WORKOUT COACH</div>
+                                    </div>
+                                </div>
+                                <div className="dashboard-list-container">
+                                    <div className="dashboard-list-contents">
+                                        <div className="stat-heading">STATUS</div>
+                                        <div className="dashboard-list">
+                                            {loading ? "Loading..." : data?.coach_status || "No active coach"}
+                                        </div>
+                                    </div>
+                                    <div className="dashboard-list-contents">
+                                        <div className="stat-heading">RECENT ACTIVITY</div>
+                                        <div className="dashboard-list">
+                                            {loading ? "Loading..." : data?.recent_activity || "No recent activity."}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="btn-container">
+                                    <Link className="panel-btn-purple">Message</Link>
+                                    <Link className="panel-btn-white">View Profile</Link>
+                                </div>
                             </div>
                         </div>
 
-
-                        <div class="section-2">
-                            <div class="workout-plan-panel">
-                                <div class="container-others">
-                                    <div class="icon-bg">
+                        <div className="section-2">
+                            <div className="workout-plan-panel">
+                                <div className="container-others">
+                                    <div className="icon-bg">
                                         <BsBarChartFill />
                                     </div>
-                                    <div class="header-others">LOG ACTIVITY</div>
-                                    <div class="stat-descriptor">Record your sets, reps, weights, and cardio for today's workout.</div>
+                                    <div className="header-others">LOG ACTIVITY</div>
+                                    <div className="stat-descriptor">Record your sets, reps, weights, and cardio for today&apos;s workout.</div>
                                 </div>
                                 <div className="btn-container">
                                     <Link className="panel-btn-purple">Log Now</Link>
                                 </div>
                             </div>
-                            <div class="workout-plan-panel">
-                                <div class="container-others">
-                                    <div class="icon-bg">
+                            <div className="workout-plan-panel">
+                                <div className="container-others">
+                                    <div className="icon-bg">
                                         <FaClipboardCheck />
                                     </div>
-                                    <div class="header-others">DAILY CHECK-IN</div>
-                                    <div class="stat-descriptor">Log your calories, steps, water intake, weight, and mood for today.</div>
+                                    <div className="header-others">DAILY CHECK-IN</div>
+                                    <div className="stat-descriptor">Log your calories, steps, water intake, weight, and mood for today.</div>
                                 </div>
                                 <div className="btn-container">
                                     <Link className="panel-btn-purple">Check In</Link>
                                 </div>
                             </div>
-                            <div class="workout-plan-panel">
-                                <div class="container-others">
-                                    <div class="icon-bg">
+                            <div className="workout-plan-panel">
+                                <div className="container-others">
+                                    <div className="icon-bg">
                                         <FaChartPie />
                                     </div>
-                                    <div class="header-others">VIEW PROGRESS</div>
-                                    <div class="stat-descriptor">See your charts and trends over the past weeks and months.</div>
+                                    <div className="header-others">VIEW PROGRESS</div>
+                                    <div className="stat-descriptor">See your charts and trends over the past weeks and months.</div>
                                 </div>
                                 <div className="btn-container">
                                     <Link className="panel-btn-purple">View Charts</Link>
@@ -193,9 +216,6 @@ export const ClientDashboard = () => {
                             </div>
                         </div>
                     </div>
-
-
-
                 </div>
             </div>
         </div>

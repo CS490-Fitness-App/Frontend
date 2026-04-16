@@ -3,6 +3,19 @@
 .dashboard-container {
     display: flex;
     flex-direction: row;
+    align-items: stretch;
+}
+
+.client-dashboard-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.client-dashboard-container > div:last-child,
+.dashboard-container > div:last-child {
+    flex: 1;
+    min-width: 0;
 }
 
 .dashboard-homepage-container {
@@ -13,6 +26,12 @@
     gap: 32px;
     padding: 32px;
     width: 100%;
+}
+
+.dashboard-page-heading {
+    display: flex;
+    align-items: center;
+    padding: 20px 32px 0;
 }
 
 .section-quick-stats {
@@ -215,5 +234,9 @@
     text-decoration: none;
     text-transform: uppercase;
     color: black;
+}
+
+.client-dashboard-container .dashboard-homepage-container {
+    padding-top: 20px;
 }
 

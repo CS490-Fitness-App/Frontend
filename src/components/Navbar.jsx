@@ -6,6 +6,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 
 import { LoginForm } from "./LoginForm"
+import { NotificationBell } from "./NotificationBell"
 
 export const Navbar = () => {
     const { isAuthenticated, logout } = useAuth0()
@@ -51,7 +52,9 @@ export const Navbar = () => {
                     <li><NavLink to="/workouts">Workouts</NavLink></li>
                     <li><NavLink to="/survey">Survey</NavLink></li>
                     {loggedIn && (
-                        <li><NavLink to={getDashboardRoute()}>Dashboard</NavLink></li>
+                        <li className="nav-bell-item">
+                            <NotificationBell />
+                        </li>
                     )}
                     <li>
                         {loggedIn

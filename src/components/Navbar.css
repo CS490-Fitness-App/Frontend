@@ -49,3 +49,8 @@ nav li button{
     width: 80px;
     font-size: 14px;
 }
+
+nav ul li.nav-bell-item {
+    display: flex;
+    align-items: center;
+}
