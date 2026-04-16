@@ -108,7 +108,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                 profile_picture: null,
                 role: 'client',
             })
-            setAuth(result.access_token)
+            setAuth(result.access_token, result.role)
             onClose()
             navigate(getDashboardRoute(result.role))
         } catch (err) {
@@ -155,7 +155,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                 profile_picture: null,
                 role,
             })
-            setAuth(result.access_token)
+            setAuth(result.access_token, result.role)
             onClose()
             if (result.is_new_user) {
                 navigate('/survey', { state: { role: result.role } })
