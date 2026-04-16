@@ -26,7 +26,6 @@ export const ChatPage = () => {
     return token;
   };
 
-  // Load conversations on mount
   useEffect(() => {
     setLoadingConversations(true);
     (async () => {
@@ -40,7 +39,7 @@ export const ChatPage = () => {
         });
         if (!res.ok) throw new Error('Failed to load conversations');
         const data = await res.json();
-
+        // data is a list of ConversationOut
         const mapped = data.map((c) => {
           const name = c.other_user_name || 'Unknown';
           const initials = name
@@ -64,14 +63,13 @@ export const ChatPage = () => {
           };
         });
         setConversations(mapped);
-
-        // Auto-select chat from URL param
         const chatParam = new URLSearchParams(window.location.search).get('chat');
         if (chatParam) {
           const id = Number(chatParam);
           console.log('Opening chat from URL param:', id);
           const convo = mapped.find((x) => x.id === id);
           setSelectedConvoId(id);
+          // Fetch messages even if convo not in list (handles new conversations with no messages yet)
           fetchMessages(id, convo);
         }
       } catch (err) {
@@ -85,8 +83,8 @@ export const ChatPage = () => {
   const [selectedConvoId, setSelectedConvoId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [newMessage, setNewMessage] = useState('');
+
   const [messages, setMessages] = useState([]);
-  const [lastMessageTime, setLastMessageTime] = useState(null);
 
   // Fetch messages for a conversation
   const fetchMessages = async (chatId, convo) => {
@@ -101,90 +99,48 @@ export const ChatPage = () => {
       });
       if (!res.ok) throw new Error('Failed to load messages');
       const data = await res.json();
-
-      const mapped = data.map((m) => {
-        const sentAt = new Date(m.sent_at);
-        const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-        const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const otherName = convo ? convo.name : null;
-        return {
-          id: m.message_id,
-          sender: m.sender_name === otherName ? 'them' : 'me',
-          text: m.body,
-          time,
-          date,
-        };
-      });
-      setMessages(mapped);
-      if (mapped.length > 0) {
-        const lastMsg = data[data.length - 1];
-        setLastMessageTime(new Date(lastMsg.sent_at));
+        // data is list of MessageOut
+        const mapped = data.map((m) => {
+          const sentAt = new Date(m.sent_at);
+          const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+          const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const otherName = convo ? convo.name : null;
+          return {
+            id: m.message_id,
+            sender: m.sender_name === otherName ? 'them' : 'me',
+            text: m.body,
+            time,
+            date,
+          };
+        });
+        setMessages(mapped);
+      } catch (err) {
+        console.error('Failed to fetch messages:', err);
       }
-    } catch (err) {
-      console.error('Failed to fetch messages:', err);
-    }
   };
 
-  // Poll for new messages every 2 seconds
   useEffect(() => {
-    if (!selectedConvoId) return;
-
-    const pollInterval = setInterval(async () => {
-      try {
-        const token = await getToken();
-        const sinceParam = lastMessageTime
-          ? `?since=${lastMessageTime.toISOString()}`
-          : '';
-        const res = await fetch(`${API_BASE_URL}/chats/${selectedConvoId}/messages${sinceParam}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
-        if (!res.ok) return;
-        const newMsgs = await res.json();
-
-        if (newMsgs.length > 0) {
-          const mapped = newMsgs.map((m) => {
-            const sentAt = new Date(m.sent_at);
-            const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-            const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const convo = conversations.find((c) => c.id === selectedConvoId);
-            return {
-              id: m.message_id,
-              sender: m.sender_name === (convo ? convo.name : '') ? 'them' : 'me',
-              text: m.body,
-              time,
-              date,
-            };
-          });
-          setMessages((prev) => [...prev, ...mapped]);
-          setLastMessageTime(new Date(newMsgs[newMsgs.length - 1].sent_at));
-        }
-      } catch (err) {
-        // Silent fail on polling
-      }
-    }, 2000); // Poll every 2 seconds
-
-    return () => clearInterval(pollInterval);
-  }, [selectedConvoId, lastMessageTime, conversations]);
-
-  // Scroll to bottom when messages change
-  useEffect(() => {
+    // scroll to bottom when messages change
     if (messagesAreaRef.current) {
       messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
     }
   }, [messages]);
 
+
+
+  // selectedConvo from list, or create a minimal one if opening a new conversation with no messages yet
   let selectedConvo = conversations.find((c) => c.id === selectedConvoId);
   if (!selectedConvo && selectedConvoId) {
+    // Create a minimal selectedConvo for new conversations without messages
+    console.log('Creating fallback selectedConvo for chat_id:', selectedConvoId);
     selectedConvo = {
       id: selectedConvoId,
-      name: 'Coach',
+      name: 'Coach', // generic fallback until first message arrives
       initials: 'C',
       online: false,
     };
   }
+  console.log('selectedConvoId:', selectedConvoId, 'selectedConvo:', selectedConvo);
 
   const filteredConversations = conversations.filter((convo) =>
     convo.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -214,24 +170,22 @@ export const ChatPage = () => {
       });
       if (!res.ok) throw new Error('Failed to send message');
       const m = await res.json();
-
-      const sentAt = new Date(m.sent_at);
-      const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-      const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const convo = conversations.find((c) => c.id === selectedConvoId);
-      const newMsg = {
-        id: m.message_id,
-        sender: m.sender_name === (convo ? convo.name : '') ? 'them' : 'me',
-        text: m.body,
-        time,
-        date,
-      };
-      setMessages((prev) => [...prev, newMsg]);
-      setNewMessage('');
-      setLastMessageTime(new Date(m.sent_at));
-    } catch (err) {
-      console.error('Error sending message:', err);
-    }
+        const sentAt = new Date(m.sent_at);
+        const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const convo = conversations.find((c) => c.id === selectedConvoId);
+        const newMsg = {
+          id: m.message_id,
+          sender: m.sender_name === (convo ? convo.name : '') ? 'them' : 'me',
+          text: m.body,
+          time,
+          date,
+        };
+        setMessages((prev) => [...prev, newMsg]);
+        setNewMessage('');
+      } catch (err) {
+        console.error('Error sending message:', err);
+      }
   };
 
   const handleKeyPress = (e) => {
@@ -263,7 +217,7 @@ export const ChatPage = () => {
                 type="text"
                 placeholder="SEARCH CONVERSATIONS..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
@@ -356,4 +310,4 @@ export const ChatPage = () => {
       </div>
     </div>
   );
-};
+}

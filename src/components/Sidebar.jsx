@@ -7,10 +7,11 @@ import { Link, NavLink } from 'react-router-dom'
 const links = [
     { name: 'Dashboard', path: '/client-dashboard' },
     { name: 'User Profile', path: '/' },
-    { name: 'My Workout Plans', path: '/' },
+    { name: 'My Workout Plans', path: '/workouts' },
+    { name: 'Calendar', path: '/calendar' },
     { name: 'Activity Logger', path: '/' },
     { name: 'View Progress', path: '/' },
-    { name: 'Coach Chat', path: '/' },
+    { name: 'Coach Chat', path: '/chat' },
     { name: 'Payment Methods', path: '/payment-cards' },
 ];
 

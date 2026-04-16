@@ -28,7 +28,7 @@ export const Coaches = () => {
     }
 
     useEffect(() => {
-        fetch(`${API_BASE_URL}/coaches?name=${query}`)
+        fetch(`${API_BASE_URL}/coaches/?name=${query}`)
             .then(res => {
                 if (!res.ok) throw new Error(`Failed to load coaches (${res.status})`)
                 return res.json()
