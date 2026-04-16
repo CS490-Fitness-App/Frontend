@@ -47,26 +47,6 @@ export const AdminDashboard = () => {
         return customAuth || null;
     };
 
-    const fetchExercises = async () => {
-        setExerciseLoading(true)
-        setExerciseError('')
-        try {
-            const res = await fetch(`${API_BASE_URL}/exercises`)
-            const data = await res.json().catch(() => [])
-            if (!res.ok) throw new Error(data.detail || 'Failed to load exercises')
-            setExercises(data.map(e => ({
-                id: e.exercise_id,
-                name: e.name,
-                muscle: e.muscle_groups?.[0] || '—',
-                equipment: e.equipment || '—',
-            })))
-        } catch (err) {
-            setExerciseError(err.message || 'Failed to load exercises')
-        } finally {
-            setExerciseLoading(false)
-        }
-    }
-
     const fetchCoaches = async () => {
         setCoachLoading(true);
         setCoachError('');
