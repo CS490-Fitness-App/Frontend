@@ -35,6 +35,7 @@ export const AdminDashboard = () => {
         video_url: '',
         muscle_group_ids: [],
     });
+
     const [coachSearch, setCoachSearch] = useState('');
     const [exerciseSearch, setExerciseSearch] = useState('');
 
@@ -46,6 +47,26 @@ export const AdminDashboard = () => {
         }
         return customAuth || null;
     };
+
+    const fetchExercises = async () => {
+        setExerciseLoading(true)
+        setExerciseError('')
+        try {
+            const res = await fetch(`${API_BASE_URL}/exercises`)
+            const data = await res.json().catch(() => [])
+            if (!res.ok) throw new Error(data.detail || 'Failed to load exercises')
+            setExercises(data.map(e => ({
+                id: e.exercise_id,
+                name: e.name,
+                muscle: e.muscle_groups?.[0] || '—',
+                equipment: e.equipment || '—',
+            })))
+        } catch (err) {
+            setExerciseError(err.message || 'Failed to load exercises')
+        } finally {
+            setExerciseLoading(false)
+        }
+    }
 
     const fetchCoaches = async () => {
         setCoachLoading(true);
@@ -90,37 +111,6 @@ export const AdminDashboard = () => {
         }
         setExerciseMeta(data);
         return data;
-    };
-
-    const fetchExercises = async () => {
-        setExerciseLoading(true);
-        setExerciseError('');
-        try {
-            const token = await getToken();
-            if (!token) {
-                setExerciseError('Log in as an admin to view the exercise inventory.');
-                setExerciseLoading(false);
-                return;
-            }
-            const [exerciseRes, metaRes] = await Promise.all([
-                fetch(`${API_BASE_URL}/exercises`, { headers: { Authorization: `Bearer ${token}` } }),
-                fetch(`${API_BASE_URL}/exercises/meta/options`, { headers: { Authorization: `Bearer ${token}` } }),
-            ]);
-            const exerciseData = await exerciseRes.json().catch(() => ([]));
-            const metaData = await metaRes.json().catch(() => ({}));
-            if (!exerciseRes.ok) {
-                throw new Error(exerciseData.detail || 'Failed to load exercises');
-            }
-            if (!metaRes.ok) {
-                throw new Error(metaData.detail || 'Failed to load exercise metadata');
-            }
-            setExercises(exerciseData);
-            setExerciseMeta(metaData);
-        } catch (err) {
-            setExerciseError(err.message || 'Failed to load exercises');
-        } finally {
-            setExerciseLoading(false);
-        }
     };
 
     useEffect(() => {

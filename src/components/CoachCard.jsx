@@ -12,17 +12,17 @@ export const CoachCard = ({ coach, onClick }) => {
     {
         if (positiveStars >= 1)
         {
-            reviewDomElements.push(<FontAwesomeIcon icon={faSolidStar} />)
+            reviewDomElements.push(<FontAwesomeIcon key={i} icon={faSolidStar} />)
             positiveStars--;
         }
         else if (positiveStars > 0)
         {
             positiveStars = 0;
-            reviewDomElements.push(<FontAwesomeIcon icon={faStarHalfStroke} />)
+            reviewDomElements.push(<FontAwesomeIcon key={i} icon={faStarHalfStroke} />)
         }
         else
         {
-            reviewDomElements.push(<FontAwesomeIcon icon={faRegularStar} />)
+            reviewDomElements.push(<FontAwesomeIcon key={i} icon={faRegularStar} />)
         }
     }
     return (
