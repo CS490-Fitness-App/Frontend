@@ -5,6 +5,7 @@ import { useCustomAuth } from '../context/AuthContext';
 import './ChatPage.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+const POLL_INTERVAL_MS = 3000;
 
 export const ChatPage = () => {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
@@ -12,6 +13,8 @@ export const ChatPage = () => {
   const [conversations, setConversations] = useState([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const messagesAreaRef = useRef(null);
+  const latestTimestampRef = useRef(null);
+  const pollIntervalRef = useRef(null);
 
   // Helper to get auth token - define first so it can be used in useEffect
   const getToken = async () => {
@@ -68,6 +71,7 @@ export const ChatPage = () => {
           const id = Number(chatParam);
           console.log('Opening chat from URL param:', id);
           const convo = mapped.find((x) => x.id === id);
+          latestTimestampRef.current = null;
           setSelectedConvoId(id);
           // Fetch messages even if convo not in list (handles new conversations with no messages yet)
           fetchMessages(id, convo);
@@ -86,12 +90,15 @@ export const ChatPage = () => {
 
   const [messages, setMessages] = useState([]);
 
-  // Fetch messages for a conversation
-  const fetchMessages = async (chatId, convo) => {
+  // Fetch messages for a conversation. If since is provided, only append new messages.
+  const fetchMessages = async (chatId, convo, since = null) => {
     if (!chatId) return;
     try {
       const token = await getToken();
-      const res = await fetch(`${API_BASE_URL}/chats/${chatId}/messages`, {
+      const url = since
+        ? `${API_BASE_URL}/chats/${chatId}/messages?since=${encodeURIComponent(since)}`
+        : `${API_BASE_URL}/chats/${chatId}/messages`;
+      const res = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -99,24 +106,35 @@ export const ChatPage = () => {
       });
       if (!res.ok) throw new Error('Failed to load messages');
       const data = await res.json();
-        // data is list of MessageOut
-        const mapped = data.map((m) => {
-          const sentAt = new Date(m.sent_at);
-          const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-          const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const otherName = convo ? convo.name : null;
-          return {
-            id: m.message_id,
-            sender: m.sender_name === otherName ? 'them' : 'me',
-            text: m.body,
-            time,
-            date,
-          };
-        });
+      if (data.length === 0) return;
+
+      const otherName = convo ? convo.name : null;
+      const mapped = data.map((m) => {
+        const sentAt = new Date(m.sent_at);
+        const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return {
+          id: m.message_id,
+          sender: m.sender_name === otherName ? 'them' : 'me',
+          sender_name: m.sender_name,
+          text: m.body,
+          time,
+          date,
+        };
+      });
+
+      // Track the latest sent_at for subsequent polls
+      const latestSentAt = data[data.length - 1].sent_at;
+      latestTimestampRef.current = latestSentAt;
+
+      if (since) {
+        setMessages((prev) => [...prev, ...mapped]);
+      } else {
         setMessages(mapped);
-      } catch (err) {
-        console.error('Failed to fetch messages:', err);
       }
+    } catch (err) {
+      console.error('Failed to fetch messages:', err);
+    }
   };
 
   useEffect(() => {
@@ -125,6 +143,27 @@ export const ChatPage = () => {
       messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Start polling for new messages whenever a conversation is selected
+  useEffect(() => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    if (!selectedConvoId) return;
+
+    const convo = conversations.find((c) => c.id === selectedConvoId) || null;
+    pollIntervalRef.current = setInterval(() => {
+      if (latestTimestampRef.current) {
+        fetchMessages(selectedConvoId, convo, latestTimestampRef.current);
+      }
+    }, POLL_INTERVAL_MS);
+
+    return () => {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    };
+  }, [selectedConvoId, isAuthenticated, customAuth]);
 
 
 
@@ -147,6 +186,8 @@ export const ChatPage = () => {
   );
 
   const handleSelectConversation = (convoId) => {
+    latestTimestampRef.current = null;
+    setMessages([]);
     setSelectedConvoId(convoId);
     const convo = conversations.find((c) => c.id === convoId);
     if (convo) {
@@ -177,10 +218,12 @@ export const ChatPage = () => {
         const newMsg = {
           id: m.message_id,
           sender: m.sender_name === (convo ? convo.name : '') ? 'them' : 'me',
+          sender_name: m.sender_name,
           text: m.body,
           time,
           date,
         };
+        latestTimestampRef.current = m.sent_at;
         setMessages((prev) => [...prev, newMsg]);
         setNewMessage('');
       } catch (err) {
@@ -251,10 +294,6 @@ export const ChatPage = () => {
                   <div className="chat-header-avatar">{selectedConvo.initials}</div>
                   <div className="chat-header-info">
                     <div className="chat-header-name">{selectedConvo.name}</div>
-                    <div className={`chat-header-status ${selectedConvo.online ? 'online' : 'offline'}`}>
-                      <div className="status-dot"></div>
-                      {selectedConvo.online ? 'Online' : 'Offline'}
-                    </div>
                   </div>
                 </div>
                 <div className="chat-header-right">
@@ -274,7 +313,12 @@ export const ChatPage = () => {
                     {groupedMessages[date].map((msg) => (
                       <div key={msg.id} className={`message-row ${msg.sender === 'me' ? 'sent' : 'received'}`}>
                         <div className={`msg-avatar ${msg.sender === 'me' ? 'me' : 'coach'}`}>
-                          {msg.sender === 'me' ? 'AJ' : selectedConvo.initials}
+                          {(msg.sender_name || '')
+                            .split(' ')
+                            .map((p) => p[0] || '')
+                            .slice(0, 2)
+                            .join('')
+                            .toUpperCase() || '?'}
                         </div>
                         <div className="msg-content">
                           <div className="msg-bubble">{msg.text}</div>
