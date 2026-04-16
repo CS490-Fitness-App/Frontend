@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Anek+Latin:wght@100..800&display=swap');
+
+.anek {
+    font-family: "Anek Latin", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: normal;
+    font-style: normal;
+}
+
+.text-black {
+    color: black;
+}
+
+.text-purple {
+    color: rgba(128, 141, 253, 1);
+}
+
+.h1 {
+    font-family: 'Anek Latin', sans-serif;
+    text-align: left;
+    font-weight: 800;
+    font-size: 65px;
+    letter-spacing: -5%;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
+}
+
+.h2 {
+    font-family: 'Anek Latin', sans-serif;
+    font-weight: 800;
+    font-size: 45px;
+    letter-spacing: -3%;
+    text-transform: uppercase;
+    color: black;
+}
+
+.p {
+    font-family: 'Anek Latin', sans-serif;
+}
+
+.btn {
+    text-align: center;
+    width: 40%;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: #808CFD;
+    color: white;
+    text-decoration: none;
+    margin: 0.5rem;
+}
+
+.btn:hover {
+    background-color: #4E548F;
+}
+
+.page-heading {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 20px 20px 20px;
+    background-color: white;
+    border-bottom: 2px solid black;
+}
+
+
+.homepage-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.home-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(233, 236, 255, 1);
+    border-bottom: 1px solid black;
+}
+
+.home-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 40px 20px 40px 20px;
+    border-left: 1px solid black;
+}
