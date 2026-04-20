@@ -55,12 +55,7 @@ export const AdminDashboard = () => {
             const res = await fetch(`${API_BASE_URL}/exercises`)
             const data = await res.json().catch(() => [])
             if (!res.ok) throw new Error(data.detail || 'Failed to load exercises')
-            setExercises(data.map(e => ({
-                id: e.exercise_id,
-                name: e.name,
-                muscle: e.muscle_groups?.[0] || '—',
-                equipment: e.equipment || '—',
-            })))
+            setExercises(data)
         } catch (err) {
             setExerciseError(err.message || 'Failed to load exercises')
         } finally {
@@ -317,7 +312,7 @@ export const AdminDashboard = () => {
 
     const filteredExercises = exercises.filter((exercise) =>
         exercise.name.toLowerCase().includes(exerciseSearch.toLowerCase()) ||
-        exercise.muscle_groups.join(' / ').toLowerCase().includes(exerciseSearch.toLowerCase())
+        (exercise.muscle_groups || []).join(' / ').toLowerCase().includes(exerciseSearch.toLowerCase())
     );
 
     const getStatusClass = (status) => {
@@ -427,7 +422,7 @@ export const AdminDashboard = () => {
                                             ) : filteredExercises.map((exercise) => (
                                                 <tr key={exercise.exercise_id}>
                                                     <td><strong>{exercise.name}</strong></td>
-                                                    <td>{exercise.muscle_groups.join(' / ') || 'None'}</td>
+                                                    <td>{(exercise.muscle_groups || []).join(' / ') || 'None'}</td>
                                                     <td>{exercise.equipment || 'None'}</td>
                                                     <td>
                                                         <div className="actions-cell">
