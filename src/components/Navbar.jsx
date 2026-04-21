@@ -8,6 +8,7 @@ import { API_BASE_URL } from '../utils/apiBaseUrl'
 import { resolveMediaUrl } from '../utils/mediaUrl'
 
 import { LoginForm } from "./LoginForm"
+import { NotificationBell } from "./NotificationBell"
 
 export const Navbar = () => {
     const { isAuthenticated, logout, getAccessTokenSilently, user, isLoading } = useAuth0()
@@ -15,6 +16,12 @@ export const Navbar = () => {
     const navigate = useNavigate()
 
     const loggedIn = isAuthenticated || !!customAuth
+
+    const getDashboardRoute = () => {
+        if (userRole === 'admin') return '/admin-dashboard'
+        if (userRole === 'coach') return '/coach-dashboard'
+        return '/client-dashboard'
+    }
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const openModal = () => setIsModalOpen(true)
@@ -91,6 +98,11 @@ export const Navbar = () => {
                     <li><NavLink to="/client-dashboard">Dashboard</NavLink></li>
                     <li><NavLink to="/workouts">Workouts</NavLink></li>
                     <li><NavLink to="/survey">Survey</NavLink></li>
+                    {loggedIn && (
+                        <li className="nav-bell-item">
+                            <NotificationBell />
+                        </li>
+                    )}
                     <li>
                         {loggedIn
                             ? <NavLink onClick={handleLogout}>Log Out</NavLink>

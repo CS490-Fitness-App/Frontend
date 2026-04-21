@@ -1,8 +1,9 @@
 import "./Pages.css"
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom' 
+import { Link } from 'react-router-dom'
 
 import { LoginForm } from "../components/LoginForm"
+import { TopCoaches } from "../components/TopCoaches"
 
 import { GiBiceps } from "react-icons/gi";
 import { IoIosFitness } from "react-icons/io";
@@ -54,6 +55,9 @@ export const Home = () => {
                     </div>
                 </div>
             </div>
+
+            <TopCoaches />
+
             <LoginForm isOpen={isModalOpen} onClose={closeModal} />
         </div>
     )
