@@ -2,11 +2,10 @@ import "./ViewCoach.css"
 import React, { useState, useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 import { MdCancel } from "react-icons/md";
 import { MdFitnessCenter } from "react-icons/md";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 export const ViewCoach = ({ isOpen, onClose, coach }) => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()

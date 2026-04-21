@@ -5,11 +5,10 @@ import { Link, useParams } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { ViewExercise } from '../components/ViewExercise'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 import { FaRegStar } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 export const ViewWorkout = () => {
     const { workoutId } = useParams()

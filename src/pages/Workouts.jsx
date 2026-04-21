@@ -4,18 +4,40 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { WorkoutCard } from '../components/WorkoutCard'
 import './Pages.css'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 export const Workouts = () => {
     const navigate = useNavigate()
-    const { getAccessTokenSilently, isAuthenticated } = useAuth0()
+    const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
     const { customAuth } = useCustomAuth()
     const [workouts, setWorkouts] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
     useEffect(() => {
+        const syncBackendUser = async (token) => {
+            if (!isAuthenticated || !user) {
+                return false
+            }
+
+            const syncResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    email: user.email || null,
+                    first_name: user.given_name || user.name || null,
+                    last_name: user.family_name || null,
+                    profile_picture: user.picture || null,
+                    role: 'client',
+                }),
+            })
+
+            return syncResponse.ok
+        }
+
         const fetchWorkouts = async () => {
             try {
                 let token
@@ -36,6 +58,20 @@ export const Workouts = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 })
 
+                if (response.status === 401 && await syncBackendUser(token)) {
+                    const retryResponse = await fetch(`${API_BASE_URL}/workouts`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    })
+
+                    if (!retryResponse.ok) {
+                        throw new Error(`Failed to load workouts (${retryResponse.status})`)
+                    }
+
+                    const retryData = await retryResponse.json()
+                    setWorkouts(retryData)
+                    return
+                }
+
                 if (!response.ok) {
                     throw new Error(`Failed to load workouts (${response.status})`)
                 }
@@ -50,7 +86,7 @@ export const Workouts = () => {
         }
 
         fetchWorkouts()
-    }, [customAuth, getAccessTokenSilently, isAuthenticated])
+    }, [customAuth, getAccessTokenSilently, isAuthenticated, user])
 
     return (
         <div>

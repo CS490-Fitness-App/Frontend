@@ -42,6 +42,7 @@ export const Navbar = () => {
                 </Link>
                 <ul>
                     <li><NavLink to="/exercises">Exercises</NavLink></li>
+                    <li><NavLink to="/client-dashboard">Dashboard</NavLink></li>
                     <li><NavLink to="/workouts">Workouts</NavLink></li>
                     <li><NavLink to="/survey">Survey</NavLink></li>
                     <li>

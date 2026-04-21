@@ -9,15 +9,22 @@ import { useCustomAuth } from '../context/AuthContext'
 import { Sidebar } from "../components/Sidebar"
 import './Pages.css'
 import './ClientDashboard.css'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 export const ClientDashboard = () => {
-    const { getAccessTokenSilently, isAuthenticated } = useAuth0()
+    const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
     const { customAuth } = useCustomAuth()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+
+    const displayFirstName = (
+        user?.given_name ||
+        user?.name?.split(' ')[0] ||
+        data?.full_name?.split(' ')[0] ||
+        data?.name?.split(' ')[0] ||
+        ''
+    )
 
     useEffect(() => {
         const fetchDashboard = async () => {
@@ -74,7 +81,7 @@ export const ClientDashboard = () => {
                       <div className="h2">
                         <span className="text-black">Welcome back, </span>
                           <span className="text-purple">
-                            {loading ? "Loading..." : data?.full_name || "Client"}
+                                                        {loading ? "Loading..." : displayFirstName}
                           </span>
                         </div>
                       </div>

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import { ExerciseCard } from "../components/ExerciseCard"
 import { ViewExercise } from "../components/ViewExercise"
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 export const Exercises = () => {
     const [exercises, setExercises] = useState([])
