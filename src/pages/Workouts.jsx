@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { WorkoutCard } from '../components/WorkoutCard'
 import './Pages.css'
+import './Workout.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
@@ -14,9 +15,11 @@ export const Workouts = () => {
     const [workouts, setWorkouts] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const [query, setQuery] = useState('');
 
     useEffect(() => {
         const fetchWorkouts = async () => {
+            //setLoading(true)
             try {
                 let token
 
@@ -32,7 +35,7 @@ export const Workouts = () => {
                     return
                 }
 
-                const response = await fetch(`${API_BASE_URL}/workouts`, {
+                const response = await fetch(`${API_BASE_URL}/workouts?name=${query}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
 
@@ -50,7 +53,7 @@ export const Workouts = () => {
         }
 
         fetchWorkouts()
-    }, [customAuth, getAccessTokenSilently, isAuthenticated])
+    }, [query, customAuth, getAccessTokenSilently, isAuthenticated])
 
     return (
         <div>
@@ -63,15 +66,24 @@ export const Workouts = () => {
 
             {loading && <p style={{ padding: '1rem 2rem' }}>Loading workouts...</p>}
             {error && <p style={{ padding: '1rem 2rem' }}>Error: {error}</p>}
+            <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem 2rem 2rem' }}>
-                {workouts.map((workout) => (
-                    <WorkoutCard
-                        key={workout.workout_id}
-                        workout={workout}
-                        onClick={() => navigate(`/view-workout/${workout.workout_id}`)}
-                    />
-                ))}
+                <input
+                    className='search-bar'
+                    type="text"
+                    placeholder="Search for a coach..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                />
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem 2rem 2rem' }}>
+                    {workouts.map((workout) => (
+                        <WorkoutCard
+                            key={workout.workout_id}
+                            workout={workout}
+                            onClick={() => navigate(`/view-workout/${workout.workout_id}`)}
+                        />
+                    ))}
+                </div>
             </div>
         </div>
     )

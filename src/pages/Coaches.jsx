@@ -72,7 +72,7 @@ export const Coaches = () => {
     
                 <FontAwesomeIcon icon={faAngleDown} style={{marginTop: '2rem',width:'3rem', height: '3rem'}} />
 
-
+                
 
                 <div style={{ display: 'flex', marginTop:'2rem', justifyContent: 'space-around', flexWrap: 'wrap' }}>
                     {coaches.map(coach => (
