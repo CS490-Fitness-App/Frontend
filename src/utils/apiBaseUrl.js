@@ -10,10 +10,24 @@ const isLocalHost = (hostname) => (
 const getApiBaseUrl = () => {
   const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
   if (configuredBaseUrl) {
+    if (typeof window !== 'undefined' && isLocalHost(window.location.hostname)) {
+      const normalizedConfiguredBaseUrl = trimTrailingSlash(configuredBaseUrl)
+      if (
+        normalizedConfiguredBaseUrl === 'http://127.0.0.1:8000' ||
+        normalizedConfiguredBaseUrl === 'http://localhost:8000'
+      ) {
+        return ''
+      }
+    }
+
     return trimTrailingSlash(configuredBaseUrl)
   }
 
-  if (typeof window !== 'undefined' && !isLocalHost(window.location.hostname)) {
+  if (typeof window !== 'undefined') {
+    if (isLocalHost(window.location.hostname)) {
+      return ''
+    }
+
     return trimTrailingSlash(window.location.origin)
   }
 

@@ -11,9 +11,13 @@ export const AuthProvider = ({ children }) => {
 
         return window.localStorage.getItem(CUSTOM_AUTH_STORAGE_KEY)
     })
+    const [backendAuthReady, setBackendAuthReady] = useState(() => !!customAuth)
+    const [backendAuthError, setBackendAuthError] = useState('')
 
     const setAuth = (token) => {
         setCustomAuth(token)
+        setBackendAuthReady(true)
+        setBackendAuthError('')
         if (typeof window !== 'undefined') {
             window.localStorage.setItem(CUSTOM_AUTH_STORAGE_KEY, token)
         }
@@ -21,13 +25,23 @@ export const AuthProvider = ({ children }) => {
 
     const clearAuth = () => {
         setCustomAuth(null)
+        setBackendAuthReady(false)
+        setBackendAuthError('')
         if (typeof window !== 'undefined') {
             window.localStorage.removeItem(CUSTOM_AUTH_STORAGE_KEY)
         }
     }
 
     return (
-        <AuthContext.Provider value={{ customAuth, setAuth, clearAuth }}>
+        <AuthContext.Provider value={{
+            customAuth,
+            setAuth,
+            clearAuth,
+            backendAuthReady,
+            setBackendAuthReady,
+            backendAuthError,
+            setBackendAuthError,
+        }}>
             {children}
         </AuthContext.Provider>
     )

@@ -19,6 +19,21 @@ const GoogleIcon = () => (
     </svg>
 )
 
+const readErrorDetail = async (response, fallbackMessage) => {
+    const rawBody = await response.text().catch(() => '')
+
+    if (!rawBody) {
+        return fallbackMessage
+    }
+
+    try {
+        const parsedBody = JSON.parse(rawBody)
+        return parsedBody.detail || parsedBody.message || rawBody || fallbackMessage
+    } catch {
+        return rawBody
+    }
+}
+
 export const LoginForm = ({ isOpen, onClose }) => {
     const { loginWithRedirect } = useAuth0()
     const { setAuth } = useCustomAuth()
@@ -83,10 +98,12 @@ export const LoginForm = ({ isOpen, onClose }) => {
             body: JSON.stringify(payload),
         })
 
-        const syncData = await syncRes.json().catch(() => ({}))
         if (!syncRes.ok) {
-            throw new Error(syncData.detail || 'Failed to sync account with backend')
+            const detail = await readErrorDetail(syncRes, 'Failed to sync account with backend')
+            throw new Error(detail)
         }
+
+        const syncData = await syncRes.json().catch(() => ({}))
 
         return {
             access_token: tokenData.access_token,

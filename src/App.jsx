@@ -4,7 +4,7 @@ import { Navbar } from './components/Navbar'
 import { AuthSync } from './components/AuthSync'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
-import { Home, Exercises, Workouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches, PaymentCards, ViewWorkout, EditWorkout, ClientCalendar, ChatPage } from './pages'
+import { Home, Exercises, Workouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches, PaymentCards, Profile, ViewWorkout, EditWorkout, ClientCalendar, ChatPage } from './pages'
 
 function App() {
     return (
@@ -23,6 +23,7 @@ function App() {
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/survey" element={<ProtectedRoute><Survey /></ProtectedRoute>} />
                 <Route path="/payment-cards" element={<ProtectedRoute><PaymentCards /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/view-workout/:workoutId" element={<ViewWorkout />} />
                 <Route path="/edit-workout/:workoutId" element={<EditWorkout />} />
                 <Route path="/calendar" element={<ClientCalendar />} />

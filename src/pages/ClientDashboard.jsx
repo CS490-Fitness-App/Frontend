@@ -12,19 +12,13 @@ import './ClientDashboard.css'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 export const ClientDashboard = () => {
-    const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
+    const { getAccessTokenSilently, isAuthenticated } = useAuth0()
     const { customAuth } = useCustomAuth()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
 
-    const displayFirstName = (
-        user?.given_name ||
-        user?.name?.split(' ')[0] ||
-        data?.full_name?.split(' ')[0] ||
-        data?.name?.split(' ')[0] ||
-        ''
-    )
+    const displayFirstName = data?.full_name?.split(' ')[0] || data?.name?.split(' ')[0] || ''
 
     useEffect(() => {
         const fetchDashboard = async () => {
