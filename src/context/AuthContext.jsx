@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
     })
     const [backendAuthReady, setBackendAuthReady] = useState(() => !!customAuth)
     const [backendAuthError, setBackendAuthError] = useState('')
+    const [profilePicture, setProfilePicture] = useState('')
 
     const setAuth = (token) => {
         setCustomAuth(token)
@@ -27,6 +28,7 @@ export const AuthProvider = ({ children }) => {
         setCustomAuth(null)
         setBackendAuthReady(false)
         setBackendAuthError('')
+        setProfilePicture('')
         if (typeof window !== 'undefined') {
             window.localStorage.removeItem(CUSTOM_AUTH_STORAGE_KEY)
         }
@@ -41,6 +43,8 @@ export const AuthProvider = ({ children }) => {
             setBackendAuthReady,
             backendAuthError,
             setBackendAuthError,
+            profilePicture,
+            setProfilePicture,
         }}>
             {children}
         </AuthContext.Provider>

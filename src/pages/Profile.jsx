@@ -3,6 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { Sidebar } from '../components/Sidebar'
 import { useCustomAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
+import { resolveMediaUrl } from '../utils/mediaUrl'
 import './Pages.css'
 import './Profile.css'
 
@@ -18,10 +19,22 @@ const formatWeight = (grams) => {
 
 export const Profile = () => {
     const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
-    const { customAuth } = useCustomAuth()
+    const { customAuth, setProfilePicture } = useCustomAuth()
     const [profile, setProfile] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const [selectedFile, setSelectedFile] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState('')
+    const [saveError, setSaveError] = useState('')
+    const [isSaving, setIsSaving] = useState(false)
+
+    useEffect(() => {
+	    return () => {
+	        if (previewUrl) {
+	            URL.revokeObjectURL(previewUrl)
+	        }
+	    }
+    }, [previewUrl])
 
     useEffect(() => {
         const syncBackendUser = async (token) => {
@@ -83,7 +96,9 @@ export const Profile = () => {
                 })
 
                 if (response.ok) {
-                    setProfile(await response.json())
+                    const body = await response.json()
+                    setProfile(body)
+                    setProfilePicture(body.profile_picture || user?.picture || '')
                     return
                 }
 
@@ -105,6 +120,7 @@ export const Profile = () => {
                     }
 
                     setProfile(retryBody)
+                    setProfilePicture(retryBody.profile_picture || user?.picture || '')
                     return
                 }
 
@@ -117,10 +133,85 @@ export const Profile = () => {
         }
 
         loadProfile()
-    }, [customAuth, getAccessTokenSilently, isAuthenticated, user])
+    }, [customAuth, getAccessTokenSilently, isAuthenticated, setProfilePicture, user])
 
     const clientProfile = profile?.client_profile
     const coachProfile = profile?.coach_profile
+    const profileImageUrl = previewUrl || resolveMediaUrl(profile?.profile_picture)
+
+    const handleFileChange = (event) => {
+        const file = event.target.files?.[0]
+        if (!file) {
+            return
+        }
+
+        if (!file.type.startsWith('image/')) {
+            setSaveError('Please choose an image file.')
+            event.target.value = ''
+            return
+        }
+
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl)
+        }
+
+        setSelectedFile(file)
+        setPreviewUrl(URL.createObjectURL(file))
+        setSaveError('')
+        event.target.value = ''
+    }
+
+    const handleSaveProfilePicture = async () => {
+        if (!selectedFile) {
+            return
+        }
+
+        try {
+            setIsSaving(true)
+            setSaveError('')
+
+            let token = null
+            if (isAuthenticated) {
+                token = await getAccessTokenSilently({
+                    authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+                })
+            } else if (customAuth) {
+                token = customAuth
+            }
+
+            if (!token) {
+                throw new Error('Log in to update your profile picture.')
+            }
+
+            const formData = new FormData()
+            formData.append('profile_picture', selectedFile)
+
+            const response = await fetch(`${API_BASE_URL}/users/me/profile-picture`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            })
+
+            const body = await response.json().catch(() => ({}))
+            if (!response.ok) {
+                throw new Error(body.detail || 'Failed to save profile picture.')
+            }
+
+            setProfile(body)
+            setProfilePicture(body.profile_picture || user?.picture || '')
+            setSelectedFile(null)
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl)
+            }
+            setPreviewUrl('')
+        } catch (saveError) {
+            setSaveError(saveError.message || 'Failed to save profile picture.')
+        } finally {
+            setIsSaving(false)
+        }
+    }
 
     return (
         <div className="dashboard-container">
@@ -142,16 +233,31 @@ export const Profile = () => {
                             <section className="profile-panel">
                                 <div className="dashboard-heading">Account Details</div>
                                 <div className="profile-summary-row">
-                                    <div className="profile-avatar-large">
-                                        {profile.profile_picture ? (
-                                            <img src={profile.profile_picture} alt="Profile" className="profile-avatar-image" />
-                                        ) : (
-                                            <span>{(profile.first_name?.[0] || profile.email?.[0] || 'U').toUpperCase()}</span>
-                                        )}
-                                    </div>
+                                    <label className="profile-avatar-upload">
+                                        <input type="file" accept="image/*" className="profile-avatar-input" onChange={handleFileChange} />
+                                        <div className="profile-avatar-large">
+                                            {profileImageUrl ? (
+                                                <img src={profileImageUrl} alt="Profile" className="profile-avatar-image" />
+                                            ) : (
+                                                <span>{(profile.first_name?.[0] || profile.email?.[0] || 'U').toUpperCase()}</span>
+                                            )}
+                                            <div className="profile-avatar-overlay">Change photo</div>
+                                        </div>
+                                    </label>
                                     <div className="profile-summary-copy">
                                         <div className="stat">{`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unnamed User'}</div>
                                         <div className="stat-descriptor">{profile.email}</div>
+                                        <div className="profile-photo-actions">
+                                            <button
+                                                type="button"
+                                                className="profile-save-button"
+                                                disabled={!selectedFile || isSaving}
+                                                onClick={handleSaveProfilePicture}
+                                            >
+                                                {isSaving ? 'Saving...' : 'Save photo'}
+                                            </button>
+                                        </div>
+                                        {saveError && <div className="stat-descriptor">{saveError}</div>}
                                     </div>
                                 </div>
                                 <div className="dashboard-list-container">

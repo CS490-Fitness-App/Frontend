@@ -30,8 +30,9 @@
 }
 
 .profile-avatar-large {
-    width: 72px;
-    height: 72px;
+    position: relative;
+    width: 112px;
+    height: 112px;
     border-radius: 9999px;
     background-color: rgba(140, 148, 255, 1);
     color: white;
@@ -39,10 +40,41 @@
     align-items: center;
     justify-content: center;
     font-family: "Oswald", sans-serif;
-    font-size: 28px;
+    font-size: 40px;
     text-transform: uppercase;
     overflow: hidden;
     flex-shrink: 0;
+}
+
+.profile-avatar-upload {
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-avatar-input {
+    display: none;
+}
+
+.profile-avatar-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.62);
+    color: white;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 8px;
+}
+
+.profile-avatar-upload:hover .profile-avatar-overlay {
+    opacity: 1;
 }
 
 .profile-avatar-image {
@@ -63,4 +95,26 @@
     padding: 6px 10px;
     font-family: "Roboto Mono", sans-serif;
     font-size: 12px;
+}
+
+.profile-photo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.profile-save-button {
+    width: fit-content;
+    padding: 8px 14px;
+    border: 2px solid black;
+    background: rgba(221, 224, 255, 1);
+    font-family: "Roboto Mono", sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.profile-save-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
