@@ -1,11 +1,27 @@
 import { useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
+import { useCustomAuth } from '../context/AuthContext'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+const readErrorDetail = async (response, fallbackMessage) => {
+  const rawBody = await response.text().catch(() => '')
+
+  if (!rawBody) {
+    return fallbackMessage
+  }
+
+  try {
+    const parsedBody = JSON.parse(rawBody)
+    return parsedBody.detail || parsedBody.message || rawBody || fallbackMessage
+  } catch {
+    return rawBody
+  }
+}
 
 export const AuthSync = () => {
   const { isAuthenticated, isLoading, getAccessTokenSilently, user } = useAuth0()
+  const { setBackendAuthReady, setBackendAuthError } = useCustomAuth()
   const navigate = useNavigate()
 
   const getDashboardRoute = (role) => {
@@ -16,7 +32,21 @@ export const AuthSync = () => {
 
   useEffect(() => {
     const syncToBackend = async () => {
-      if (!isAuthenticated || isLoading || !user) return
+      if (isLoading) return
+
+      if (!isAuthenticated) {
+        setBackendAuthReady(false)
+        setBackendAuthError('')
+        return
+      }
+
+      if (!user) {
+        setBackendAuthReady(false)
+        return
+      }
+
+      setBackendAuthReady(false)
+      setBackendAuthError('')
 
       // Capture and clear pendingAuth before any async work so it only fires once.
       const shouldNavigate = !!sessionStorage.getItem('pendingAuth')
@@ -58,10 +88,13 @@ export const AuthSync = () => {
         })
 
         if (!res.ok) {
-          const body = await res.json().catch(() => ({}))
-          console.error(`[AuthSync] Backend returned ${res.status}:`, body.detail ?? body)
+          const detail = await readErrorDetail(res, 'Failed to sync account with backend.')
+          setBackendAuthError(detail)
+          console.error(`[AuthSync] Backend returned ${res.status}:`, detail)
         } else {
           const body = await res.json().catch(() => ({}))
+          setBackendAuthReady(true)
+          setBackendAuthError('')
           if (shouldNavigate) {
             if (body.is_new_user) {
               navigate('/survey', { state: { role: body.role || requestedRole } })
@@ -72,15 +105,16 @@ export const AuthSync = () => {
           return
         }
       } catch (error) {
+        const message = error?.message || error?.error_description || 'Failed to sync account with backend.'
+        setBackendAuthError(message)
         console.error('Auth sync failed:', error)
       }
 
-      // Navigate after a fresh login/signup regardless of whether backend sync succeeded.
-      if (shouldNavigate) navigate('/client-dashboard')
+      // Do not navigate into protected routes until backend sync succeeds.
     }
 
     syncToBackend()
-  }, [isAuthenticated, isLoading, getAccessTokenSilently, user, navigate])
+  }, [isAuthenticated, isLoading, getAccessTokenSilently, user, navigate, setBackendAuthError, setBackendAuthReady])
 
   return null
 }

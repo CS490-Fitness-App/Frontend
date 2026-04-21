@@ -4,8 +4,8 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { MdCancel } from "react-icons/md"
 import { useCustomAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN
 const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID
 const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE
@@ -18,6 +18,21 @@ const GoogleIcon = () => (
         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
     </svg>
 )
+
+const readErrorDetail = async (response, fallbackMessage) => {
+    const rawBody = await response.text().catch(() => '')
+
+    if (!rawBody) {
+        return fallbackMessage
+    }
+
+    try {
+        const parsedBody = JSON.parse(rawBody)
+        return parsedBody.detail || parsedBody.message || rawBody || fallbackMessage
+    } catch {
+        return rawBody
+    }
+}
 
 export const LoginForm = ({ isOpen, onClose }) => {
     const { loginWithRedirect } = useAuth0()
@@ -83,10 +98,12 @@ export const LoginForm = ({ isOpen, onClose }) => {
             body: JSON.stringify(payload),
         })
 
-        const syncData = await syncRes.json().catch(() => ({}))
         if (!syncRes.ok) {
-            throw new Error(syncData.detail || 'Failed to sync account with backend')
+            const detail = await readErrorDetail(syncRes, 'Failed to sync account with backend')
+            throw new Error(detail)
         }
+
+        const syncData = await syncRes.json().catch(() => ({}))
 
         return {
             access_token: tokenData.access_token,

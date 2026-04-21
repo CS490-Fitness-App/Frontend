@@ -1,28 +1,51 @@
 import React, { createContext, useContext, useState } from 'react'
 
 const AuthContext = createContext(null)
+const CUSTOM_AUTH_STORAGE_KEY = 'primalFitnessCustomAuth'
 
 export const AuthProvider = ({ children }) => {
-    const [customAuth, setCustomAuth] = useState(() => localStorage.getItem('customAuth'))
-    const [userRole, setUserRole] = useState(() => localStorage.getItem('userRole'))
+    const [customAuth, setCustomAuth] = useState(() => {
+        if (typeof window === 'undefined') {
+            return null
+        }
 
-    const setAuth = (token, role) => {
-        localStorage.setItem('customAuth', token)
+        return window.localStorage.getItem(CUSTOM_AUTH_STORAGE_KEY)
+    })
+    const [backendAuthReady, setBackendAuthReady] = useState(() => !!customAuth)
+    const [backendAuthError, setBackendAuthError] = useState('')
+    const [profilePicture, setProfilePicture] = useState('')
+
+    const setAuth = (token) => {
         setCustomAuth(token)
-        if (role) {
-            localStorage.setItem('userRole', role)
-            setUserRole(role)
+        setBackendAuthReady(true)
+        setBackendAuthError('')
+        if (typeof window !== 'undefined') {
+            window.localStorage.setItem(CUSTOM_AUTH_STORAGE_KEY, token)
         }
     }
+
     const clearAuth = () => {
-        localStorage.removeItem('customAuth')
-        localStorage.removeItem('userRole')
         setCustomAuth(null)
-        setUserRole(null)
+        setBackendAuthReady(false)
+        setBackendAuthError('')
+        setProfilePicture('')
+        if (typeof window !== 'undefined') {
+            window.localStorage.removeItem(CUSTOM_AUTH_STORAGE_KEY)
+        }
     }
 
     return (
-        <AuthContext.Provider value={{ customAuth, userRole, setAuth, clearAuth }}>
+        <AuthContext.Provider value={{
+            customAuth,
+            setAuth,
+            clearAuth,
+            backendAuthReady,
+            setBackendAuthReady,
+            backendAuthError,
+            setBackendAuthError,
+            profilePicture,
+            setProfilePicture,
+        }}>
             {children}
         </AuthContext.Provider>
     )

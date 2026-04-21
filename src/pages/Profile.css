@@ -1,0 +1,120 @@
+.profile-page-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    width: 100%;
+}
+
+.profile-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+    border: 2px solid black;
+    background-color: white;
+}
+
+.profile-summary-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-summary-copy {
+    min-width: 0;
+}
+
+.profile-avatar-large {
+    position: relative;
+    width: 112px;
+    height: 112px;
+    border-radius: 9999px;
+    background-color: rgba(140, 148, 255, 1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Oswald", sans-serif;
+    font-size: 40px;
+    text-transform: uppercase;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.profile-avatar-upload {
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-avatar-input {
+    display: none;
+}
+
+.profile-avatar-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.62);
+    color: white;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 8px;
+}
+
+.profile-avatar-upload:hover .profile-avatar-overlay {
+    opacity: 1;
+}
+
+.profile-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.profile-tag {
+    background-color: rgba(221, 224, 255, 1);
+    padding: 6px 10px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+}
+
+.profile-photo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.profile-save-button {
+    width: fit-content;
+    padding: 8px 14px;
+    border: 2px solid black;
+    background: rgba(221, 224, 255, 1);
+    font-family: "Roboto Mono", sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.profile-save-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
