@@ -1,0 +1,94 @@
+.filters {
+    width: 75vw;
+    min-height: 15vh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1vh;
+    padding: 1vh 0;
+}
+
+.search-bar {
+    width: 60vw;
+    height: 5vh;
+    margin-top: 3vh;
+    text-indent: 2%;
+    font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+    border-radius: 2rem;
+    border: 1px solid #ccc;
+    outline: none;
+    padding: 0 1rem;
+    align-self: center;
+    filter: drop-shadow(0 4px 6px #d6d6ff);
+}
+
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 1.2vw;
+    flex-wrap: wrap;
+    align-self: center;
+    align-items: center;
+
+    margin-top: 2rem;
+}
+
+.filter-number-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #666;
+    gap: 2px;
+}
+
+.rate-input {
+    width: 5vw;
+    min-width: 60px;
+    height: 3.5vh;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.filter-select {
+    height: 3.5vh;
+    min-width: 8vw;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.filter-icon-toggle {
+    width: 3.5vh;
+    height: 3.5vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #aaa;
+}
+
+.filter-icon-toggle.active {
+    background: #c47ffd;
+    color: white;
+    border-color: #c47ffd;
+}
+
+.star-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.star-button {
+    cursor: pointer;
+    font-size: 1.2rem;
+}
