@@ -70,12 +70,12 @@ export const Exercises = () => {
 
             {loading && <p>Loading exercises...</p>}
             {error && <p>Error: {error}</p>}
-            <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+            <div style={{display:'flex', justifyContent:'center', flexDirection:'column'}}>
 
             
 
                 <ExerciseFilters filters={filters} setFilters={setFilters} />
-                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent:'center' }}>
                     {exercises.map(exercise => (
                         <ExerciseCard
                             key={exercise.exercise_id}

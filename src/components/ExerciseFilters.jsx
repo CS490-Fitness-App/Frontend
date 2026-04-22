@@ -1,5 +1,5 @@
 import React from "react";
-
+import "./ExerciseFilters.css"
 export const ExerciseFilters = ({ filters, setFilters }) => {
     const update = (field, value) => {
         setFilters(prev => ({
@@ -9,33 +9,38 @@ export const ExerciseFilters = ({ filters, setFilters }) => {
     }
 
     return (
-        <div className="filters">
+        <div className="filters-exercise">
             <input
+                className="search-bar"
                 type="text"
                 placeholder="Search exercises..."
                 value={filters.name}
                 onChange={(e) => update("name", e.target.value)}
             />
+            
+            <div className="filter-column">
+                <select
+                    className="selection-filter"
+                    value={filters.category_id}
+                    onChange={(e) => update("category_id", e.target.value)}
+                >
+                    <option value="">All Categories</option>
+                    <option value="1">Strength</option>
+                    <option value="2">Cardio</option>
+                    <option value="3">Flexibility</option>
+                </select>
 
-            <select
-                value={filters.category_id}
-                onChange={(e) => update("category_id", e.target.value)}
-            >
-                <option value="">All Categories</option>
-                <option value="1">Strength</option>
-                <option value="2">Cardio</option>
-                <option value="3">Flexibility</option>
-            </select>
-
-            <select
-                value={filters.experience_level_id}
-                onChange={(e) => update("experience_level_id", e.target.value)}
-            >
-                <option value="">All Levels</option>
-                <option value="1">Beginner</option>
-                <option value="2">Intermediate</option>
-                <option value="3">Advanced</option>
-            </select>
+                <select
+                    className="selection-filter"
+                    value={filters.experience_level_id}
+                    onChange={(e) => update("experience_level_id", e.target.value)}
+                >
+                    <option value="">All Levels</option>
+                    <option value="1">Beginner</option>
+                    <option value="2">Intermediate</option>
+                    <option value="3">Advanced</option>
+                </select>
+            </div>
         </div>
     )
 }
