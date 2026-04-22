@@ -6,9 +6,32 @@ import { MdCancel } from "react-icons/md"
 import { useCustomAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
 
-const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN
-const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID
-const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE
+const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN?.trim()
+const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID?.trim()
+const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE?.trim()
+
+const isInvalidAudiencePasswordGrantError = (tokenData) => {
+    const detail = `${tokenData?.error_description || ''} ${tokenData?.error || ''}`.toLowerCase()
+    return detail.includes('invalid audience specified for password grant exchange')
+}
+
+const buildAudienceCandidates = (audience) => {
+    const base = (audience || '').trim()
+    if (!base) return []
+
+    const withSlash = base.endsWith('/') ? base : `${base}/`
+    const withoutSlash = base.replace(/\/+$/, '')
+    const variants = [
+        base,
+        withSlash,
+        withoutSlash,
+        base.toLowerCase(),
+        withSlash.toLowerCase(),
+        withoutSlash.toLowerCase(),
+    ]
+
+    return Array.from(new Set(variants.filter(Boolean)))
+}
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 24 24" width="20" height="20">
@@ -68,24 +91,48 @@ export const LoginForm = ({ isOpen, onClose }) => {
         return '/client-dashboard'
     }
 
+    const ensureAuth0Config = () => {
+        const missing = []
+        if (!AUTH0_DOMAIN) missing.push('VITE_AUTH0_DOMAIN')
+        if (!AUTH0_CLIENT_ID) missing.push('VITE_AUTH0_CLIENT_ID')
+        if (!AUTH0_AUDIENCE) missing.push('VITE_AUTH0_AUDIENCE')
+        if (missing.length) {
+            throw new Error(`Missing frontend env: ${missing.join(', ')}. Update Frontend/.env and restart Vite.`)
+        }
+    }
+
     // --- shared: get token via ROPG then sync to backend ---
     const loginWithPassword = async (email, password, payload) => {
-        const tokenRes = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                grant_type: 'http://auth0.com/oauth/grant-type/password-realm',
-                realm: 'Username-Password-Authentication',
-                client_id: AUTH0_CLIENT_ID,
-                audience: AUTH0_AUDIENCE,
-                scope: 'openid profile email',
-                username: email,
-                password,
-            }),
-        })
-        const tokenData = await tokenRes.json()
-        if (!tokenRes.ok) {
-            throw new Error(tokenData.error_description || 'Invalid email or password')
+        ensureAuth0Config()
+
+        let tokenData = {}
+        let tokenRes = null
+        const audiencesToTry = buildAudienceCandidates(AUTH0_AUDIENCE)
+
+        for (let i = 0; i < audiencesToTry.length; i += 1) {
+            const candidateAudience = audiencesToTry[i]
+            tokenRes = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    grant_type: 'http://auth0.com/oauth/grant-type/password-realm',
+                    realm: 'Username-Password-Authentication',
+                    client_id: AUTH0_CLIENT_ID,
+                    audience: candidateAudience,
+                    scope: 'openid profile email',
+                    username: email,
+                    password,
+                }),
+            })
+
+            tokenData = await tokenRes.json().catch(() => ({}))
+            if (tokenRes.ok) {
+                break
+            }
+
+            if (!isInvalidAudiencePasswordGrantError(tokenData) || i === audiencesToTry.length - 1) {
+                throw new Error(tokenData.error_description || tokenData.error || 'Invalid email or password')
+            }
         }
 
         // Sync user to our backend
