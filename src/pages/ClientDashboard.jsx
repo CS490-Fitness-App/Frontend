@@ -422,7 +422,7 @@ export const ClientDashboard = () => {
                                     <div className="stat-descriptor">See your charts and trends over the past weeks and months.</div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link className="panel-btn-purple">View Charts</Link>
+                                    <Link to="/view-progress" className="panel-btn-purple">View Charts</Link>
                                 </div>
                             </div>
                         </div>
