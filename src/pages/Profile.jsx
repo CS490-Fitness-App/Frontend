@@ -7,6 +7,12 @@ import { resolveMediaUrl } from '../utils/mediaUrl'
 import './Pages.css'
 import './Profile.css'
 
+const EditIcon = () => (
+    <svg viewBox="0 0 24 24" className="edit-icon" aria-hidden="true">
+        <path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zm2.92 2.33H5v-.92l9.06-9.06.92.92L5.92 19.58zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
+    </svg>
+)
+
 const formatDate = (value) => {
     if (!value) return 'Not set'
     return new Date(value).toLocaleDateString()
@@ -27,6 +33,12 @@ export const Profile = () => {
     const [previewUrl, setPreviewUrl] = useState('')
     const [saveError, setSaveError] = useState('')
     const [isSaving, setIsSaving] = useState(false)
+    const [editingField, setEditingField] = useState(null)
+    const [nameDraft, setNameDraft] = useState('')
+    const [goalWeightDraft, setGoalWeightDraft] = useState('')
+    const [bioDraft, setBioDraft] = useState('')
+    const [isUpdating, setIsUpdating] = useState(false)
+    const [updateError, setUpdateError] = useState('')
 
     useEffect(() => {
 	    return () => {
@@ -139,6 +151,76 @@ export const Profile = () => {
     const coachProfile = profile?.coach_profile
     const profileImageUrl = previewUrl || resolveMediaUrl(profile?.profile_picture)
 
+    useEffect(() => {
+        if (!profile) return
+        setNameDraft(`${profile.first_name || ''} ${profile.last_name || ''}`.trim())
+        setGoalWeightDraft(
+            clientProfile?.goal_weight !== null && clientProfile?.goal_weight !== undefined
+                ? String(Math.round((clientProfile.goal_weight / 453.592) * 10) / 10)
+                : ''
+        )
+        setBioDraft(coachProfile?.bio || '')
+    }, [profile, clientProfile?.goal_weight, coachProfile?.bio])
+
+    const getAuthToken = async () => {
+        if (isAuthenticated) {
+            return getAccessTokenSilently({
+                authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+            })
+        }
+        return customAuth
+    }
+
+    const saveField = async (field) => {
+        try {
+            setIsUpdating(true)
+            setUpdateError('')
+
+            const token = await getAuthToken()
+            if (!token) throw new Error('Log in to update your profile.')
+
+            const payload = {}
+            if (field === 'name') {
+                const trimmed = nameDraft.trim()
+                if (!trimmed) throw new Error('Name cannot be empty.')
+                const pieces = trimmed.split(/\s+/)
+                payload.first_name = pieces[0]
+                payload.last_name = pieces.length > 1 ? pieces.slice(1).join(' ') : ''
+            }
+            if (field === 'goal_weight') {
+                const parsed = Number(goalWeightDraft)
+                if (!Number.isFinite(parsed) || parsed <= 0) {
+                    throw new Error('Goal weight must be a positive number.')
+                }
+                payload.goal_weight_lb = parsed
+            }
+            if (field === 'bio') {
+                payload.bio = bioDraft
+            }
+
+            const response = await fetch(`${API_BASE_URL}/users/me`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            })
+
+            const body = await response.json().catch(() => ({}))
+            if (!response.ok) {
+                throw new Error(body.detail || 'Failed to update profile.')
+            }
+
+            setProfile(body)
+            setEditingField(null)
+        } catch (updateFieldError) {
+            setUpdateError(updateFieldError.message || 'Failed to update profile.')
+        } finally {
+            setIsUpdating(false)
+        }
+    }
+
     const handleFileChange = (event) => {
         const file = event.target.files?.[0]
         if (!file) {
@@ -245,7 +327,29 @@ export const Profile = () => {
                                         </div>
                                     </label>
                                     <div className="profile-summary-copy">
-                                        <div className="stat">{`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unnamed User'}</div>
+                                        <div className="profile-editable-row">
+                                            {editingField === 'name' ? (
+                                                <div className="profile-edit-inline">
+                                                    <input
+                                                        className="profile-edit-input"
+                                                        value={nameDraft}
+                                                        onChange={(event) => setNameDraft(event.target.value)}
+                                                        placeholder="Full name"
+                                                    />
+                                                    <div className="profile-edit-actions">
+                                                        <button type="button" className="profile-inline-btn" onClick={() => saveField('name')} disabled={isUpdating}>Save</button>
+                                                        <button type="button" className="profile-inline-btn ghost" onClick={() => setEditingField(null)} disabled={isUpdating}>Cancel</button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="stat">{`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unnamed User'}</div>
+                                                    <button type="button" className="profile-edit-trigger" onClick={() => { setUpdateError(''); setEditingField('name') }} aria-label="Edit name">
+                                                        <EditIcon />
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
                                         <div className="stat-descriptor">{profile.email}</div>
                                         <div className="profile-photo-actions">
                                             <button
@@ -258,6 +362,7 @@ export const Profile = () => {
                                             </button>
                                         </div>
                                         {saveError && <div className="stat-descriptor">{saveError}</div>}
+                                        {updateError && <div className="stat-descriptor">{updateError}</div>}
                                     </div>
                                 </div>
                                 <div className="dashboard-list-container">
@@ -283,7 +388,32 @@ export const Profile = () => {
                                         <div className="dashboard-list-contents"><div className="stat-heading">Date of Birth</div><div className="dashboard-list">{formatDate(clientProfile.DOB)}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Height</div><div className="dashboard-list">{clientProfile.height ? `${clientProfile.height} cm` : 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Current Weight</div><div className="dashboard-list">{formatWeight(clientProfile.weight)}</div></div>
-                                        <div className="dashboard-list-contents"><div className="stat-heading">Goal Weight</div><div className="dashboard-list">{formatWeight(clientProfile.goal_weight)}</div></div>
+                                        <div className="dashboard-list-contents">
+                                            <div className="stat-heading">Goal Weight</div>
+                                            <div className="profile-editable-row profile-editable-row-inline">
+                                                {editingField === 'goal_weight' ? (
+                                                    <div className="profile-edit-inline">
+                                                        <input
+                                                            className="profile-edit-input"
+                                                            value={goalWeightDraft}
+                                                            onChange={(event) => setGoalWeightDraft(event.target.value)}
+                                                            placeholder="Goal weight (lb)"
+                                                        />
+                                                        <div className="profile-edit-actions">
+                                                            <button type="button" className="profile-inline-btn" onClick={() => saveField('goal_weight')} disabled={isUpdating}>Save</button>
+                                                            <button type="button" className="profile-inline-btn ghost" onClick={() => setEditingField(null)} disabled={isUpdating}>Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <button type="button" className="profile-edit-trigger" onClick={() => { setUpdateError(''); setEditingField('goal_weight') }} aria-label="Edit goal weight">
+                                                            <EditIcon />
+                                                        </button>
+                                                        <div className="dashboard-list">{formatWeight(clientProfile.goal_weight)}</div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Sex</div><div className="dashboard-list">{clientProfile.sex || 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Weekly Streak</div><div className="dashboard-list">{clientProfile.weekly_streak}</div></div>
                                     </div>
@@ -312,7 +442,29 @@ export const Profile = () => {
                                     </div>
                                     <div>
                                         <div className="stat-heading">Bio</div>
-                                        <div className="stat-descriptor">{coachProfile.bio || 'No bio added yet.'}</div>
+                                        <div className="profile-editable-row">
+                                            {editingField === 'bio' ? (
+                                                <div className="profile-edit-inline bio">
+                                                    <textarea
+                                                        className="profile-edit-input profile-edit-textarea"
+                                                        value={bioDraft}
+                                                        onChange={(event) => setBioDraft(event.target.value)}
+                                                        placeholder="Tell clients about yourself"
+                                                    />
+                                                    <div className="profile-edit-actions">
+                                                        <button type="button" className="profile-inline-btn" onClick={() => saveField('bio')} disabled={isUpdating}>Save</button>
+                                                        <button type="button" className="profile-inline-btn ghost" onClick={() => setEditingField(null)} disabled={isUpdating}>Cancel</button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="stat-descriptor">{coachProfile.bio || 'No bio added yet.'}</div>
+                                                    <button type="button" className="profile-edit-trigger" onClick={() => { setUpdateError(''); setEditingField('bio') }} aria-label="Edit bio">
+                                                        <EditIcon />
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </section>
                             )}
