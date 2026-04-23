@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
-import { Sidebar } from "../components/Sidebar";
 import './AdminDashboard.css';
 import './ClientDashboard.css';
 
@@ -325,7 +324,6 @@ export const AdminDashboard = () => {
     return (
         <div>
             <div className="dashboard-container">
-                <Sidebar />
                 <div>
                     <div className="page-heading">
                         <div className="h2">
