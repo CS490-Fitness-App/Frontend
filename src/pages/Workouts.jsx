@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { WorkoutCard } from '../components/WorkoutCard'
+import { IoMdSearch } from "react-icons/io";
 import { WorkoutFilters } from "../components/WorkoutFilters"
 
 import './Pages.css'
@@ -18,6 +19,7 @@ export const Workouts = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
+    const [workoutSearch, setWorkoutSearch] = useState('');
     const [filters, setFilters] = useState({
         name: "",
         goal_type_id: 0,
@@ -80,6 +82,14 @@ export const Workouts = () => {
                 <div className="h1">
                     <span className="text-black">Workout </span>
                     <span className="text-purple">Plans</span>
+                </div>
+            </div>
+
+            {/* Searchbar */}
+            <div className="search-section">
+                <div className="search-box">
+                    <input className="search-input" type="text" placeholder="Search workout plans..." value={workoutSearch} onChange={(e) => setWorkoutSearch(e.target.value)} />
+                    <IoMdSearch />
                 </div>
             </div>
 
