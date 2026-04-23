@@ -7,6 +7,20 @@ import './ClientDashboard.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
+const FINANCIAL_PERIODS = [
+    { value: 'all', label: 'All Time' },
+    { value: 'this_month', label: 'This Month' },
+    { value: 'this_year', label: 'This Year' },
+    { value: 'last_90_days', label: 'Last 90 Days' },
+];
+
+const formatCurrency = (value) =>
+    new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+    }).format(value || 0);
+
 export const AdminDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0();
     const { customAuth } = useCustomAuth();
@@ -37,6 +51,12 @@ export const AdminDashboard = () => {
 
     const [coachSearch, setCoachSearch] = useState('');
     const [exerciseSearch, setExerciseSearch] = useState('');
+    const [financialPeriod, setFinancialPeriod] = useState('all');
+    const [financialYear, setFinancialYear] = useState('');
+    const [financialSearch, setFinancialSearch] = useState('');
+    const [financialSummary, setFinancialSummary] = useState(null);
+    const [financialLoading, setFinancialLoading] = useState(false);
+    const [financialError, setFinancialError] = useState('');
 
     const getToken = async () => {
         if (isAuthenticated) {
@@ -112,6 +132,42 @@ export const AdminDashboard = () => {
             fetchExercises();
         }
     }, [activeTab, isAuthenticated, customAuth]);
+
+    const fetchFinancialSummary = async () => {
+        setFinancialLoading(true);
+        setFinancialError('');
+        try {
+            const token = await getToken();
+            if (!token) {
+                setFinancialError('Log in as an admin to view financial tracking.');
+                setFinancialLoading(false);
+                return;
+            }
+            const params = new URLSearchParams({ period: financialPeriod });
+            if (financialYear.trim()) params.set('year', financialYear.trim());
+            if (financialSearch.trim()) params.set('q', financialSearch.trim());
+
+            const res = await fetch(`${API_BASE_URL}/admin/financial-summary?${params.toString()}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || 'Failed to load financial data');
+            }
+            setFinancialSummary(data);
+        } catch (err) {
+            setFinancialError(err.message || 'Failed to load financial data');
+            setFinancialSummary(null);
+        } finally {
+            setFinancialLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 2) {
+            fetchFinancialSummary();
+        }
+    }, [activeTab, financialPeriod, financialYear, financialSearch, isAuthenticated, customAuth]);
 
     const updateCoachStatus = async (coachId, action) => {
         setCoachActionId(coachId);
@@ -321,6 +377,15 @@ export const AdminDashboard = () => {
         return 'status-rejected';
     };
 
+    const financialChart = financialSummary?.chart || [];
+    const maxChartRevenue = Math.max(...financialChart.map((point) => point.revenue), 0);
+    const averageChartRevenue = financialChart.length
+        ? financialChart.reduce((total, point) => total + point.revenue, 0) / financialChart.length
+        : 0;
+    const averageLineBottom = maxChartRevenue
+        ? Math.min((averageChartRevenue / maxChartRevenue) * 210, 210)
+        : 0;
+
     return (
         <div>
             <div className="dashboard-container">
@@ -337,7 +402,7 @@ export const AdminDashboard = () => {
                                 <div className="quick-stat-card"><div className="stat-heading">Total Users</div><div className="stat">847</div></div>
                                 <div className="quick-stat-card"><div className="stat-heading">Active Coaches</div><div className="stat">{coaches.filter((coach) => coach.status === 'Active').length}</div></div>
                                 <div className="quick-stat-card"><div className="stat-heading">Pending Approvals</div><div className="stat">{coaches.filter((coach) => coach.status === 'Pending').length} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div></div>
-                                <div className="quick-stat-card"><div className="stat-heading">Revenue This Month</div><div className="stat">$18,420</div></div>
+                                <div className="quick-stat-card" onClick={() => setActiveTab(2)}><div className="stat-heading">Revenue This Month</div><div className="stat">$18,420</div></div>
                             </div>
                             <div className="tabs">
                                 {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT'].map((tab, i) => (
@@ -505,17 +570,121 @@ export const AdminDashboard = () => {
                             )}
                             {activeTab === 2 && (
                                 <div className="tab-content">
+                                    <div className="section-header">
+                                        <div className="admin-section-title">Financial Tracking</div>
+                                        <div className="financial-period-group">
+                                            <span className="financial-filter-label">Time Range</span>
+                                            {FINANCIAL_PERIODS.map((period) => (
+                                                <button
+                                                    key={period.value}
+                                                    type="button"
+                                                    className={`financial-filter ${financialPeriod === period.value ? 'active' : ''}`}
+                                                    onClick={() => setFinancialPeriod(period.value)}
+                                                >
+                                                    {period.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="financial-search-panel">
+                                        <div className="search-bar financial-search-bar">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
+                                                <circle cx="11" cy="11" r="8" />
+                                                <path d="m21 21-4.35-4.35" />
+                                            </svg>
+                                            <input
+                                                type="text"
+                                                placeholder="SEARCH CLIENT, COACH, OR PAYMENT ID..."
+                                                value={financialSearch}
+                                                onChange={(e) => setFinancialSearch(e.target.value)}
+                                            />
+                                        </div>
+                                        <input
+                                            className="financial-year-input"
+                                            type="number"
+                                            placeholder="YEAR"
+                                            value={financialYear}
+                                            onChange={(e) => setFinancialYear(e.target.value)}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="financial-filter"
+                                            onClick={() => {
+                                                setFinancialPeriod('all');
+                                                setFinancialYear('');
+                                                setFinancialSearch('');
+                                            }}
+                                        >
+                                            Clear Filters
+                                        </button>
+                                    </div>
+                                    {financialError && <p className="admin-feedback error">{financialError}</p>}
                                     <div className="finance-grid">
-                                        <div className="finance-card"><div className="stat-label">Total Revenue</div><div className="finance-value">$18,420</div></div>
-                                        <div className="finance-card"><div className="stat-label">Transactions This Month</div><div className="finance-value">156</div></div>
-                                        <div className="finance-card"><div className="stat-label">Average Per Transaction</div><div className="finance-value">$118</div></div>
+                                        <div className="finance-card"><div className="stat-label">Total Revenue</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.total_revenue)}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Transactions</div><div className="finance-value">{financialLoading ? 'Loading...' : financialSummary?.transaction_count ?? 0}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Average Per Transaction</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.average_transaction)}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Platform Earnings</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.platform_revenue)}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Coach Payouts</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.coach_payout_total)}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Refunded Amount</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.refunded_amount)}</div></div>
                                     </div>
-                                    <div className="admin-section-title" style={{ marginBottom: '16px' }}>Monthly Revenue</div>
-                                    <div className="bar-chart">
-                                        {[{ label: 'Sep', height: '40%' }, { label: 'Oct', height: '55%' }, { label: 'Nov', height: '48%' }, { label: 'Dec', height: '65%' }, { label: 'Jan', height: '72%' }, { label: 'Feb', height: '85%' }].map((bar) => (
-                                            <div key={bar.label} className="bar-col"><div className="bar" style={{ height: bar.height }}></div><div className="bar-label">{bar.label}</div></div>
-                                        ))}
-                                    </div>
+                                    {financialLoading ? (
+                                        <p className="finance-empty-state">Loading financial data...</p>
+                                    ) : financialSummary && !financialSummary.has_transactions ? (
+                                        <p className="finance-empty-state">No transactions available for this period.</p>
+                                    ) : (
+                                        <div className="finance-chart-card">
+                                            <div className="finance-chart-header">
+                                                <div>
+                                                    <div className="admin-section-title">Monthly Revenue</div>
+                                                    <div className="finance-chart-subtitle">Completed payment revenue with average line.</div>
+                                                </div>
+                                                <div className="finance-chart-average">Avg {formatCurrency(averageChartRevenue)}</div>
+                                            </div>
+                                            <div className="finance-chart-body">
+                                                <div className="finance-average-line" style={{ bottom: `${averageLineBottom + 82}px` }}></div>
+                                                {financialChart.map((point) => (
+                                                    <div key={point.label} className="finance-bar-col">
+                                                        <div className="finance-bar-panel">
+                                                            <div
+                                                                className={`finance-bar ${point.revenue >= averageChartRevenue ? 'above-average' : 'below-average'}`}
+                                                                title={`${point.label}: ${formatCurrency(point.revenue)} from ${point.transaction_count} transactions`}
+                                                                style={{ height: `${maxChartRevenue ? Math.max((point.revenue / maxChartRevenue) * 210, 12) : 0}px` }}
+                                                            ></div>
+                                                        </div>
+                                                        <div className="bar-label">{point.label}</div>
+                                                        <div className="finance-bar-value">{formatCurrency(point.revenue)}</div>
+                                                        <div className="finance-bar-count">{point.transaction_count} txns</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="finance-chart-footer">Average monthly revenue: {formatCurrency(averageChartRevenue)}</div>
+                                        </div>
+                                    )}
+                                    <div className="admin-section-title" style={{ margin: '26px 0 16px' }}>Recent Transactions</div>
+                                    {financialLoading ? (
+                                        <p className="finance-empty-state">Loading transactions...</p>
+                                    ) : financialSummary?.recent_transactions?.length ? (
+                                        <table className="admin-table financial-transactions-table">
+                                            <thead>
+                                                <tr><th>Date</th><th>Client</th><th>Coach</th><th>Amount</th><th>Platform Fee</th><th>Coach Payout</th><th>Status</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                {financialSummary.recent_transactions.map((transaction) => (
+                                                    <tr key={transaction.payment_id}>
+                                                        <td>{new Date(transaction.payment_date).toLocaleDateString()}</td>
+                                                        <td>{transaction.client_name}</td>
+                                                        <td>{transaction.coach_name}</td>
+                                                        <td>{formatCurrency(transaction.amount)}</td>
+                                                        <td>{formatCurrency(transaction.platform_fee)}</td>
+                                                        <td>{formatCurrency(transaction.coach_payout_amount)}</td>
+                                                        <td><span className={`status-badge status-${transaction.status.toLowerCase()}`}>{transaction.status}</span></td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <p className="finance-empty-state">No transactions available for this period.</p>
+                                    )}
                                 </div>
                             )}
                             {activeTab === 3 && (
