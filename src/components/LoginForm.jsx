@@ -21,7 +21,7 @@ const GoogleIcon = () => (
 
 export const LoginForm = ({ isOpen, onClose }) => {
     const { loginWithRedirect } = useAuth0()
-    const { setAuth } = useCustomAuth()
+    const { setAuth, setCurrentUser } = useCustomAuth()
     const navigate = useNavigate()
 
     const [view, setView] = useState('login')
@@ -92,6 +92,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
             access_token: tokenData.access_token,
             role: syncData.role || payload.role || 'client',
             is_new_user: syncData.is_new_user ?? false,
+            user: syncData,
         }
     }
 
@@ -109,6 +110,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                 role: 'client',
             })
             setAuth(result.access_token)
+            setCurrentUser(result.user)
             onClose()
             navigate(getDashboardRoute(result.role))
         } catch (err) {
@@ -156,6 +158,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                 role,
             })
             setAuth(result.access_token)
+            setCurrentUser(result.user)
             onClose()
             if (result.is_new_user) {
                 navigate('/survey', { state: { role: result.role } })

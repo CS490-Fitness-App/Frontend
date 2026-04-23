@@ -1,11 +1,13 @@
 import { useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
+import { useCustomAuth } from '../context/AuthContext'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 export const AuthSync = () => {
   const { isAuthenticated, isLoading, getAccessTokenSilently, user } = useAuth0()
+  const { setCurrentUser } = useCustomAuth()
   const navigate = useNavigate()
 
   const getDashboardRoute = (role) => {
@@ -62,6 +64,7 @@ export const AuthSync = () => {
           console.error(`[AuthSync] Backend returned ${res.status}:`, body.detail ?? body)
         } else {
           const body = await res.json().catch(() => ({}))
+          setCurrentUser(body)
           if (shouldNavigate) {
             if (body.is_new_user) {
               navigate('/survey', { state: { role: body.role || requestedRole } })
@@ -80,7 +83,7 @@ export const AuthSync = () => {
     }
 
     syncToBackend()
-  }, [isAuthenticated, isLoading, getAccessTokenSilently, user, navigate])
+  }, [isAuthenticated, isLoading, getAccessTokenSilently, user, navigate, setCurrentUser])
 
   return null
 }
