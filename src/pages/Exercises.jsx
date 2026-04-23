@@ -3,6 +3,7 @@ import './Pages.css'
 import './Exercises.css'
 import { ExerciseCard } from "../components/ExerciseCard"
 import { ViewExercise } from "../components/ViewExercise"
+import { ExerciseFilters } from "../components/ExerciseFilters"
 
 import { IoMdSearch } from "react-icons/io";
 
@@ -14,11 +15,31 @@ export const Exercises = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [query, setQuery] = useState('');
+
+    const [filters, setFilters] = useState({
+        name: "",
+        category_id: "",
+        experience_level_id: ""
+    });
+
+    const buildQuery = (filters) => {
+        const params = new URLSearchParams()
+
+        if (filters.name) params.append("name", filters.name)
+        if (filters.category_id) params.append("category_id", filters.category_id)
+        if (filters.experience_level_id) params.append("experience_level_id", filters.experience_level_id)
+
+        return params.toString();
+    };
 
     const [exerciseSearch, setExerciseSearch] = useState('');
 
     useEffect(() => {
-        fetch(`${API_BASE_URL}/exercises`)
+        setLoading(true)
+        const queryString = buildQuery(filters);
+
+        fetch(`${API_BASE_URL}/exercises?${queryString}`)
             .then(res => {
                 if (!res.ok) throw new Error(`Failed to load exercises (${res.status})`)
                 return res.json()
@@ -31,7 +52,7 @@ export const Exercises = () => {
                 setError(err.message)
                 setLoading(false)
             })
-    }, [])
+    }, [filters])
 
     const openModal = (exercise) => {
         setSelectedExercise(exercise)
@@ -62,15 +83,20 @@ export const Exercises = () => {
 
             {loading && <p>Loading exercises...</p>}
             {error && <p>Error: {error}</p>}
+            <div style={{display:'flex', justifyContent:'center', flexDirection:'column'}}>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                {exercises.map(exercise => (
-                    <ExerciseCard
-                        key={exercise.exercise_id}
-                        exercise={exercise}
-                        onClick={() => openModal(exercise)}
-                    />
-                ))}
+            
+
+                <ExerciseFilters filters={filters} setFilters={setFilters} />
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent:'center' }}>
+                    {exercises.map(exercise => (
+                        <ExerciseCard
+                            key={exercise.exercise_id}
+                            exercise={exercise}
+                            onClick={() => openModal(exercise)}
+                        />
+                    ))}
+                </div>
             </div>
 
             <ViewExercise isOpen={isModalOpen} onClose={closeModal} exercise={selectedExercise} />

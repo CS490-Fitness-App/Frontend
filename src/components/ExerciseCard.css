@@ -18,6 +18,8 @@
 
 .card-img {
     width: 100%;
+    height: 130px;
+    object-fit: fill;
     border-radius: 1rem 1rem 0 0;
 }
 

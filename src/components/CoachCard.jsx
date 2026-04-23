@@ -33,7 +33,7 @@ export const CoachCard = ({ coach, onClick }) => {
                     <div className="coach-card-tags-container">
                         <div style={{flex:1}} className="card-tag">${coach.hourly_rate || 'N/A'}/hr</div>
                         <FontAwesomeIcon style={{flex:1}} icon={coach.is_trainer ? faPersonRunning : faX} />  
-                        <FontAwesomeIcon style={{flex:1}} icon={coach.is_nutrionist ? faCutlery : faX} />
+                        <FontAwesomeIcon style={{flex:1}} icon={coach.is_nutritionist ? faCutlery : faX} />
                         <div style={{flex:2}}>  
                             {reviewDomElements}
                         </div>

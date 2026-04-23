@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import { CoachCard } from "../components/CoachCard"
 import { ViewCoach } from "../components/ViewCoach"
+import { CoachFilters } from "../components/CoachFilters"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { faAngleDown} from '@fortawesome/free-solid-svg-icons';
@@ -17,6 +18,17 @@ export const Coaches = () => {
     const [error, setError] = useState(null)
     const [query, setQuery] = useState('');
 
+    const [filters, setFilters] = useState({
+        name: "",
+        min_rate: 0,
+        max_rate: 0,
+        nutritionist: false,
+        trainer: false,
+        session_format: "",
+        specialty: "",
+        avg_rating: 0
+    });
+
     const openModal = (coach) => {
         setSelectedCoach(coach)
         setIsModalOpen(true)
@@ -27,8 +39,25 @@ export const Coaches = () => {
         setSelectedCoach(null)
     }
 
+    const buildQuery = (filters) => {
+        const params = new URLSearchParams()
+
+        if (filters.name) params.append("name", filters.name)
+        if (filters.min_rate) params.append("min_rate", filters.min_rate)
+        if (filters.max_rate) params.append("max_rate", filters.max_rate)
+        if (filters.nutritionist) params.append("nutritionist", filters.nutritionist)
+        if (filters.trainer) params.append("trainer", filters.trainer)
+        if (filters.session_format) params.append("session_format", filters.session_format)
+        if (filters.specialty) params.append("specialty", filters.specialty)
+        if (filters.avg_rating) params.append("avg_rating", filters.avg_rating)
+
+        return params.toString();
+    };
+
     useEffect(() => {
-        fetch(`${API_BASE_URL}/coaches/?name=${query}`)
+        setLoading(true)
+        const queryString = buildQuery(filters);
+        fetch(`${API_BASE_URL}/coaches?${queryString}`)
             .then(res => {
                 if (!res.ok) throw new Error(`Failed to load coaches (${res.status})`)
                 return res.json()
@@ -42,7 +71,7 @@ export const Coaches = () => {
                 setError(err.message)
                 setLoading(false)
             })
-    }, [query]);
+    }, [filters]);
 
     /*const selectedcoach = coachs.find(
         ex => ex.coach_id === selectedcoachId
@@ -62,16 +91,7 @@ export const Coaches = () => {
             <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
 
             
-                <input
-                    className='search-bar'
-                    type="text"
-                    placeholder="Search for a coach..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                />
-    
-                <FontAwesomeIcon icon={faAngleDown} style={{marginTop: '2rem',width:'3rem', height: '3rem'}} />
-
+                <CoachFilters filters={filters} setFilters={setFilters} />
 
 
                 <div style={{ display: 'flex', marginTop:'2rem', justifyContent: 'space-around', flexWrap: 'wrap' }}>

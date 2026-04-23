@@ -6,3 +6,12 @@
     padding: 3rem;
     padding-right: 6rem;
 }
+.search-bar
+{
+    width :90vw;
+    height:5vh;
+    margin-top: 3vh;
+    text-indent: 2%;
+    font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+    border-radius: 2rem;
+}
