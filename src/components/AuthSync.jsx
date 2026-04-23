@@ -21,7 +21,7 @@ const readErrorDetail = async (response, fallbackMessage) => {
 
 export const AuthSync = () => {
   const { isAuthenticated, isLoading, getAccessTokenSilently, user } = useAuth0()
-  const { setBackendAuthReady, setBackendAuthError } = useCustomAuth()
+  const { setBackendAuthReady, setBackendAuthError, setUserRole } = useCustomAuth()
   const navigate = useNavigate()
 
   const getDashboardRoute = (role) => {
@@ -95,6 +95,7 @@ export const AuthSync = () => {
           const body = await res.json().catch(() => ({}))
           setBackendAuthReady(true)
           setBackendAuthError('')
+          setUserRole(body.role || requestedRole)
           if (shouldNavigate) {
             if (body.is_new_user) {
               navigate('/survey', { state: { role: body.role || requestedRole } })

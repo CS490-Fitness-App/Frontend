@@ -12,7 +12,7 @@ import { NotificationBell } from "./NotificationBell"
 
 export const Navbar = () => {
     const { isAuthenticated, logout, getAccessTokenSilently, user, isLoading } = useAuth0()
-    const { customAuth, clearAuth, profilePicture, setProfilePicture } = useCustomAuth()
+    const { customAuth, clearAuth, profilePicture, setProfilePicture, userRole } = useCustomAuth()
     const navigate = useNavigate()
 
     const loggedIn = isAuthenticated || !!customAuth
@@ -95,7 +95,7 @@ export const Navbar = () => {
                 </Link>
                 <ul>
                     <li><NavLink to="/exercises">Exercises</NavLink></li>
-                    <li><NavLink to="/client-dashboard">Dashboard</NavLink></li>
+                    <li><NavLink to={getDashboardRoute()}>Dashboard</NavLink></li>
                     <li><NavLink to="/workouts">Workouts</NavLink></li>
                     <li><NavLink to="/survey">Survey</NavLink></li>
                     {loggedIn && (
