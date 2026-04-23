@@ -1,0 +1,427 @@
+import React, { useEffect, useMemo, useState } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
+
+import { Sidebar } from '../components/Sidebar'
+import { useCustomAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
+
+import './Pages.css'
+import './ViewProgress.css'
+
+const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChange, progressData, selectedMonth, onMonthChange, monthOptions }) => {
+    const width = 880
+    const height = 320
+    const margin = { top: 32, right: 32, bottom: timeRange === 'monthly' ? 64 : 56, left: 68 }
+    const innerWidth = width - margin.left - margin.right
+    const innerHeight = height - margin.top - margin.bottom
+
+    const allValues = series.flatMap((line) => points.map((point) => line.getValue(point)).filter((value) => value !== null && value !== undefined))
+    const safeMin = allValues.length ? Math.min(...allValues) : 0
+    const safeMax = allValues.length ? Math.max(...allValues) : 10
+    
+    // Round to multiples of 5 with padding
+    const roundDown = (n) => Math.floor(n / 5) * 5
+    const roundUp = (n) => Math.ceil(n / 5) * 5
+    const yMin = roundDown(safeMin - 2.5)
+    const yMax = roundUp(safeMax + 2.5)
+    const yRange = Math.max(5, yMax - yMin)
+    
+    // Generate grid lines at multiples of 5
+    const gridValues = []
+    for (let val = yMin; val <= yMax; val += 5) {
+        gridValues.push(val)
+    }
+
+    const xForIndex = (index) => {
+        if (points.length <= 1) return margin.left
+        return margin.left + (index / (points.length - 1)) * innerWidth
+    }
+
+    const yForValue = (value) => margin.top + ((yMax - value) / yRange) * innerHeight
+
+    const segmentsForSeries = (line) => {
+        const segments = []
+        let currentSegment = []
+
+        points.forEach((point, index) => {
+            const value = line.getValue(point)
+            if (value === null || value === undefined) {
+                if (currentSegment.length) {
+                    segments.push(currentSegment)
+                    currentSegment = []
+                }
+                return
+            }
+
+            currentSegment.push({
+                x: xForIndex(index),
+                y: yForValue(value),
+                value,
+            })
+        })
+
+        if (currentSegment.length) {
+            segments.push(currentSegment)
+        }
+
+        return segments
+    }
+
+    const monthlyLabelInterval = Math.max(1, Math.ceil((points.length - 1) / 7))
+    const shouldRenderXAxisLabel = (index) => {
+        if (timeRange !== 'monthly') return true
+        if (index === 0 || index === points.length - 1) return true
+        return index % monthlyLabelInterval === 0
+    }
+
+    return (
+        <div className="progress-panel">
+            <div className="progress-panel-header">
+                <div className="progress-header-top">
+                    <div className="progress-header-info">
+                        <h3>{title}</h3>
+                        <p>{subtitle}</p>
+                        {progressData?.progress_message && (
+                            <div className="progress-metric">
+                                <span className={`progress-badge ${progressData.progress_percent > 0 ? 'positive' : progressData.progress_percent < 0 ? 'negative' : 'neutral'}`}>
+                                    {progressData.progress_message}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                    <div className="progress-month-display">
+                        {timeRange === 'monthly' ? (
+                            <select
+                                className="month-select"
+                                value={selectedMonth}
+                                onChange={(event) => onMonthChange(event.target.value)}
+                            >
+                                {monthOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            (() => {
+                                const [year, month] = selectedMonth.split('-').map(Number)
+                                const labelDate = new Date(year, month - 1, 1)
+                                return labelDate.toLocaleString('default', { month: 'long', year: 'numeric' })
+                            })()
+                        )}
+                    </div>
+                    <div className="progress-header-controls">
+                        <button
+                            className={`time-range-btn ${timeRange === 'weekly' ? 'active' : ''}`}
+                            onClick={() => onTimeRangeChange('weekly')}
+                        >
+                            Weekly
+                        </button>
+                        <button
+                            className={`time-range-btn ${timeRange === 'monthly' ? 'active' : ''}`}
+                            onClick={() => onTimeRangeChange('monthly')}
+                        >
+                            Monthly
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <svg className="progress-line-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={title} preserveAspectRatio="xMidYMid meet">
+                {/* Grid lines and Y-axis labels */}
+                {gridValues.map((gridValue) => {
+                    const y = yForValue(gridValue)
+                    return (
+                        <g key={`grid-${gridValue}`}>
+                            <line x1={margin.left} y1={y} x2={margin.left + innerWidth} y2={y} className="chart-grid-line" />
+                            <text x={margin.left - 8} y={y + 5} className="chart-axis-label" textAnchor="end">{Math.round(gridValue)}</text>
+                        </g>
+                    )
+                })}
+
+                {/* Lines */}
+                {series.map((line) => (
+                    <g key={line.key}>
+                        {segmentsForSeries(line).map((segment, segmentIndex) => {
+                            const d = segment.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ')
+                            return <path key={`${line.key}-${segmentIndex}`} d={d} fill="none" stroke={line.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.95" />
+                        })}
+                        {/* Dots at data points */}
+                        {segmentsForSeries(line).map((segment, segmentIndex) =>
+                            segment.map((point, pointIndex) => (
+                                <circle key={`dot-${line.key}-${segmentIndex}-${pointIndex}`} cx={point.x} cy={point.y} r="3" fill={line.color} opacity="0.8" />
+                            ))
+                        )}
+                    </g>
+                ))}
+
+                {/* X-axis labels */}
+                {points.map((point, index) => {
+                    if (!shouldRenderXAxisLabel(index)) return null
+                    return (
+                        <text
+                            key={point.date}
+                            x={xForIndex(index)}
+                            y={height - 12}
+                            textAnchor="middle"
+                            className={`chart-axis-label ${timeRange === 'monthly' ? 'chart-axis-label-monthly' : ''}`}
+                        >
+                            {point.label}
+                        </text>
+                    )
+                })}
+            </svg>
+
+            <div className="progress-legend">
+                {series.map((line) => (
+                    <div key={line.key} className="legend-item">
+                        <span className="legend-swatch" style={{ backgroundColor: line.color }} />
+                        <span>{line.label}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+const StepsBarChart = ({ points, averageSteps }) => {
+    const sortedPoints = useMemo(
+        () => [...points].sort((a, b) => new Date(a.date) - new Date(b.date)),
+        [points]
+    )
+
+    const stepValues = sortedPoints.map((point) => point.steps)
+    const minSteps = Math.min(...stepValues, averageSteps)
+    const maxSteps = Math.max(...stepValues, averageSteps)
+    const axisPadding = Math.max(300, (maxSteps - minSteps) * 0.2)
+    const axisMin = Math.max(0, minSteps - axisPadding)
+    const axisMax = maxSteps + axisPadding
+    const axisRange = Math.max(1, axisMax - axisMin)
+
+    const percentForSteps = (steps) => {
+        const pct = ((steps - axisMin) / axisRange) * 100
+        return Math.max(8, Math.min(100, pct))
+    }
+
+    const averagePct = percentForSteps(averageSteps)
+
+    return (
+        <div className="progress-panel">
+            <div className="progress-panel-header">
+                <h3>Weekly Steps</h3>
+                <p>Daily steps with a weekly average line.</p>
+            </div>
+
+            <div className="steps-chart">
+                {sortedPoints.map((point, index) => {
+                    const heightPct = percentForSteps(point.steps)
+                    const previousSteps = index > 0 ? sortedPoints[index - 1].steps : null
+                    const delta = previousSteps === null ? null : point.steps - previousSteps
+                    const trendClass = delta === null ? 'flat' : delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'
+                    const trendLabel = delta === null ? 'Start' : `${delta > 0 ? '+' : ''}${delta.toLocaleString()}`
+
+                    return (
+                        <div key={point.date} className="steps-chart-day">
+                            <div className="steps-chart-column-wrap">
+                                <div className="steps-avg-line" style={{ bottom: `${averagePct}%` }} />
+                                <div className={`steps-chart-column ${trendClass}`} style={{ height: `${heightPct}%` }} />
+                            </div>
+                            <div className="steps-day-label">{point.label}</div>
+                            <div className="steps-value-label">{point.steps.toLocaleString()}</div>
+                            <div className={`steps-trend-label ${trendClass}`}>{trendLabel}</div>
+                        </div>
+                    )
+                })}
+            </div>
+
+            <div className="progress-summary">Weekly average: {averageSteps.toFixed(1)} steps</div>
+        </div>
+    )
+}
+
+const WeeklyAveragesChart = ({ averages }) => {
+    const moodShifted = averages.mood_score === null || averages.mood_score === undefined ? 0 : averages.mood_score + 2
+    const bars = [
+        {
+            key: 'water',
+            label: 'Water (glasses)',
+            value: averages.water_intake || 0,
+            max: Math.max(12, (averages.water_intake || 0) * 1.25, 1),
+            color: '#7aa2ff',
+            display: averages.water_intake === null || averages.water_intake === undefined ? 'No data' : averages.water_intake.toFixed(1),
+        },
+        {
+            key: 'calories',
+            label: 'Calories',
+            value: averages.calories_intake || 0,
+            max: Math.max(3000, (averages.calories_intake || 0) * 1.2, 1),
+            color: '#f7a35c',
+            display: averages.calories_intake === null || averages.calories_intake === undefined ? 'No data' : averages.calories_intake.toFixed(1),
+        },
+        {
+            key: 'mood',
+            label: 'Mood (-2 to +2)',
+            value: moodShifted,
+            max: 4,
+            color: '#7ccf9a',
+            display: `${averages.mood_label} (${averages.mood_score === null || averages.mood_score === undefined ? 'No data' : averages.mood_score.toFixed(2)})`,
+        },
+    ]
+
+    return (
+        <div className="progress-panel">
+            <div className="progress-panel-header">
+                <h3>Weekly Averages</h3>
+                <p>Average water intake, calories, and mood for the week.</p>
+            </div>
+
+            <div className="weekly-averages-chart">
+                {bars.map((bar) => {
+                    const widthPct = Math.max(0, Math.min(100, (bar.value / bar.max) * 100))
+                    return (
+                        <div key={bar.key} className="weekly-averages-row">
+                            <div className="weekly-averages-meta">
+                                <span className="weekly-averages-label">{bar.label}</span>
+                                <span className="weekly-averages-value">{bar.display}</span>
+                            </div>
+                            <div className="weekly-averages-track">
+                                <div className="weekly-averages-fill" style={{ width: `${widthPct}%`, backgroundColor: bar.color }} />
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+export const ViewProgress = () => {
+    const { isAuthenticated, getAccessTokenSilently } = useAuth0()
+    const { customAuth } = useCustomAuth()
+
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
+    const [progressData, setProgressData] = useState(null)
+    const [timeRange, setTimeRange] = useState('weekly')
+    const [selectedMonth, setSelectedMonth] = useState(() => {
+        const now = new Date()
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    })
+
+    useEffect(() => {
+        const fetchProgress = async () => {
+            setLoading(true)
+            setError('')
+
+            try {
+                let token
+                if (isAuthenticated) {
+                    token = await getAccessTokenSilently({
+                        authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+                    })
+                } else if (customAuth) {
+                    token = customAuth
+                } else {
+                    setError('You must be logged in to view progress.')
+                    return
+                }
+
+                let url = `${API_BASE_URL}/dashboard/client/progress?time_range=${timeRange}`
+                if (timeRange === 'monthly') {
+                    url += `&selected_month=${selectedMonth}`
+                }
+
+                const response = await fetch(url, {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+
+                if (!response.ok) {
+                    throw new Error('Unable to load progress data.')
+                }
+
+                const payload = await response.json()
+                setProgressData(payload)
+
+                if (payload?.weight_chart?.selected_month && payload.weight_chart.selected_month !== selectedMonth) {
+                    setSelectedMonth(payload.weight_chart.selected_month)
+                }
+            } catch (fetchError) {
+                setError(fetchError.message || 'Unable to load progress data.')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchProgress()
+    }, [isAuthenticated, customAuth, getAccessTokenSilently, timeRange, selectedMonth])
+
+    const monthOptions = useMemo(() => {
+        const options = progressData?.weight_chart?.available_months || []
+        return options.length
+            ? options
+            : [{
+                value: selectedMonth,
+                label: (() => {
+                    const [year, month] = selectedMonth.split('-').map(Number)
+                    const labelDate = new Date(year, month - 1, 1)
+                    return labelDate.toLocaleString('default', { month: 'long', year: 'numeric' })
+                })(),
+            }]
+    }, [progressData, selectedMonth])
+
+    const weightSeries = useMemo(() => ([
+        {
+            key: 'goal',
+            label: 'Goal Weight',
+            color: '#6fbf73',
+            getValue: (point) => point.goal_weight_lb,
+        },
+        {
+            key: 'survey',
+            label: 'Daily Survey Weight',
+            color: '#ef8354',
+            getValue: (point) => point.survey_weight_lb,
+        },
+    ]), [])
+
+    return (
+        <div className="dashboard-container">
+            <Sidebar />
+            <div className="view-progress-container">
+                <div className="page-heading">
+                    <div className="h2">
+                        <span className="text-black">Your Progress </span>
+                        <span className="text-purple">Insights</span>
+                    </div>
+                </div>
+
+                <div className="view-progress-content">
+                    {loading && <p className="stat-descriptor">Loading progress charts...</p>}
+                    {!loading && error && <p className="stat-descriptor">{error}</p>}
+
+                    {!loading && !error && progressData && (
+                        <>
+                            <LineChart
+                                title="Weight Trend"
+                                subtitle="Current weight, goal weight, and daily survey weight changes."
+                                points={progressData.weight_chart.points}
+                                series={weightSeries}
+                                timeRange={timeRange}
+                                onTimeRangeChange={setTimeRange}
+                                progressData={progressData.weight_chart}
+                                selectedMonth={selectedMonth}
+                                onMonthChange={setSelectedMonth}
+                                monthOptions={monthOptions}
+                            />
+
+                            <StepsBarChart
+                                points={progressData.steps_chart.points}
+                                averageSteps={progressData.steps_chart.average_steps}
+                            />
+
+                            <WeeklyAveragesChart averages={progressData.weekly_averages} />
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}

@@ -20,6 +20,7 @@ export default defineConfig({
       '/dashboard': 'http://127.0.0.1:8000',
       '/exercises': 'http://127.0.0.1:8000',
       '/notifications': 'http://127.0.0.1:8000',
+      '/logs': 'http://127.0.0.1:8000',
       '/payments': 'http://127.0.0.1:8000',
       '/reviews': 'http://127.0.0.1:8000',
       '/uploads': 'http://127.0.0.1:8000',

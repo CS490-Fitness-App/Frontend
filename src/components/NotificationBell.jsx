@@ -1,13 +1,25 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
+import { useNavigate } from 'react-router-dom'
 import { useCustomAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 import './NotificationBell.css'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+const DAILY_CHECKIN_REMINDER_ID = 0
+const DAILY_CHECKIN_REMINDER_MESSAGE = 'Daily Check-in'
+
+const getLocalDateString = () => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
 
 export const NotificationBell = () => {
     const { isAuthenticated, getAccessTokenSilently } = useAuth0()
     const { customAuth } = useCustomAuth()
+    const navigate = useNavigate()
 
     const loggedIn = isAuthenticated || !!customAuth
 
@@ -16,6 +28,7 @@ export const NotificationBell = () => {
     const [notifications, setNotifications] = useState([])
     const [open, setOpen] = useState(false)
     const [loadingNotifs, setLoadingNotifs] = useState(false)
+    const [showDailyCheckInReminder, setShowDailyCheckInReminder] = useState(false)
 
     const dropdownRef = useRef(null)
     const pollRef = useRef(null)
@@ -58,21 +71,52 @@ export const NotificationBell = () => {
     }, [loggedIn, getToken])
 
     // Poll unread count every 60 seconds
+    const fetchDailyCheckInStatus = useCallback(async () => {
+        if (!loggedIn) {
+            setShowDailyCheckInReminder(false)
+            return false
+        }
+
+        try {
+            const token = await getToken()
+            if (!token) return false
+            const today = getLocalDateString()
+            const tzOffsetMinutes = new Date().getTimezoneOffset()
+            const res = await fetch(`${API_BASE_URL}/logs/daily-checkin/status?for_date=${today}&tz_offset_minutes=${tzOffsetMinutes}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            if (!res.ok) return false
+            const data = await res.json()
+            const shouldShow = !data.completed
+            setShowDailyCheckInReminder(shouldShow)
+            return shouldShow
+        } catch (err) {
+            console.error('[NotificationBell] Failed to fetch daily check-in status:', err)
+            return false
+        }
+    }, [loggedIn, getToken])
+
     const fetchUnreadCount = useCallback(async () => {
         if (!userId) return
+        const shouldShowReminder = await fetchDailyCheckInStatus()
+
         try {
             const token = await getToken()
             if (!token) return
             const res = await fetch(`${API_BASE_URL}/notifications/${userId}/count`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
-            if (!res.ok) return
+            if (!res.ok) {
+                setUnreadCount(shouldShowReminder ? 1 : 0)
+                return
+            }
             const data = await res.json()
-            setUnreadCount(data.unread_count)
+            setUnreadCount(data.unread_count + (shouldShowReminder ? 1 : 0))
         } catch (err) {
             console.error('[NotificationBell] Failed to fetch unread count:', err)
+            setUnreadCount(shouldShowReminder ? 1 : 0)
         }
-    }, [userId, getToken])
+    }, [userId, getToken, fetchDailyCheckInStatus])
 
     useEffect(() => {
         if (!userId) return
@@ -85,22 +129,40 @@ export const NotificationBell = () => {
     const fetchNotifications = useCallback(async () => {
         if (!userId) return
         setLoadingNotifs(true)
+        const shouldShowReminder = await fetchDailyCheckInStatus()
+        const reminderNotifications = shouldShowReminder
+            ? [{
+                notification_id: DAILY_CHECKIN_REMINDER_ID,
+                user_id: userId,
+                message: DAILY_CHECKIN_REMINDER_MESSAGE,
+                is_read: false,
+                created_at: new Date().toISOString(),
+            }]
+            : []
+
         try {
             const token = await getToken()
             if (!token) return
             const res = await fetch(`${API_BASE_URL}/notifications/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
-            if (!res.ok) return
+            if (!res.ok) {
+                setNotifications(reminderNotifications)
+                setUnreadCount(shouldShowReminder ? 1 : 0)
+                return
+            }
             const data = await res.json()
-            setNotifications(data)
-            setUnreadCount(0) // backend marks all as read on this fetch
+            const nextNotifications = [...reminderNotifications, ...data]
+            setNotifications(nextNotifications)
+            setUnreadCount(shouldShowReminder ? 1 : 0)
         } catch (err) {
             console.error('[NotificationBell] Failed to fetch notifications:', err)
+            setNotifications(reminderNotifications)
+            setUnreadCount(shouldShowReminder ? 1 : 0)
         } finally {
             setLoadingNotifs(false)
         }
-    }, [userId, getToken])
+    }, [userId, getToken, fetchDailyCheckInStatus])
 
     const handleBellClick = () => {
         const next = !open
@@ -120,6 +182,11 @@ export const NotificationBell = () => {
     }, [open])
 
     const handleDelete = async (notificationId) => {
+        if (notificationId <= 0) {
+            setNotifications((prev) => prev.filter((n) => n.notification_id !== notificationId))
+            return
+        }
+
         try {
             const token = await getToken()
             if (!token) return
@@ -131,6 +198,13 @@ export const NotificationBell = () => {
             setNotifications((prev) => prev.filter((n) => n.notification_id !== notificationId))
         } catch (err) {
             console.error('[NotificationBell] Failed to delete notification:', err)
+        }
+    }
+
+    const handleNotificationClick = (notification) => {
+        if (notification.notification_id === DAILY_CHECKIN_REMINDER_ID) {
+            setOpen(false)
+            navigate('/client-dashboard', { state: { openDailyCheckIn: true } })
         }
     }
 
@@ -178,18 +252,29 @@ export const NotificationBell = () => {
                     ) : (
                         <ul className="notif-list">
                             {notifications.map((n) => (
-                                <li key={n.notification_id} className={`notif-item${n.is_read ? '' : ' notif-unread'}`}>
+                                <li
+                                    key={n.notification_id}
+                                    className={`notif-item${n.is_read ? '' : ' notif-unread'}${n.notification_id === DAILY_CHECKIN_REMINDER_ID ? ' notif-item-action' : ''}`}
+                                    onClick={() => handleNotificationClick(n)}
+                                >
                                     <div className="notif-content">
                                         <p className="notif-message">{n.message}</p>
-                                        <span className="notif-time">{formatTime(n.created_at)}</span>
+                                        <span className="notif-time">
+                                            {n.notification_id === DAILY_CHECKIN_REMINDER_ID ? 'Open daily check-in' : formatTime(n.created_at)}
+                                        </span>
                                     </div>
-                                    <button
-                                        className="notif-delete-btn"
-                                        onClick={() => handleDelete(n.notification_id)}
-                                        aria-label="Dismiss notification"
-                                    >
-                                        &times;
-                                    </button>
+                                    {n.notification_id > 0 && (
+                                        <button
+                                            className="notif-delete-btn"
+                                            onClick={(event) => {
+                                                event.stopPropagation()
+                                                handleDelete(n.notification_id)
+                                            }}
+                                            aria-label="Dismiss notification"
+                                        >
+                                            &times;
+                                        </button>
+                                    )}
                                 </li>
                             ))}
                         </ul>

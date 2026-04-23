@@ -52,8 +52,8 @@
     top: calc(100% + 8px);
     right: 0;
     width: 320px;
-    background: white;
-    border: 1px solid #d1d5db;
+    background: #f3f4f6;
+    border: 1px solid #d6d9de;
     border-radius: 0.75rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     z-index: 1000;
@@ -65,7 +65,7 @@
     font-weight: 700;
     font-size: 0.95rem;
     border-bottom: 1px solid #e5e7eb;
-    background-color: #E9ECFF;
+    background-color: #e9ecf1;
     font-family: 'Anek Latin', sans-serif;
 }
 
@@ -77,7 +77,11 @@
     font-family: 'Anek Latin', sans-serif;
 }
 
-.notif-list {
+.notif-dropdown .notif-list {
+    display: block;
+    align-items: initial;
+    justify-content: initial;
+    gap: 0;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -85,37 +89,48 @@
     overflow-y: auto;
 }
 
-.notif-item {
+.notif-dropdown .notif-item {
     display: flex;
     align-items: flex-start;
+    justify-content: flex-start;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
+    margin: 0;
     border-bottom: 1px solid #f3f4f6;
+    background-color: #fff9db;
     transition: background-color 0.15s;
 }
 
-.notif-item:last-child {
+.notif-dropdown .notif-item:last-child {
     border-bottom: none;
 }
 
-.notif-item:hover {
-    background-color: #f9fafb;
+.notif-dropdown .notif-item:hover {
+    background-color: #fff4b8;
 }
 
-.notif-unread {
-    background-color: #f0f2ff;
+.notif-dropdown .notif-item-action {
+    cursor: pointer;
 }
 
-.notif-unread:hover {
-    background-color: #e6e9ff;
+.notif-dropdown .notif-item-action:hover {
+    background-color: #ffef9a;
 }
 
-.notif-content {
+.notif-dropdown .notif-unread {
+    background-color: #fff5c4;
+}
+
+.notif-dropdown .notif-unread:hover {
+    background-color: #ffe98f;
+}
+
+.notif-dropdown .notif-content {
     flex: 1;
     min-width: 0;
 }
 
-.notif-message {
+.notif-dropdown .notif-message {
     margin: 0 0 0.25rem 0;
     font-size: 0.875rem;
     color: #111827;
@@ -124,13 +139,20 @@
     word-break: break-word;
 }
 
-.notif-time {
+.notif-dropdown .notif-item-action .notif-message {
+    font-weight: 700;
+}
+
+.notif-dropdown .notif-time {
     font-size: 0.75rem;
     color: #9ca3af;
     font-family: 'Anek Latin', sans-serif;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-top: 0;
 }
 
-.notif-delete-btn {
+.notif-dropdown .notif-delete-btn {
     background: none;
     border: none;
     cursor: pointer;
@@ -143,7 +165,7 @@
     transition: color 0.15s, background-color 0.15s;
 }
 
-.notif-delete-btn:hover {
+.notif-dropdown .notif-delete-btn:hover {
     color: #e53e3e;
     background-color: #fee2e2;
 }

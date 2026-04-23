@@ -10,7 +10,7 @@ const links = [
     { name: 'My Workout Plans', path: '/workouts' },
     { name: 'Calendar', path: '/calendar' },
     { name: 'Activity Logger', path: '/' },
-    { name: 'View Progress', path: '/' },
+    { name: 'View Progress', path: '/view-progress' },
     { name: 'Coach Chat', path: '/chat' },
     { name: 'Payment Methods', path: '/payment-cards' },
 ];
