@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { WorkoutCard } from '../components/WorkoutCard'
+import { WorkoutFilters } from '../components/WorkoutFilters'
 import './Pages.css'
+import './Workout.css'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 export const Workouts = () => {
@@ -13,6 +15,21 @@ export const Workouts = () => {
     const [workouts, setWorkouts] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const [filters, setFilters] = useState({
+        name: '',
+        goal_type_id: '',
+        experience_level_id: '',
+    })
+
+    const buildQuery = (values) => {
+        const params = new URLSearchParams()
+
+        if (values.name) params.append('name', values.name)
+        if (values.goal_type_id) params.append('goal_type_id', values.goal_type_id)
+        if (values.experience_level_id) params.append('experience_level_id', values.experience_level_id)
+
+        return params.toString()
+    }
 
     useEffect(() => {
         const syncBackendUser = async (token) => {
@@ -54,12 +71,15 @@ export const Workouts = () => {
                     return
                 }
 
-                const response = await fetch(`${API_BASE_URL}/workouts`, {
+                const queryString = buildQuery(filters)
+                const workoutsUrl = queryString ? `${API_BASE_URL}/workouts?${queryString}` : `${API_BASE_URL}/workouts`
+
+                const response = await fetch(workoutsUrl, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
 
                 if (response.status === 401 && await syncBackendUser(token)) {
-                    const retryResponse = await fetch(`${API_BASE_URL}/workouts`, {
+                    const retryResponse = await fetch(workoutsUrl, {
                         headers: { Authorization: `Bearer ${token}` },
                     })
 
@@ -86,7 +106,7 @@ export const Workouts = () => {
         }
 
         fetchWorkouts()
-    }, [customAuth, getAccessTokenSilently, isAuthenticated, user])
+    }, [customAuth, filters, getAccessTokenSilently, isAuthenticated, user])
 
     return (
         <div>
@@ -100,7 +120,9 @@ export const Workouts = () => {
             {loading && <p style={{ padding: '1rem 2rem' }}>Loading workouts...</p>}
             {error && <p style={{ padding: '1rem 2rem' }}>Error: {error}</p>}
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem 2rem 2rem' }}>
+            <WorkoutFilters filters={filters} setFilters={setFilters} />
+
+            <div className="workouts-grid">
                 {workouts.map((workout) => (
                     <WorkoutCard
                         key={workout.workout_id}

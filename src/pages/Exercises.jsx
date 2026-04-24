@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react'
 
+import './Pages.css'
+import './Exercises.css'
 import { ExerciseCard } from "../components/ExerciseCard"
 import { ViewExercise } from "../components/ViewExercise"
+import { ExerciseFilters } from '../components/ExerciseFilters'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 export const Exercises = () => {
@@ -10,9 +13,28 @@ export const Exercises = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [filters, setFilters] = useState({
+        name: '',
+        category_id: '',
+        experience_level_id: '',
+    })
+
+    const buildQuery = (values) => {
+        const params = new URLSearchParams()
+
+        if (values.name) params.append('name', values.name)
+        if (values.category_id) params.append('category_id', values.category_id)
+        if (values.experience_level_id) params.append('experience_level_id', values.experience_level_id)
+
+        return params.toString()
+    }
 
     useEffect(() => {
-        fetch(`${API_BASE_URL}/exercises`)
+        setLoading(true)
+        const queryString = buildQuery(filters)
+        const exercisesUrl = queryString ? `${API_BASE_URL}/exercises?${queryString}` : `${API_BASE_URL}/exercises`
+
+        fetch(exercisesUrl)
             .then(res => {
                 if (!res.ok) throw new Error(`Failed to load exercises (${res.status})`)
                 return res.json()
@@ -25,7 +47,7 @@ export const Exercises = () => {
                 setError(err.message)
                 setLoading(false)
             })
-    }, [])
+    }, [filters])
 
     const openModal = (exercise) => {
         setSelectedExercise(exercise)
@@ -48,6 +70,8 @@ export const Exercises = () => {
 
             {loading && <p>Loading exercises...</p>}
             {error && <p>Error: {error}</p>}
+
+            <ExerciseFilters filters={filters} setFilters={setFilters} />
 
             <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                 {exercises.map(exercise => (

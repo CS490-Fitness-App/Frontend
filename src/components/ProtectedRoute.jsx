@@ -2,9 +2,16 @@ import { Navigate } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 
-export const ProtectedRoute = ({ children }) => {
+const AccessDenied = ({ message = 'You do not have permission to view this page.' }) => (
+    <div style={{ padding: '48px', fontFamily: "'Space Mono', monospace" }}>
+        <h2>Access denied</h2>
+        <p>{message}</p>
+    </div>
+)
+
+export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     const { isAuthenticated, isLoading } = useAuth0()
-    const { customAuth, backendAuthReady, backendAuthError } = useCustomAuth()
+    const { customAuth, backendAuthReady, backendAuthError, userRole } = useCustomAuth()
 
     if (isLoading) return null
 
@@ -18,6 +25,10 @@ export const ProtectedRoute = ({ children }) => {
         }
 
         return null
+    }
+
+    if (allowedRoles.length > 0 && userRole && !allowedRoles.includes(userRole)) {
+        return <AccessDenied />
     }
 
     return children
