@@ -1,52 +1,234 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useCustomAuth } from '../context/AuthContext';
 import './ChatPage.css';
 
-export const ChatPage = () => {
-  const [conversations] = useState([
-    { id: 1, initials: 'MR', name: 'Marcus Rivera', preview: "Sounds good! Let's bump up the weight on squats this week.", time: '2:34 PM', unread: 2, type: 'coach', online: true },
-    { id: 2, initials: 'SN', name: 'Sarah Nguyen', preview: 'Thanks for the meal plan update!', time: 'Yesterday', unread: 0, type: 'client', online: false },
-    { id: 3, initials: 'LP', name: 'Lisa Park', preview: 'How was your workout today?', time: 'Mon', unread: 0, type: 'coach', online: true },
-    { id: 4, initials: 'JD', name: 'James Davis', preview: "I'll send over the updated schedule by Friday.", time: 'Feb 22', unread: 0, type: 'client', online: false },
-    { id: 5, initials: 'TW', name: 'Tom Wilson', preview: 'Got it, thanks coach!', time: 'Feb 20', unread: 0, type: 'client', online: false },
-  ]);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+const POLL_INTERVAL_MS = 3000;
 
-  const [selectedConvoId, setSelectedConvoId] = useState(1);
+export const ChatPage = () => {
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { customAuth } = useCustomAuth();
+  const [conversations, setConversations] = useState([]);
+  const [loadingConversations, setLoadingConversations] = useState(false);
+  const messagesAreaRef = useRef(null);
+  const latestTimestampRef = useRef(null);
+  const pollIntervalRef = useRef(null);
+
+  // Helper to get auth token - define first so it can be used in useEffect
+  const getToken = async () => {
+    let token;
+    if (isAuthenticated) {
+      token = await getAccessTokenSilently({
+        authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+      });
+    } else if (customAuth) {
+      token = customAuth;
+    }
+    return token;
+  };
+
+  useEffect(() => {
+    setLoadingConversations(true);
+    (async () => {
+      try {
+        const token = await getToken();
+        const res = await fetch(`${API_BASE_URL}/chats`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (!res.ok) throw new Error('Failed to load conversations');
+        const data = await res.json();
+        // data is a list of ConversationOut
+        const mapped = data.map((c) => {
+          const name = c.other_user_name || 'Unknown';
+          const initials = name
+            .split(' ')
+            .map((p) => p[0] || '')
+            .slice(0, 2)
+            .join('')
+            .toUpperCase();
+          return {
+            id: c.chat_id,
+            name,
+            other_user_name: c.other_user_name,
+            initials,
+            preview: '',
+            time: new Date(c.created_at).toLocaleDateString(),
+            unread: 0,
+            type: 'client',
+            online: false,
+            coach_user_id: c.coach_user_id,
+            client_user_id: c.client_user_id,
+          };
+        });
+        setConversations(mapped);
+        const chatParam = new URLSearchParams(window.location.search).get('chat');
+        if (chatParam) {
+          const id = Number(chatParam);
+          console.log('Opening chat from URL param:', id);
+          const convo = mapped.find((x) => x.id === id);
+          latestTimestampRef.current = null;
+          setSelectedConvoId(id);
+          // Fetch messages even if convo not in list (handles new conversations with no messages yet)
+          fetchMessages(id, convo);
+        }
+      } catch (err) {
+        console.error('Failed to load conversations:', err);
+      } finally {
+        setLoadingConversations(false);
+      }
+    })();
+  }, [isAuthenticated, customAuth]);
+
+  const [selectedConvoId, setSelectedConvoId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [newMessage, setNewMessage] = useState('');
 
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'them', text: 'Hey Alex! How did the push day go yesterday? I saw you logged it — solid numbers on the bench press. 💪', time: '9:15 AM', date: 'Feb 27, 2026' },
-    { id: 2, sender: 'me', text: 'Thanks Marcus! It went well. I felt strong on bench — hit 185 for 3 sets of 5. Shoulders were a bit tight on the overhead press though.', time: '10:02 AM', date: 'Feb 27, 2026' },
-    { id: 3, sender: 'them', text: "Nice work on the bench! For the OHP, try adding some shoulder dislocates with a band before your pressing sets. That should help with the tightness. I'll add it to your warmup.", time: '10:18 AM', date: 'Feb 27, 2026' },
-    { id: 4, sender: 'me', text: 'Got it, I will try that. Also — do you think I should increase the weight on squats this week? I felt like 205 was getting easy.', time: '11:45 AM', date: 'Feb 27, 2026' },
-    { id: 5, sender: 'them', text: "Sounds good! Let's bump up the weight on squats this week. Try 215 for your working sets and see how it feels. If form stays clean, we'll keep progressing.", time: '2:34 PM', date: 'Today' },
-    { id: 6, sender: 'them', text: "Also don't forget your daily check-in today — I want to keep tracking your calories and sleep this week. You've been making great progress! 🔥", time: '2:35 PM', date: 'Today' },
-  ]);
+  const [messages, setMessages] = useState([]);
 
-  const selectedConvo = conversations.find((c) => c.id === selectedConvoId);
+  // Fetch messages for a conversation. If since is provided, only append new messages.
+  const fetchMessages = async (chatId, convo, since = null) => {
+    if (!chatId) return;
+    try {
+      const token = await getToken();
+      const url = since
+        ? `${API_BASE_URL}/chats/${chatId}/messages?since=${encodeURIComponent(since)}`
+        : `${API_BASE_URL}/chats/${chatId}/messages`;
+      const res = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error('Failed to load messages');
+      const data = await res.json();
+      if (data.length === 0) return;
+
+      const otherName = convo ? convo.name : null;
+      const mapped = data.map((m) => {
+        const sentAt = new Date(m.sent_at);
+        const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return {
+          id: m.message_id,
+          sender: m.sender_name === otherName ? 'them' : 'me',
+          sender_name: m.sender_name,
+          text: m.body,
+          time,
+          date,
+        };
+      });
+
+      // Track the latest sent_at for subsequent polls
+      const latestSentAt = data[data.length - 1].sent_at;
+      latestTimestampRef.current = latestSentAt;
+
+      if (since) {
+        setMessages((prev) => [...prev, ...mapped]);
+      } else {
+        setMessages(mapped);
+      }
+    } catch (err) {
+      console.error('Failed to fetch messages:', err);
+    }
+  };
+
+  useEffect(() => {
+    // scroll to bottom when messages change
+    if (messagesAreaRef.current) {
+      messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // Start polling for new messages whenever a conversation is selected
+  useEffect(() => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    if (!selectedConvoId) return;
+
+    const convo = conversations.find((c) => c.id === selectedConvoId) || null;
+    pollIntervalRef.current = setInterval(() => {
+      if (latestTimestampRef.current) {
+        fetchMessages(selectedConvoId, convo, latestTimestampRef.current);
+      }
+    }, POLL_INTERVAL_MS);
+
+    return () => {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    };
+  }, [selectedConvoId, isAuthenticated, customAuth]);
+
+
+
+  // selectedConvo from list, or create a minimal one if opening a new conversation with no messages yet
+  let selectedConvo = conversations.find((c) => c.id === selectedConvoId);
+  if (!selectedConvo && selectedConvoId) {
+    // Create a minimal selectedConvo for new conversations without messages
+    console.log('Creating fallback selectedConvo for chat_id:', selectedConvoId);
+    selectedConvo = {
+      id: selectedConvoId,
+      name: 'Coach', // generic fallback until first message arrives
+      initials: 'C',
+      online: false,
+    };
+  }
+  console.log('selectedConvoId:', selectedConvoId, 'selectedConvo:', selectedConvo);
 
   const filteredConversations = conversations.filter((convo) =>
     convo.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSelectConversation = (convoId) => {
+    latestTimestampRef.current = null;
+    setMessages([]);
     setSelectedConvoId(convoId);
+    const convo = conversations.find((c) => c.id === convoId);
+    if (convo) {
+      fetchMessages(convoId, convo);
+    }
   };
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedConvoId) return;
 
-    const newMsg = {
-      id: messages.length + 1,
-      sender: 'me',
-      text: newMessage,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      date: 'Today',
-    };
-
-    setMessages([...messages, newMsg]);
-    setNewMessage('');
+    const payload = { type: 'text', body: newMessage };
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API_BASE_URL}/chats/${selectedConvoId}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Failed to send message');
+      const m = await res.json();
+        const sentAt = new Date(m.sent_at);
+        const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const convo = conversations.find((c) => c.id === selectedConvoId);
+        const newMsg = {
+          id: m.message_id,
+          sender: m.sender_name === (convo ? convo.name : '') ? 'them' : 'me',
+          sender_name: m.sender_name,
+          text: m.body,
+          time,
+          date,
+        };
+        latestTimestampRef.current = m.sent_at;
+        setMessages((prev) => [...prev, newMsg]);
+        setNewMessage('');
+      } catch (err) {
+        console.error('Error sending message:', err);
+      }
   };
 
   const handleKeyPress = (e) => {
@@ -112,10 +294,6 @@ export const ChatPage = () => {
                   <div className="chat-header-avatar">{selectedConvo.initials}</div>
                   <div className="chat-header-info">
                     <div className="chat-header-name">{selectedConvo.name}</div>
-                    <div className={`chat-header-status ${selectedConvo.online ? 'online' : 'offline'}`}>
-                      <div className="status-dot"></div>
-                      {selectedConvo.online ? 'Online' : 'Offline'}
-                    </div>
                   </div>
                 </div>
                 <div className="chat-header-right">
@@ -124,7 +302,7 @@ export const ChatPage = () => {
                 </div>
               </div>
 
-              <div className="messages-area">
+              <div className="messages-area" ref={messagesAreaRef}>
                 {Object.keys(groupedMessages).map((date) => (
                   <React.Fragment key={date}>
                     <div className="date-divider">
@@ -135,7 +313,12 @@ export const ChatPage = () => {
                     {groupedMessages[date].map((msg) => (
                       <div key={msg.id} className={`message-row ${msg.sender === 'me' ? 'sent' : 'received'}`}>
                         <div className={`msg-avatar ${msg.sender === 'me' ? 'me' : 'coach'}`}>
-                          {msg.sender === 'me' ? 'AJ' : selectedConvo.initials}
+                          {(msg.sender_name || '')
+                            .split(' ')
+                            .map((p) => p[0] || '')
+                            .slice(0, 2)
+                            .join('')
+                            .toUpperCase() || '?'}
                         </div>
                         <div className="msg-content">
                           <div className="msg-bubble">{msg.text}</div>

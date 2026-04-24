@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPersonRunning, faCutlery, faStarHalfStroke, faStar as faSolidStar} from '@fortawesome/free-solid-svg-icons';
 import { faStar as faRegularStar } from '@fortawesome/free-regular-svg-icons';
 import { faX } from "@fortawesome/free-solid-svg-icons/faX";
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 export const CoachCard = ({ coach, onClick }) => {
     let reviewDomElements = [];
@@ -42,7 +43,7 @@ export const CoachCard = ({ coach, onClick }) => {
 
                 <img
                 className="coach-card-img"
-                src={coach.profile_picture || 'https://picsum.photos/300/200'}
+                src={coach.profile_picture ? resolveMediaUrl(coach.profile_picture) : 'https://picsum.photos/300/200'}
                 alt={coach.first_name}
                 />
             </div>

@@ -1,0 +1,430 @@
+.view-progress-container {
+    flex: 1;
+    min-width: 0;
+}
+.progress-month-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 16px;
+    font-family: "Oswald", sans-serif;
+    font-size: 38px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    line-height: 1;
+    color: #1f2937;
+}
+
+.month-select {
+    appearance: none;
+    min-width: 220px;
+    padding: 8px 38px 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background-color: #ffffff;
+    background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%), linear-gradient(135deg, #6b7280 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    color: #111827;
+    font-family: "Oswald", sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    text-align: center;
+    cursor: pointer;
+}
+
+.month-select:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15);
+}
+
+.view-progress-content {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 32px 40px 40px;
+}
+
+.progress-panel-header {
+    margin-bottom: 20px;
+}
+
+.progress-header-top {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+    align-items: center;
+    gap: 20px;
+}
+
+.progress-header-info {
+    min-width: 0;
+}
+
+.progress-header-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+    justify-self: end;
+    width: 220px;
+}
+
+.progress-panel-header h3 {
+    margin: 0 0 8px 0;
+    font-family: "Oswald", sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #1f2937;
+}
+
+.progress-panel-header p {
+    margin: 0;
+    color: #6b7280;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+}
+
+.time-range-btn {
+    width: 220px;
+    min-height: 48px;
+    padding: 8px 14px;
+    border: 1px solid #cdbde7;
+    background: #f6efff;
+    color: #5f4b82;
+    font-family: "Anek Latin", sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.12);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.time-range-btn:hover {
+    border-color: #b79add;
+    background: #efe3ff;
+    color: #4f3e6f;
+    transform: translateY(-1px);
+}
+
+.time-range-btn.active {
+    background: #e3d2fb;
+    color: #422f62;
+    border-color: #a986d7;
+    box-shadow: 0 3px 10px rgba(124, 58, 237, 0.2);
+}
+
+.progress-panel {
+    border: 1px solid #e5e7eb;
+    background: white;
+    padding: 28px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.progress-panel-header h3 {
+    margin: 0 0 8px 0;
+    font-family: "Oswald", sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #1f2937;
+}
+
+.progress-panel-header p {
+    margin: 0;
+    color: #6b7280;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+}
+
+.progress-metric {
+    margin-top: 10px;
+}
+
+.progress-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: "Anek Latin", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.progress-badge.positive {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+
+.progress-badge.negative {
+    background-color: #fee2e2;
+    color: #7f1d1d;
+    border: 1px solid #fca5a5;
+}
+
+.progress-badge.neutral {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.progress-line-chart {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    margin: 20px 0 16px 0;
+}
+
+.chart-grid-line {
+    stroke: #e5e7eb;
+    stroke-width: 0.75;
+    opacity: 0.6;
+}
+
+.chart-axis-label {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    fill: #6b7280;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+.chart-axis-label-monthly {
+    font-size: 10px;
+}
+
+.progress-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: "Anek Latin", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.steps-chart {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(80px, 1fr));
+    gap: 14px;
+    margin: 20px 0 16px 0;
+}
+
+.steps-chart-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.steps-chart-column-wrap {
+    position: relative;
+    width: 100%;
+    height: 270px;
+    border: 1px solid #e5e7eb;
+    background: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.steps-chart-column {
+    width: 70%;
+    border-radius: 6px 6px 0 0;
+    transition: height 0.25s ease;
+}
+
+.steps-chart-column.up {
+    background: linear-gradient(180deg, #8ddab0 0%, #6fcf97 100%);
+}
+
+.steps-chart-column.down {
+    background: linear-gradient(180deg, #f6b7b7 0%, #ee8f8f 100%);
+}
+
+.steps-chart-column.flat {
+    background: linear-gradient(180deg, #b5cdfd 0%, #8fb2f8 100%);
+}
+
+.steps-avg-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 2px dashed #f2a36b;
+    opacity: 0.95;
+}
+
+.steps-day-label {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #6b7280;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+.steps-value-label {
+    font-family: "Anek Latin", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.steps-trend-label {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.steps-trend-label.up {
+    color: #1f7a4a;
+}
+
+.steps-trend-label.down {
+    color: #b54747;
+}
+
+.steps-trend-label.flat {
+    color: #5c6b82;
+}
+
+.progress-summary {
+    margin-top: 12px;
+    padding-top: 12px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    color: #6b7280;
+    letter-spacing: 0.2px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.weekly-averages-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 20px 0 0 0;
+}
+
+.weekly-averages-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.weekly-averages-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.weekly-averages-label {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #6b7280;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+.weekly-averages-value {
+    font-family: "Anek Latin", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.weekly-averages-track {
+    width: 100%;
+    height: 20px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.weekly-averages-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+@media (max-width: 900px) {
+    .view-progress-content {
+        padding: 16px;
+    }
+
+    .progress-header-top {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .progress-month-display {
+        font-size: 30px;
+        order: -1;
+    }
+
+    .month-select {
+        min-width: 190px;
+        font-size: 22px;
+    }
+
+    .progress-header-controls {
+        justify-self: start;
+        width: 190px;
+    }
+
+    .time-range-btn {
+        width: 190px;
+        font-size: 18px;
+    }
+
+    .steps-chart {
+        grid-template-columns: repeat(7, minmax(40px, 1fr));
+        gap: 8px;
+    }
+
+    .steps-chart-column-wrap {
+        max-width: none;
+        height: 210px;
+    }
+
+    .progress-panel {
+        padding: 14px;
+    }
+}

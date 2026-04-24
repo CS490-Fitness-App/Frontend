@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FaRegUser, FaChartPie } from "react-icons/fa"
 import { BsBarChartFill } from "react-icons/bs"
 import { FaClipboardCheck } from "react-icons/fa6"
@@ -9,15 +9,68 @@ import { useCustomAuth } from '../context/AuthContext'
 import { Sidebar } from "../components/Sidebar"
 import './Pages.css'
 import './ClientDashboard.css'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+const getLocalDateString = () => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
+const getMsUntilNextMidnight = () => {
+    const now = new Date()
+    const nextMidnight = new Date(now)
+    nextMidnight.setHours(24, 0, 0, 0)
+    return Math.max(0, nextMidnight.getTime() - now.getTime())
+}
+
+const formatCountdown = (milliseconds) => {
+    const totalSeconds = Math.floor(milliseconds / 1000)
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
+    const seconds = String(totalSeconds % 60).padStart(2, '0')
+    return `${hours}:${minutes}:${seconds}`
+}
+
+const readErrorDetail = async (response, fallbackMessage) => {
+    const rawBody = await response.text().catch(() => '')
+    if (!rawBody) {
+        return fallbackMessage
+    }
+
+    try {
+        const parsedBody = JSON.parse(rawBody)
+        return parsedBody.detail || parsedBody.message || fallbackMessage
+    } catch {
+        return rawBody
+    }
+}
 
 export const ClientDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
     const { customAuth } = useCustomAuth()
+    const location = useLocation()
+    const navigate = useNavigate()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+    const [isCheckInOpen, setIsCheckInOpen] = useState(false)
+    const [checkInForm, setCheckInForm] = useState({
+        caloriesIntake: '',
+        steps: '',
+        waterIntake: '',
+        weightLb: '',
+        moodLabel: 'Okay',
+    })
+    const [checkInSubmitting, setCheckInSubmitting] = useState(false)
+    const [checkInMessage, setCheckInMessage] = useState('')
+    const [checkInError, setCheckInError] = useState('')
+    const [checkInLocked, setCheckInLocked] = useState(false)
+    const [checkInCountdown, setCheckInCountdown] = useState('00:00:00')
+
+    const displayFirstName = data?.full_name?.split(' ')[0] || data?.name?.split(' ')[0] || ''
 
     useEffect(() => {
         const fetchDashboard = async () => {
@@ -34,15 +87,16 @@ export const ClientDashboard = () => {
                     return
                 }
 
-                const res = await fetch(`${API_BASE_URL}/dashboard/client`, {
+                const dashboardRes = await fetch(`${API_BASE_URL}/dashboard/client`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
 
-                if (!res.ok) {
+
+                if (!dashboardRes.ok) {
                     throw new Error("Unable to load dashboard data.")
                 }
 
-                const dashboardData = await res.json()
+                const dashboardData = await dashboardRes.json()
                 setData(dashboardData)
                 setError("")
             } catch (err) {
@@ -56,9 +110,163 @@ export const ClientDashboard = () => {
         fetchDashboard()
     }, [isAuthenticated, customAuth, getAccessTokenSilently])
 
+    useEffect(() => {
+        const syncCheckInStatus = async () => {
+            if (!isAuthenticated && !customAuth) {
+                setCheckInLocked(false)
+                setCheckInCountdown('00:00:00')
+                return
+            }
+
+            try {
+                const token = await getAuthToken()
+                const today = getLocalDateString()
+                const tzOffsetMinutes = new Date().getTimezoneOffset()
+                const response = await fetch(`${API_BASE_URL}/logs/daily-checkin/status?for_date=${today}&tz_offset_minutes=${tzOffsetMinutes}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+
+                if (!response.ok) {
+                    return
+                }
+
+                const statusData = await response.json()
+                setCheckInLocked(!!statusData.completed)
+
+                const updateCountdown = () => {
+                    const nextResetAt = new Date(statusData.next_reset_at).getTime()
+                    const remaining = Math.max(0, nextResetAt - Date.now())
+                    setCheckInCountdown(formatCountdown(remaining))
+                }
+
+                updateCountdown()
+                const countdownId = window.setInterval(updateCountdown, 1000)
+                return () => window.clearInterval(countdownId)
+            } catch (syncError) {
+                console.error('Failed to sync daily check-in status:', syncError)
+            }
+        }
+
+        let cleanup = null
+        syncCheckInStatus().then((cleanupFn) => {
+            cleanup = cleanupFn || null
+        })
+
+        return () => {
+            if (cleanup) cleanup()
+        }
+    }, [isAuthenticated, customAuth, getAccessTokenSilently])
+
+    useEffect(() => {
+        if (!location.state?.openDailyCheckIn || checkInLocked) {
+            return
+        }
+
+        setCheckInError('')
+        setCheckInMessage('')
+        setIsCheckInOpen(true)
+        navigate(location.pathname, { replace: true, state: {} })
+    }, [location, navigate, checkInLocked])
+
     const formatWeight = (weight) => {
         if (weight === null || weight === undefined) return "Not set"
         return `${weight} LB`
+    }
+
+    const openCheckIn = () => {
+        if (checkInLocked) {
+            return
+        }
+        setCheckInError('')
+        setCheckInMessage('')
+        setIsCheckInOpen(true)
+    }
+
+    const closeCheckIn = () => {
+        if (checkInSubmitting) return
+        setIsCheckInOpen(false)
+    }
+
+    const updateCheckInField = (field) => (event) => {
+        setCheckInForm((prev) => ({ ...prev, [field]: event.target.value }))
+    }
+
+    const parseOptionalNumber = (value) => {
+        if (value === '' || value === null || value === undefined) return null
+        const parsed = Number(value)
+        return Number.isFinite(parsed) ? parsed : null
+    }
+
+    const getAuthToken = async () => {
+        if (isAuthenticated) {
+            return getAccessTokenSilently({
+                authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+            })
+        }
+        if (customAuth) {
+            return customAuth
+        }
+        throw new Error('You must be logged in to submit a daily check-in.')
+    }
+
+    const submitDailyCheckIn = async (event) => {
+        event.preventDefault()
+        setCheckInSubmitting(true)
+        setCheckInError('')
+        setCheckInMessage('')
+
+        try {
+            const token = await getAuthToken()
+            const today = getLocalDateString()
+            const payload = {
+                date: today,
+                calories_intake: parseOptionalNumber(checkInForm.caloriesIntake),
+                step_count: parseOptionalNumber(checkInForm.steps),
+                water_intake: parseOptionalNumber(checkInForm.waterIntake),
+                weight_lb: parseOptionalNumber(checkInForm.weightLb),
+                mood_label: checkInForm.moodLabel,
+            }
+
+            const response = await fetch(`${API_BASE_URL}/logs/daily-checkin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            })
+
+            if (!response.ok) {
+                const detail = await readErrorDetail(response, 'Unable to save your daily check-in.')
+                throw new Error(detail)
+            }
+
+            const dashboardRes = await fetch(`${API_BASE_URL}/dashboard/client`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            if (dashboardRes.ok) {
+                const dashboardData = await dashboardRes.json()
+                setData(dashboardData)
+            }
+
+            setCheckInLocked(true)
+            setCheckInCountdown(formatCountdown(getMsUntilNextMidnight()))
+            setCheckInMessage('Daily check-in saved for today.')
+            setTimeout(() => {
+                setIsCheckInOpen(false)
+            }, 600)
+        } catch (submitError) {
+            console.error('Daily check-in failed:', submitError)
+            const message = submitError.message || 'Unable to save your daily check-in.'
+            if (message.toLowerCase().includes('already submitted')) {
+                setCheckInLocked(true)
+                setCheckInCountdown(formatCountdown(getMsUntilNextMidnight()))
+                setIsCheckInOpen(false)
+            }
+            setCheckInError(message)
+        } finally {
+            setCheckInSubmitting(false)
+        }
     }
 
     const progressText = data?.intended_duration_weeks
@@ -74,7 +282,7 @@ export const ClientDashboard = () => {
                       <div className="h2">
                         <span className="text-black">Welcome back, </span>
                           <span className="text-purple">
-                            {loading ? "Loading..." : data?.full_name || "Client"}
+                                                        {loading ? "Loading..." : displayFirstName}
                           </span>
                         </div>
                       </div>
@@ -200,7 +408,9 @@ export const ClientDashboard = () => {
                                     <div className="stat-descriptor">Log your calories, steps, water intake, weight, and mood for today.</div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link className="panel-btn-purple">Check In</Link>
+                                    <button type="button" className="panel-btn-purple" onClick={openCheckIn} disabled={checkInLocked}>
+                                        {checkInLocked ? `Available in ${checkInCountdown}` : 'Check In'}
+                                    </button>
                                 </div>
                             </div>
                             <div className="workout-plan-panel">
@@ -212,13 +422,71 @@ export const ClientDashboard = () => {
                                     <div className="stat-descriptor">See your charts and trends over the past weeks and months.</div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link className="panel-btn-purple">View Charts</Link>
+                                    <Link to="/view-progress" className="panel-btn-purple">View Charts</Link>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {isCheckInOpen && (
+                <div className="daily-checkin-overlay" onClick={closeCheckIn}>
+                    <div className="daily-checkin-modal" onClick={(event) => event.stopPropagation()}>
+                        <div className="daily-checkin-header">
+                            <div className="dashboard-heading daily-checkin-title">Daily Check-In</div>
+                            <button type="button" className="daily-checkin-close" onClick={closeCheckIn}>X</button>
+                        </div>
+
+                        <p className="stat-descriptor daily-checkin-description">
+                            Log your calories, steps, water intake, weight, and mood for today.
+                        </p>
+
+                        <form className="daily-checkin-form" onSubmit={submitDailyCheckIn}>
+                            <label className="daily-checkin-field">
+                                <span className="stat-heading">Calories</span>
+                                <input type="number" min="0" value={checkInForm.caloriesIntake} onChange={updateCheckInField('caloriesIntake')} placeholder="e.g. 2100" />
+                            </label>
+
+                            <label className="daily-checkin-field">
+                                <span className="stat-heading">Steps</span>
+                                <input type="number" min="0" value={checkInForm.steps} onChange={updateCheckInField('steps')} placeholder="e.g. 9000" />
+                            </label>
+
+                            <label className="daily-checkin-field">
+                                <span className="stat-heading">Water Intake (glasses)</span>
+                                <input type="number" min="0" value={checkInForm.waterIntake} onChange={updateCheckInField('waterIntake')} placeholder="e.g. 8" />
+                            </label>
+
+                            <label className="daily-checkin-field">
+                                <span className="stat-heading">Weight (LB)</span>
+                                <input type="number" min="0" step="0.1" value={checkInForm.weightLb} onChange={updateCheckInField('weightLb')} placeholder="e.g. 178.4" />
+                            </label>
+
+                            <label className="daily-checkin-field">
+                                <span className="stat-heading">Mood</span>
+                                <select value={checkInForm.moodLabel} onChange={updateCheckInField('moodLabel')}>
+                                    <option value="Amazing">Amazing</option>
+                                    <option value="Good">Good</option>
+                                    <option value="Okay">Okay</option>
+                                    <option value="Bad">Bad</option>
+                                    <option value="Awful">Awful</option>
+                                </select>
+                            </label>
+
+                            {checkInError && <p className="daily-checkin-error">{checkInError}</p>}
+                            {checkInMessage && <p className="daily-checkin-success">{checkInMessage}</p>}
+
+                            <div className="daily-checkin-actions">
+                                <button type="button" className="panel-btn-white" onClick={closeCheckIn}>Cancel</button>
+                                <button type="submit" className="panel-btn-purple" disabled={checkInSubmitting}>
+                                    {checkInSubmitting ? 'Saving...' : 'Save Check-In'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
-import { Sidebar } from "../components/Sidebar";
 import './AdminDashboard.css';
 import './ClientDashboard.css';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+import { API_BASE_URL } from '../utils/apiBaseUrl';
 
 export const AdminDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0();
@@ -55,12 +53,7 @@ export const AdminDashboard = () => {
             const res = await fetch(`${API_BASE_URL}/exercises`)
             const data = await res.json().catch(() => [])
             if (!res.ok) throw new Error(data.detail || 'Failed to load exercises')
-            setExercises(data.map(e => ({
-                id: e.exercise_id,
-                name: e.name,
-                muscle: e.muscle_groups?.[0] || '—',
-                equipment: e.equipment || '—',
-            })))
+            setExercises(data)
         } catch (err) {
             setExerciseError(err.message || 'Failed to load exercises')
         } finally {
@@ -317,7 +310,7 @@ export const AdminDashboard = () => {
 
     const filteredExercises = exercises.filter((exercise) =>
         exercise.name.toLowerCase().includes(exerciseSearch.toLowerCase()) ||
-        exercise.muscle_groups.join(' / ').toLowerCase().includes(exerciseSearch.toLowerCase())
+        (exercise.muscle_groups || []).join(' / ').toLowerCase().includes(exerciseSearch.toLowerCase())
     );
 
     const getStatusClass = (status) => {
@@ -329,9 +322,7 @@ export const AdminDashboard = () => {
 
     return (
         <div>
-            <div className="dashboard-container">
-                <Sidebar />
-                <div>
+            <div>
                     <div className="page-heading">
                         <div className="h2">
                             <span className="text-black">ADMIN </span>
@@ -427,7 +418,7 @@ export const AdminDashboard = () => {
                                             ) : filteredExercises.map((exercise) => (
                                                 <tr key={exercise.exercise_id}>
                                                     <td><strong>{exercise.name}</strong></td>
-                                                    <td>{exercise.muscle_groups.join(' / ') || 'None'}</td>
+                                                    <td>{(exercise.muscle_groups || []).join(' / ') || 'None'}</td>
                                                     <td>{exercise.equipment || 'None'}</td>
                                                     <td>
                                                         <div className="actions-cell">
@@ -552,7 +543,6 @@ export const AdminDashboard = () => {
                         <div className="footer-spacer"></div>
                     </div>
                 </div>
-            </div>
         </div>
     );
 };

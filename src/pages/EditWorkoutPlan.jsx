@@ -4,10 +4,10 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 import { MdDragHandle } from "react-icons/md";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 const EXPERIENCE_OPTIONS = [
     { id: 1, label: 'Beginner' },
     { id: 2, label: 'Intermediate' },

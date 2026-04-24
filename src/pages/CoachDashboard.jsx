@@ -5,8 +5,7 @@ import { useCustomAuth } from '../context/AuthContext';
 import { Sidebar } from "../components/Sidebar"
 import './CoachDashboard.css';
 import './ClientDashboard.css';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+import { API_BASE_URL } from '../utils/apiBaseUrl';
 
 // import { API_BASE_URL } from '../utils/apiBaseUrl';
 
