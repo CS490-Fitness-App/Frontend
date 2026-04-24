@@ -7,6 +7,10 @@ import './ChatPage.css';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 const POLL_INTERVAL_MS = 3000;
 
+// Backend returns timestamps without timezone info (e.g. "2026-04-16 05:00:36").
+// Normalize to UTC ISO format so browsers parse them as UTC, not local time.
+const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d{2}:\d{2}|Z)$/, 'Z') : null);
+
 export const ChatPage = () => {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const { customAuth } = useCustomAuth();
@@ -57,7 +61,7 @@ export const ChatPage = () => {
             other_user_name: c.other_user_name,
             initials,
             preview: '',
-            time: new Date(c.created_at).toLocaleDateString(),
+            time: parseUTC(c.created_at).toLocaleDateString(),
             unread: 0,
             type: 'client',
             online: false,
@@ -110,7 +114,7 @@ export const ChatPage = () => {
 
       const otherName = convo ? convo.name : null;
       const mapped = data.map((m) => {
-        const sentAt = new Date(m.sent_at);
+        const sentAt = parseUTC(m.sent_at);
         const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
         const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return {
@@ -211,7 +215,7 @@ export const ChatPage = () => {
       });
       if (!res.ok) throw new Error('Failed to send message');
       const m = await res.json();
-        const sentAt = new Date(m.sent_at);
+        const sentAt = parseUTC(m.sent_at);
         const date = sentAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
         const time = sentAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const convo = conversations.find((c) => c.id === selectedConvoId);
