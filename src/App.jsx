@@ -24,18 +24,18 @@ function App() {
                 <Route path="/exercises" element={<Exercises />} />
                 <Route path="/workouts" element={<Workouts />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/client-dashboard" element={<ProtectedRoute allowedRoles={['client']}><ClientDashboard /></ProtectedRoute>} />
+                <Route path="/client-dashboard" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ClientDashboard /></ProtectedRoute>} />
                 <Route path="/coach-dashboard" element={<ProtectedRoute allowedRoles={['coach']}><CoachDashboard /></ProtectedRoute>} />
                 <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/survey" element={<ProtectedRoute allowedRoles={['client', 'coach']}><Survey /></ProtectedRoute>} />
-                <Route path="/payment-cards" element={<ProtectedRoute allowedRoles={['client']}><PaymentCards /></ProtectedRoute>} />
+                <Route path="/payment-cards" element={<ProtectedRoute allowedRoles={['client', 'coach']}><PaymentCards /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute allowedRoles={['client', 'coach', 'admin']}><Profile /></ProtectedRoute>} />
                 <Route path="/view-workout/:workoutId" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ViewWorkout /></ProtectedRoute>} />
                 <Route path="/edit-workout/:workoutId" element={<ProtectedRoute allowedRoles={['coach']}><EditWorkout /></ProtectedRoute>} />
-                <Route path="/calendar" element={<ProtectedRoute allowedRoles={['client']}><ClientCalendar /></ProtectedRoute>} />
+                <Route path="/calendar" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ClientCalendar /></ProtectedRoute>} />
                 <Route path="/chat" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ChatPage /></ProtectedRoute>} />
-                <Route path="/view-progress" element={<ProtectedRoute allowedRoles={['client']}><ViewProgress /></ProtectedRoute>} />
+                <Route path="/view-progress" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ViewProgress /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </div>
