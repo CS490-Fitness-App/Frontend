@@ -10,10 +10,16 @@ import { NotificationBell } from "./NotificationBell"
 
 export const Navbar = () => {
     const { isAuthenticated, logout } = useAuth0()
-    const { customAuth, clearAuth } = useCustomAuth()
+    const { customAuth, userRole, clearAuth } = useCustomAuth()
     const navigate = useNavigate()
 
     const loggedIn = isAuthenticated || !!customAuth
+
+    const getDashboardRoute = () => {
+        if (userRole === 'admin') return '/admin-dashboard'
+        if (userRole === 'coach') return '/coach-dashboard'
+        return '/client-dashboard'
+    }
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const openModal = () => setIsModalOpen(true)
