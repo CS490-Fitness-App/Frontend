@@ -28,7 +28,27 @@ export const TopCoaches = () => {
     const [coaches, setCoaches] = useState([])
     const [reviews, setReviews] = useState({})   // { coach_id: review_description }
     const [index, setIndex] = useState(0)
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth)
     const VISIBLE = 3
+
+    // Track window resize for responsive transform calculation
+    useEffect(() => {
+        const handleResize = () => setWindowWidth(window.innerWidth)
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
+
+    // Calculate card width based on breakpoint
+    const getCardDimensions = () => {
+        if (windowWidth <= 480) return { width: 11, gap: 0.8 }
+        if (windowWidth <= 768) return { width: 12, gap: 1 }
+        if (windowWidth <= 900) return { width: 14, gap: 1.2 }
+        if (windowWidth <= 1024) return { width: 15, gap: 1.5 }
+        return { width: 17, gap: 1.5 }
+    }
+
+    const { width: cardWidth, gap: cardGap } = getCardDimensions()
+    const cardTotal = cardWidth + cardGap
 
     // Fetch top coaches sorted by rating
     useEffect(() => {
@@ -88,7 +108,7 @@ export const TopCoaches = () => {
                 <div className="top-coaches-carousel">
                     <div
                         className="top-coaches-track"
-                        style={{ transform: `translateX(calc(-${index} * (17rem + 1.5rem)))` }}
+                        style={{ transform: `translateX(calc(-${index} * ${cardTotal}rem))` }}
                     >
                         {coaches.map(coach => (
                             <div key={coach.coach_id} className="tc-card">
