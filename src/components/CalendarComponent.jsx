@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import "./CalendarPopup.css"
@@ -14,7 +15,8 @@ import { CalendarPopup } from './CalendarPopup'
 const localizer = momentLocalizer(moment)
 const DnDCalendar = withDragAndDrop(Calendar)
 
-export const CalendarComponent = () => {
+export const CalendarComponent = ({ preselectedWorkoutId = null, clientId = null, clientName = null }) => {
+    const navigate = useNavigate()
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
     const { customAuth } = useCustomAuth()
     const [events, setEvents] = useState([])
@@ -112,13 +114,16 @@ export const CalendarComponent = () => {
                 )
             }
 
+            const scheduleBody = { scheduled_date: scheduledDate }
+            if (clientId) scheduleBody.client_user_id = clientId
+
             const response = await fetch(`${API_BASE_URL}/workouts/${workoutId}/schedule`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ scheduled_date: scheduledDate }),
+                body: JSON.stringify(scheduleBody),
             })
 
             if (!response.ok) {
@@ -130,6 +135,9 @@ export const CalendarComponent = () => {
             setSelectedEvent(null)
             setIsOpenEvent(false)
             setSelectedDate(null)
+            if (clientId) {
+                navigate(`/view-progress?client_id=${clientId}`)
+            }
         } catch (err) {
             setError(err.message || 'Unable to save calendar workout.')
         } finally {
@@ -205,6 +213,11 @@ export const CalendarComponent = () => {
     return (
         <>
             <div className="calendar-shell">
+            {clientName && (
+                <p className="calendar-feedback calendar-client-banner">
+                    Scheduling on behalf of <strong>{clientName}</strong>
+                </p>
+            )}
             {loading && <p className="calendar-feedback">Loading calendar...</p>}
             {error && <p className="calendar-feedback" style={{ color: '#b91c1c' }}>Error: {error}</p>}
             <div>
@@ -239,6 +252,8 @@ export const CalendarComponent = () => {
                     event={selectedEvent}
                     workouts={workouts}
                     submitting={submitting}
+                    preselectedWorkoutId={preselectedWorkoutId}
+                    clientName={clientName}
                 />
             )}
         </>

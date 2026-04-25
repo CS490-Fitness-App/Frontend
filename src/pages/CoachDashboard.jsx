@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
 import { Sidebar } from "../components/Sidebar"
@@ -8,6 +8,7 @@ import './ClientDashboard.css';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
 
 const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d{2}:\d{2}|Z)$/, 'Z') : null);
 
 const parseAvailability = (availStrings) => {
     const days = [];
@@ -30,6 +31,7 @@ const parseAvailability = (availStrings) => {
 export const CoachDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0();
     const { customAuth } = useCustomAuth();
+    const navigate = useNavigate();
     const [clients, setClients] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [notifications] = useState([]);
@@ -125,8 +127,8 @@ export const CoachDashboard = () => {
         }
     };
 
-    const handleViewClient = (clientId) => {
-        console.log('View client:', clientId);
+    const handleViewClient = (clientUserId) => {
+        navigate(`/view-progress?client_id=${clientUserId}`);
     };
 
     const toggleDay = (day) => {
@@ -177,7 +179,7 @@ export const CoachDashboard = () => {
                         </div>
                     </div>
 
-                    <div class="dashboard-homepage-container">
+                    <div className="dashboard-homepage-container">
 
                         <div className="dashboard">
                             {error && <p style={{ color: 'red', padding: '1rem' }}>{error}</p>}
@@ -230,7 +232,7 @@ export const CoachDashboard = () => {
                                                         </td>
                                                         <td>{client.since ? parseUTC(client.since).toLocaleDateString() : '—'}</td>
                                                         <td>
-                                                            <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.client_id)}>
+                                                            <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.user_id)}>
                                                                 VIEW
                                                             </button>
                                                         </td>
