@@ -107,6 +107,24 @@
   background: var(--black);
 }
 
+.btn-sm.btn-outline-dark {
+  background: var(--white);
+  border: 1.5px solid black;
+  color: var(--black);
+}
+
+.btn-sm.btn-outline-dark:hover {
+  background: var(--black);
+  color: var(--white);
+}
+
+.client-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .btn-green {
   background: #34A853;
   color: var(--white);

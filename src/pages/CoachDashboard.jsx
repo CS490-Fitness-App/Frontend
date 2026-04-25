@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
 import { Sidebar } from "../components/Sidebar"
@@ -8,6 +8,7 @@ import './ClientDashboard.css';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
 
 const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d{2}:\d{2}|Z)$/, 'Z') : null);
 
 const parseAvailability = (availStrings) => {
     const days = [];
@@ -30,6 +31,7 @@ const parseAvailability = (availStrings) => {
 export const CoachDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0();
     const { customAuth } = useCustomAuth();
+    const navigate = useNavigate();
     const [clients, setClients] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [notifications] = useState([]);
@@ -129,6 +131,32 @@ export const CoachDashboard = () => {
         console.log('View client:', clientId);
     };
 
+    const handleMessageClient = async (clientUserId) => {
+        try {
+            const token = await getToken();
+            if (!token) throw new Error('Not authenticated');
+
+            const response = await fetch(`${API_BASE_URL}/chats/`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ other_user_id: clientUserId }),
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.detail || 'Failed to open client chat.');
+            }
+
+            const chat = await response.json();
+            navigate(`/chat?chat=${chat.chat_id}`);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
     const toggleDay = (day) => {
         setAvailDays(prev =>
             prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
@@ -209,7 +237,7 @@ export const CoachDashboard = () => {
                                             <tr>
                                                 <th>Client</th>
                                                 <th>Since</th>
-                                                <th></th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -230,9 +258,14 @@ export const CoachDashboard = () => {
                                                         </td>
                                                         <td>{client.since ? parseUTC(client.since).toLocaleDateString() : '—'}</td>
                                                         <td>
-                                                            <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.client_id)}>
-                                                                VIEW
-                                                            </button>
+                                                            <div className="client-row-actions">
+                                                                <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.client_id)}>
+                                                                    VIEW
+                                                                </button>
+                                                                <button className="btn-sm btn-outline-dark" onClick={() => handleMessageClient(client.user_id)}>
+                                                                    MESSAGE
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 );
