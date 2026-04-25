@@ -38,6 +38,7 @@ export const Survey = () => {
   const [endTime, setEndTime] = useState('5:00 PM');
   const [maxClients, setMaxClients] = useState('15');
   const [sessionFormat, setSessionFormat] = useState('Virtual');
+  const [coachGender, setCoachGender] = useState('Other');
 
   const [goalTypes, setGoalTypes] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -134,7 +135,7 @@ export const Survey = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({
-            gender: 'Other',
+            gender: coachGender,
             hourly_rate: parseFloat(hourlyRate) || 0,
             is_trainer: specializations.includes('Workout Coach') || specializations.includes('Both'),
             is_nutritionist: specializations.includes('Nutritionist') || specializations.includes('Both'),
@@ -308,6 +309,24 @@ export const Survey = () => {
                         {specializations.includes(spec) && '✓'}
                       </div>
                       <span className="checkbox-text">{spec}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="section-card">
+              <div className="section-title">Personal Information</div>
+              <div className="form-group">
+                <label className="form-label">Gender</label>
+                <div className="pill-selector">
+                  {['Male', 'Female', 'Other'].map((gender) => (
+                    <div
+                      key={gender}
+                      className={`pill-option ${coachGender === gender ? 'selected' : ''}`}
+                      onClick={() => setCoachGender(gender)}
+                    >
+                      {gender}
                     </div>
                   ))}
                 </div>
