@@ -308,7 +308,7 @@ export const Profile = () => {
 
                 <div className="dashboard-homepage-container">
                     {loading && <p className="stat-descriptor">Loading profile...</p>}
-                    {error && <p className="stat-descriptor">{error}</p>}
+                    {error && <p className="feedback-msg error">{error}</p>}
 
                     {profile && (
                         <div className="profile-grid">
@@ -361,8 +361,8 @@ export const Profile = () => {
                                                 {isSaving ? 'Saving...' : 'Save photo'}
                                             </button>
                                         </div>
-                                        {saveError && <div className="stat-descriptor">{saveError}</div>}
-                                        {updateError && <div className="stat-descriptor">{updateError}</div>}
+                                        {saveError && <p className="feedback-msg error">{saveError}</p>}
+                                        {updateError && <p className="feedback-msg error">{updateError}</p>}
                                     </div>
                                 </div>
                                 <div className="dashboard-list-container">

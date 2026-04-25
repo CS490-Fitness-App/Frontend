@@ -289,7 +289,7 @@ export const ClientDashboard = () => {
 
 
                     <div className="dashboard-homepage-container">
-                        {error && <p className="stat-descriptor">{error}</p>}
+                        {error && <p className="feedback-msg error">{error}</p>}
 
                         <div className="section-quick-stats">
                             <div className="quick-stat-card">
@@ -474,8 +474,8 @@ export const ClientDashboard = () => {
                                 </select>
                             </label>
 
-                            {checkInError && <p className="daily-checkin-error">{checkInError}</p>}
-                            {checkInMessage && <p className="daily-checkin-success">{checkInMessage}</p>}
+                            {checkInError && <p className="feedback-msg error">{checkInError}</p>}
+                            {checkInMessage && <p className="feedback-msg success">{checkInMessage}</p>}
 
                             <div className="daily-checkin-actions">
                                 <button type="button" className="panel-btn-white" onClick={closeCheckIn}>Cancel</button>

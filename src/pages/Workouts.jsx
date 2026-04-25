@@ -118,7 +118,7 @@ export const Workouts = () => {
             </div>
 
             {loading && <p style={{ padding: '1rem 2rem' }}>Loading workouts...</p>}
-            {error && <p style={{ padding: '1rem 2rem' }}>Error: {error}</p>}
+            {error && <p className="feedback-msg error" style={{ padding: '1rem 2rem' }}>{error}</p>}
 
             <WorkoutFilters filters={filters} setFilters={setFilters} />
 

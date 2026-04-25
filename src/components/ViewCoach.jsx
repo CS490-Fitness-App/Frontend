@@ -244,11 +244,11 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                     {(isAuthenticated || customAuth) && (
                         <div style={{ marginTop: '1rem' }}>
                             {requestStatus === 'success' ? (
-                                <p style={{ color: 'green' }}>Request sent successfully!</p>
+                                <p className="feedback-msg success">Request sent successfully!</p>
                             ) : (
                                 <>
                                     {requestStatus === 'error' && (
-                                        <p style={{ color: 'red', marginBottom: '0.5rem' }}>{requestError}</p>
+                                        <p className="feedback-msg error" style={{ marginBottom: '0.5rem' }}>{requestError}</p>
                                     )}
                                     <button
                                         className="btn-periwinkle"
@@ -312,7 +312,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                                     placeholder="Write your review (optional)..."
                                     rows={3}
                                 />
-                                {formError && <p className="review-error">{formError}</p>}
+                                {formError && <p className="feedback-msg error">{formError}</p>}
                                 <button
                                     className="btn-periwinkle"
                                     onClick={handleSubmitReview}

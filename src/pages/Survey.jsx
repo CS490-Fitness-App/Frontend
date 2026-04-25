@@ -457,7 +457,7 @@ export const Survey = () => {
           </>
         )}
 
-        {submitError && <p style={{ color: 'red', textAlign: 'center', marginBottom: '1rem' }}>{submitError}</p>}
+        {submitError && <p className="feedback-msg error" style={{ textAlign: 'center', marginBottom: '1rem' }}>{submitError}</p>}
 
         <div className="survey-buttons">
           {currentStep > 1 && (
