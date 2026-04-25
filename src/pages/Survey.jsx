@@ -320,7 +320,7 @@ export const Survey = () => {
               <div className="form-group">
                 <label className="form-label">Gender</label>
                 <div className="pill-selector">
-                  {['Male', 'Female', 'Other'].map((gender) => (
+                  {['Man', 'Woman', 'Other'].map((gender) => (
                     <div
                       key={gender}
                       className={`pill-option ${coachGender === gender ? 'selected' : ''}`}
