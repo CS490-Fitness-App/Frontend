@@ -180,7 +180,7 @@ export const CoachDashboard = () => {
                     <div class="dashboard-homepage-container">
 
                         <div className="dashboard">
-                            {error && <p style={{ color: 'red', padding: '1rem' }}>{error}</p>}
+                            {error && <p className="feedback-msg error" style={{ padding: '1rem 0' }}>{error}</p>}
 
                             <div className="section-quick-stats">
                                 <div className="quick-stat-card">
@@ -339,7 +339,7 @@ export const CoachDashboard = () => {
                                     </div>
                                 </div>
 
-                                {availError && <p className="avail-error">{availError}</p>}
+                                {availError && <p className="feedback-msg error">{availError}</p>}
 
                                 <div className="avail-modal-actions">
                                     <button className="btn-outline" onClick={() => setShowAvailModal(false)}>CANCEL</button>

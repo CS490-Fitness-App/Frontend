@@ -251,7 +251,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                     </div>
                     <div className="signup-form-section">
                         <form className="signup-form-container" onSubmit={handleLoginSubmit}>
-                            {error && view === 'login' && <p style={{ color: 'red', margin: '0 0 0.5rem' }}>{error}</p>}
+                            {error && view === 'login' && <p className="feedback-msg error" style={{ marginBottom: '0.5rem' }}>{error}</p>}
 
                             <input
                                 type="email"
@@ -302,7 +302,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                     </div>
                     <div className="signup-form-section">
                         <form className="signup-form-container" onSubmit={handleSignupSubmit}>
-                            {error && view === 'signup' && <p style={{ color: 'red', margin: '0 0 0.5rem' }}>{error}</p>}
+                            {error && view === 'signup' && <p className="feedback-msg error" style={{ marginBottom: '0.5rem' }}>{error}</p>}
 
                             <div className="signup-form-row">
                                 <input
