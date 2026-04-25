@@ -7,6 +7,11 @@ import './CoachDashboard.css';
 import './ClientDashboard.css';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
 
+// import { API_BASE_URL } from '../utils/apiBaseUrl';
+
+const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d{2}:\d{2}|Z)$/, 'Z') : null)
+// >>>>>>> Stashed changes
+
 export const CoachDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0();
     const { customAuth } = useCustomAuth();
@@ -160,7 +165,7 @@ export const CoachDashboard = () => {
                                                                 <span className="client-name">{fullName}</span>
                                                             </div>
                                                         </td>
-                                                        <td>{client.since ? new Date(client.since).toLocaleDateString() : '—'}</td>
+                                                        <td>{client.since ? parseUTC(client.since).toLocaleDateString() : '—'}</td>
                                                         <td>
                                                             <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.client_id)}>
                                                                 VIEW
