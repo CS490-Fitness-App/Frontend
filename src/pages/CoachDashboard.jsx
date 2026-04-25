@@ -228,7 +228,7 @@ export const CoachDashboard = () => {
                                                                 <span className="client-name">{fullName}</span>
                                                             </div>
                                                         </td>
-                                                        <td>{client.since ? new Date(client.since).toLocaleDateString() : '—'}</td>
+                                                        <td>{client.since ? parseUTC(client.since).toLocaleDateString() : '—'}</td>
                                                         <td>
                                                             <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.client_id)}>
                                                                 VIEW
