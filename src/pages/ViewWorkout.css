@@ -1,0 +1,100 @@
+.workout-star {
+    font-size: 45px;
+    background: none;
+    border: none;
+}
+
+.workout-h5 {
+    font-size: 15px;
+}
+
+.workout-table {
+    padding: 2rem;
+    width: 100%;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.workout-table th {
+    font-family: "Anek Latin", sans-serif;
+    font-weight: 700;
+    font-size: 25px;
+    padding: 10px 0px 10px 0px;
+    text-transform: uppercase;
+    color: #808CFD;
+    text-align: start;
+}
+
+.workout-table td {
+    font-family: "Anek Latin", sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    padding: 10px 0px 10px 10px;
+    text-transform: uppercase;
+    color: black;
+    text-align: start;
+    border: none;
+}
+
+.exercise-row-first {
+    border-radius: 5px 0 0 5px;
+}
+
+.exercise-row-last {
+    border-radius: 0 5px 5px 0;
+}
+
+.exercise-row-draggable {
+    padding: 1rem;
+    margin: 0.5rem 0;
+    background: white;
+    border: 1px solid #ccc;
+}
+
+.exercise-row-dragging {
+    opacity: 1;
+    background: #eee;
+}
+
+.drag-icon {
+    color: #7f7f85;
+    cursor: grab;
+}
+
+.workout-exercise-row:hover {
+    border-radius: 10px;
+    background-color: #dadae3;
+}
+
+.edit-workout-plan-btn {
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    border-top: 1px solid rgba(209, 213, 219, 1);
+}
+
+.edit-exercises-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 2rem;
+    background-color: #E9ECFF;
+}
+
+.workout-textbox-container {
+    padding: 2rem;
+    width: 100%;
+}
+
+.edit-workout-group {
+    margin-bottom: 25px;
+}
+
+.edit-workout-dropdown-boxes {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+}

@@ -1,0 +1,134 @@
+.coach-view-container {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(77,77,77,0.7);
+    transition: all 0.4s
+}
+
+.coach-view-container.open {
+    visibility: visible;
+    opacity: 1;
+}
+
+.coach-view-content {
+    border-radius: 10px;
+    position: relative;
+    max-height: 85vh;
+    width: 600px;
+    max-width: 90%;
+    background: #868BF7;
+    padding: 1em 2em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    transform: scale(0.5);
+    opacity: 0;
+    transition: transform 0.2s, opacity 0.2s ease;
+}
+
+.coach-view-content.open {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.coach-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 1rem;
+    margin-top: 2rem;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    gap: 1rem;
+}
+
+.coach-stat-card {
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+.coach-stats-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.coach-stat-border {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 24px 12px 24px;
+    flex-basis: auto;
+    background-color: white;
+    border: 1px solid black;
+}
+
+.h5 {
+    text-transform: uppercase;
+}
+
+.coach-stat {
+    text-align: center;
+    font-weight: normal;
+    font-size: 12px;
+    text-decoration: none;
+    text-transform: uppercase;
+    text-overflow: clip;
+}
+
+.coach-availability {
+    width: 100%;
+    margin-top: 1rem;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.coach-avail-heading {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+}
+
+.coach-avail-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.coach-avail-slot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 8px 14px;
+}
+
+.coach-avail-day {
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.coach-avail-hours {
+    font-size: 12px;
+    text-transform: uppercase;
+    text-align: center;
+}

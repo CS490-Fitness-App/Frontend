@@ -1,11 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Anek+Latin:wdth,wght@95.8,800&family=Oswald:wght@200..700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
 
+.dashboard-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
 .client-dashboard-container {
     display: flex;
     flex-direction: row;
+    align-items: stretch;
 }
 
-.client-homepage-container {
+.client-dashboard-container > div:last-child,
+.dashboard-container > div:last-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.dashboard-homepage-container {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -13,6 +26,12 @@
     gap: 32px;
     padding: 32px;
     width: 100%;
+}
+
+.dashboard-page-heading {
+    display: flex;
+    align-items: center;
+    padding: 20px 32px 0;
 }
 
 .section-quick-stats {
@@ -65,7 +84,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 24px;
     width: 100%;
 }
@@ -78,6 +97,7 @@
     gap: 38px;
     padding: 24px;
     border: 2px solid black;
+    flex: 1;
 }
 
 .coach-panel {
@@ -88,6 +108,7 @@
     gap: 23.2px;
     padding: 24px;
     border: 2px solid black;
+    flex: 1;
 }
 
 .dashboard-heading {
@@ -136,28 +157,58 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     width: 100%;
+}
+
+.btn-container > .panel-btn-purple,
+.btn-container > .panel-btn-white {
+    flex: 1;
 }
 
 .panel-btn-purple {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 40px;
     text-align: center;
     width: 100%;
+    border: none;
+    cursor: pointer;
     border-radius: 5px;
     padding: 0.5rem 1rem;
-    margin: 0.5rem;
+    margin: 0;
     background-color: #808CFD;
     color: white;
+    font-family: "Anek Latin", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
     text-decoration: none;
 }
 
+.panel-btn-purple:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
 .panel-btn-white {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 40px;
     text-align: center;
     width: 100%;
+    cursor: pointer;
     border-radius: 5px;
     border: 2px solid black;
     padding: 0.5rem 1rem;
-    margin: 0.5rem;
+    margin: 0;
     color: black;
+    font-family: "Anek Latin", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
     text-decoration: none;
 }
 
@@ -215,5 +266,104 @@
     text-decoration: none;
     text-transform: uppercase;
     color: black;
+}
+
+.client-dashboard-container .dashboard-homepage-container {
+    padding-top: 20px;
+}
+
+.daily-checkin-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+}
+
+.daily-checkin-modal {
+    width: min(540px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    background-color: #ffffff;
+    border: 2px solid black;
+    padding: 20px;
+}
+
+.daily-checkin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.daily-checkin-title {
+    border-bottom: none;
+    padding: 0;
+}
+
+.daily-checkin-close {
+    border: none;
+    background: transparent;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.daily-checkin-description {
+    margin: 0 0 16px 0;
+}
+
+.daily-checkin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.daily-checkin-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.daily-checkin-field input,
+.daily-checkin-field select {
+    border: 1px solid black;
+    padding: 10px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 14px;
+}
+
+.daily-checkin-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.daily-checkin-error {
+    color: #b91c1c;
+    margin: 0;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 13px;
+}
+
+.daily-checkin-success {
+    color: #166534;
+    margin: 0;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .daily-checkin-modal {
+        padding: 16px;
+    }
+
+    .daily-checkin-actions {
+        grid-template-columns: 1fr;
+    }
 }
 

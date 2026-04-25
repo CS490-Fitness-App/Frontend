@@ -1,0 +1,138 @@
+.coach-filters-wrap {
+    width: min(1200px, calc(100% - 3rem));
+    margin: 0.8rem auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.coach-filters-search {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 999px;
+    border: 1px solid #d1d5ff;
+    background: #fff;
+    padding: 0.55rem 1rem;
+    font-family: 'Anek Latin', sans-serif;
+    font-size: 1rem;
+}
+
+.coach-filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+}
+
+.coach-filters-number {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 90px;
+}
+
+.coach-filters-number label {
+    font-size: 0.72rem;
+    color: #6b6b6b;
+    font-family: 'Anek Latin', sans-serif;
+}
+
+.coach-rate-input {
+    min-height: 40px;
+    border-radius: 10px;
+    border: 1px solid #d1d5ff;
+    padding: 0 0.55rem;
+    width: 100%;
+}
+
+.coach-filter-select {
+    min-height: 40px;
+    border-radius: 999px;
+    border: 1px solid #d1d5ff;
+    padding: 0 0.75rem;
+    background: #fff;
+    font-family: 'Anek Latin', sans-serif;
+}
+
+.coach-filter-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid #d1d5ff;
+    background: #fff;
+    color: #6f729b;
+    cursor: pointer;
+}
+
+.coach-filter-icon.active {
+    background: #808cfd;
+    border-color: #808cfd;
+    color: #fff;
+}
+
+.coach-star-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.86rem;
+    color: #505050;
+    font-family: 'Anek Latin', sans-serif;
+}
+
+.coach-star-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+}
+
+.coach-day-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.coach-day-filter-label {
+    font-size: 0.72rem;
+    color: #6b6b6b;
+    font-family: 'Anek Latin', sans-serif;
+    white-space: nowrap;
+}
+
+.coach-day-pills {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.coach-day-pill {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid #d1d5ff;
+    background: #fff;
+    font-family: 'Anek Latin', sans-serif;
+    font-size: 0.82rem;
+    color: #6f729b;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.coach-day-pill.active {
+    background: #808cfd;
+    border-color: #808cfd;
+    color: #fff;
+}
+
+.coach-day-pill:hover:not(.active) {
+    background: #eef0ff;
+    border-color: #808cfd;
+}
+
+@media (max-width: 920px) {
+    .coach-filters-wrap {
+        width: calc(100% - 1.5rem);
+    }
+}

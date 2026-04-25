@@ -4,11 +4,34 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { MdCancel } from "react-icons/md"
 import { useCustomAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../utils/apiBaseUrl'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN
-const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID
-const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE
+const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN?.trim()
+const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID?.trim()
+const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE?.trim()
+
+const isInvalidAudiencePasswordGrantError = (tokenData) => {
+    const detail = `${tokenData?.error_description || ''} ${tokenData?.error || ''}`.toLowerCase()
+    return detail.includes('invalid audience specified for password grant exchange')
+}
+
+const buildAudienceCandidates = (audience) => {
+    const base = (audience || '').trim()
+    if (!base) return []
+
+    const withSlash = base.endsWith('/') ? base : `${base}/`
+    const withoutSlash = base.replace(/\/+$/, '')
+    const variants = [
+        base,
+        withSlash,
+        withoutSlash,
+        base.toLowerCase(),
+        withSlash.toLowerCase(),
+        withoutSlash.toLowerCase(),
+    ]
+
+    return Array.from(new Set(variants.filter(Boolean)))
+}
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 24 24" width="20" height="20">
@@ -18,6 +41,21 @@ const GoogleIcon = () => (
         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
     </svg>
 )
+
+const readErrorDetail = async (response, fallbackMessage) => {
+    const rawBody = await response.text().catch(() => '')
+
+    if (!rawBody) {
+        return fallbackMessage
+    }
+
+    try {
+        const parsedBody = JSON.parse(rawBody)
+        return parsedBody.detail || parsedBody.message || rawBody || fallbackMessage
+    } catch {
+        return rawBody
+    }
+}
 
 export const LoginForm = ({ isOpen, onClose }) => {
     const { loginWithRedirect } = useAuth0()
@@ -47,28 +85,58 @@ export const LoginForm = ({ isOpen, onClose }) => {
         top: 0,
     }
 
+    const getDashboardRoute = (role) => {
+        if (role === 'admin') return '/admin-dashboard'
+        if (role === 'coach') return '/coach-dashboard'
+        return '/client-dashboard'
+    }
+
+    const ensureAuth0Config = () => {
+        const missing = []
+        if (!AUTH0_DOMAIN) missing.push('VITE_AUTH0_DOMAIN')
+        if (!AUTH0_CLIENT_ID) missing.push('VITE_AUTH0_CLIENT_ID')
+        if (!AUTH0_AUDIENCE) missing.push('VITE_AUTH0_AUDIENCE')
+        if (missing.length) {
+            throw new Error(`Missing frontend env: ${missing.join(', ')}. Update Frontend/.env and restart Vite.`)
+        }
+    }
+
     // --- shared: get token via ROPG then sync to backend ---
     const loginWithPassword = async (email, password, payload) => {
-        const tokenRes = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                grant_type: 'http://auth0.com/oauth/grant-type/password-realm',
-                realm: 'Username-Password-Authentication',
-                client_id: AUTH0_CLIENT_ID,
-                audience: AUTH0_AUDIENCE,
-                scope: 'openid profile email',
-                username: email,
-                password,
-            }),
-        })
-        const tokenData = await tokenRes.json()
-        if (!tokenRes.ok) {
-            throw new Error(tokenData.error_description || 'Invalid email or password')
+        ensureAuth0Config()
+
+        let tokenData = {}
+        let tokenRes = null
+        const audiencesToTry = buildAudienceCandidates(AUTH0_AUDIENCE)
+
+        for (let i = 0; i < audiencesToTry.length; i += 1) {
+            const candidateAudience = audiencesToTry[i]
+            tokenRes = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    grant_type: 'http://auth0.com/oauth/grant-type/password-realm',
+                    realm: 'Username-Password-Authentication',
+                    client_id: AUTH0_CLIENT_ID,
+                    audience: candidateAudience,
+                    scope: 'openid profile email',
+                    username: email,
+                    password,
+                }),
+            })
+
+            tokenData = await tokenRes.json().catch(() => ({}))
+            if (tokenRes.ok) {
+                break
+            }
+
+            if (!isInvalidAudiencePasswordGrantError(tokenData) || i === audiencesToTry.length - 1) {
+                throw new Error(tokenData.error_description || tokenData.error || 'Invalid email or password')
+            }
         }
 
         // Sync user to our backend
-        await fetch(`${API_BASE_URL}/auth/login`, {
+        const syncRes = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -77,7 +145,18 @@ export const LoginForm = ({ isOpen, onClose }) => {
             body: JSON.stringify(payload),
         })
 
-        return tokenData.access_token
+        if (!syncRes.ok) {
+            const detail = await readErrorDetail(syncRes, 'Failed to sync account with backend')
+            throw new Error(detail)
+        }
+
+        const syncData = await syncRes.json().catch(() => ({}))
+
+        return {
+            access_token: tokenData.access_token,
+            role: syncData.role || payload.role || 'client',
+            is_new_user: syncData.is_new_user ?? false,
+        }
     }
 
     // --- Login ---
@@ -86,16 +165,16 @@ export const LoginForm = ({ isOpen, onClose }) => {
         setError(null)
         setLoading(true)
         try {
-            const token = await loginWithPassword(email, password, {
+            const result = await loginWithPassword(email, password, {
                 email,
                 first_name: null,
                 last_name: null,
                 profile_picture: null,
                 role: 'client',
             })
-            setAuth(token)
+            setAuth(result.access_token, result.role)
             onClose()
-            navigate('/client-dashboard')
+            navigate(getDashboardRoute(result.role))
         } catch (err) {
             setError(err.message)
         } finally {
@@ -104,6 +183,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
     }
 
     // --- Signup ---
+
     const handleSignupSubmit = async (e) => {
         e.preventDefault()
         if (password !== confirmPassword) {
@@ -132,16 +212,20 @@ export const LoginForm = ({ isOpen, onClose }) => {
             }
 
             // Step 2: get access token via ROPG
-            const token = await loginWithPassword(email, password, {
+            const result = await loginWithPassword(email, password, {
                 email,
                 first_name: firstName,
                 last_name: lastName,
                 profile_picture: null,
                 role,
             })
-            setAuth(token)
+            setAuth(result.access_token, result.role)
             onClose()
-            navigate('/client-dashboard')
+            if (result.is_new_user) {
+                navigate('/survey', { state: { role: result.role } })
+            } else {
+                navigate(getDashboardRoute(result.role))
+            }
         } catch (err) {
             setError(err.message)
         } finally {
