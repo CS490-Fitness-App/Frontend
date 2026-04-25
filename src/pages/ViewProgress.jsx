@@ -316,6 +316,11 @@ const SummaryCards = ({ summary }) => {
                 : summary.weeks_completed != null ? `${summary.weeks_completed} wks` : '—',
         },
         { label: 'Last Workout', value: summary.last_workout_date || 'No logs yet' },
+        { label: 'Height', value: summary.height || '—' },
+        { label: 'Weight', value: summary.current_weight_lb != null ? `${summary.current_weight_lb} lb` : '—' },
+        { label: 'Goal Weight', value: summary.goal_weight_lb != null ? `${summary.goal_weight_lb} lb` : '—' },
+        { label: 'Age', value: summary.age != null ? `${summary.age} yrs` : '—' },
+        { label: 'Sex', value: summary.sex || '—' },
     ]
     return (
         <div className="progress-panel">
