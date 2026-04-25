@@ -21,7 +21,7 @@
 .coach-view-content {
     border-radius: 10px;
     position: relative;
-    height: 300px;
+    max-height: 85vh;
     width: 600px;
     max-width: 90%;
     background: #868BF7;
@@ -30,7 +30,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow-y: auto;
     transform: scale(0.5);
     opacity: 0;
     transition: transform 0.2s, opacity 0.2s ease;
@@ -85,4 +85,50 @@
     text-decoration: none;
     text-transform: uppercase;
     text-overflow: clip;
+}
+
+.coach-availability {
+    width: 100%;
+    margin-top: 1rem;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.coach-avail-heading {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+}
+
+.coach-avail-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.coach-avail-slot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 8px 14px;
+}
+
+.coach-avail-day {
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.coach-avail-hours {
+    font-size: 12px;
+    text-transform: uppercase;
+    text-align: center;
 }

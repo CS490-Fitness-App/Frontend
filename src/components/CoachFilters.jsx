@@ -4,12 +4,18 @@ import { faStar as faSolidStar } from '@fortawesome/free-solid-svg-icons'
 import { faPersonRunning, faUtensils } from '@fortawesome/free-solid-svg-icons'
 import './CoachFilters.css'
 
+const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+
 export const CoachFilters = ({ filters, setFilters }) => {
     const update = (field, value) => {
         setFilters((prev) => ({
             ...prev,
             [field]: value,
         }))
+    }
+
+    const toggleDay = (day) => {
+        update('day', filters.day === day ? '' : day)
     }
 
     return (
@@ -102,6 +108,22 @@ export const CoachFilters = ({ filters, setFilters }) => {
                                 icon={faSolidStar}
                                 style={{ color: star <= filters.avg_rating ? '#f5b301' : '#c7c7c7' }}
                             />
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="coach-day-filter-row">
+                <span className="coach-day-filter-label">Available on</span>
+                <div className="coach-day-pills">
+                    {DAYS.map(day => (
+                        <button
+                            key={day}
+                            type="button"
+                            className={`coach-day-pill${filters.day === day ? ' active' : ''}`}
+                            onClick={() => toggleDay(day)}
+                        >
+                            {day}
                         </button>
                     ))}
                 </div>

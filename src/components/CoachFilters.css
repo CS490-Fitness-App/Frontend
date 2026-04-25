@@ -87,6 +87,50 @@
     padding: 0;
 }
 
+.coach-day-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.coach-day-filter-label {
+    font-size: 0.72rem;
+    color: #6b6b6b;
+    font-family: 'Anek Latin', sans-serif;
+    white-space: nowrap;
+}
+
+.coach-day-pills {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.coach-day-pill {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid #d1d5ff;
+    background: #fff;
+    font-family: 'Anek Latin', sans-serif;
+    font-size: 0.82rem;
+    color: #6f729b;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.coach-day-pill.active {
+    background: #808cfd;
+    border-color: #808cfd;
+    color: #fff;
+}
+
+.coach-day-pill:hover:not(.active) {
+    background: #eef0ff;
+    border-color: #808cfd;
+}
+
 @media (max-width: 920px) {
     .coach-filters-wrap {
         width: calc(100% - 1.5rem);

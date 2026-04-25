@@ -22,6 +22,7 @@ export const Coaches = () => {
         session_format: '',
         specialty: '',
         avg_rating: 0,
+        day: '',
     })
 
     const buildQuery = (values) => {
@@ -35,6 +36,7 @@ export const Coaches = () => {
         if (values.session_format) params.append('session_format', values.session_format)
         if (values.specialty) params.append('specialty', values.specialty)
         if (values.avg_rating) params.append('avg_rating', values.avg_rating)
+        if (values.day) params.append('day', values.day)
 
         return params.toString()
     }
