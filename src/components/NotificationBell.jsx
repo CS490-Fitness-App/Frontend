@@ -16,6 +16,8 @@ const getLocalDateString = () => {
     return `${year}-${month}-${day}`
 }
 
+const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d{2}:\d{2}|Z)$/, 'Z') : null)
+
 export const NotificationBell = () => {
     const { isAuthenticated, getAccessTokenSilently } = useAuth0()
     const { customAuth } = useCustomAuth()
@@ -209,7 +211,7 @@ export const NotificationBell = () => {
     }
 
     const formatTime = (isoString) => {
-        const date = new Date(isoString)
+        const date = parseUTC(isoString)
         const now = new Date()
         const diffMs = now - date
         const diffMins = Math.floor(diffMs / 60000)
