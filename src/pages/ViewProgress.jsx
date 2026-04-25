@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 
 import { Sidebar } from '../components/Sidebar'
@@ -296,6 +297,8 @@ const WeeklyAveragesChart = ({ averages }) => {
 export const ViewProgress = () => {
     const { isAuthenticated, getAccessTokenSilently } = useAuth0()
     const { customAuth } = useCustomAuth()
+    const [searchParams] = useSearchParams()
+    const clientUserId = searchParams.get('client_id')
 
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
@@ -328,6 +331,9 @@ export const ViewProgress = () => {
                 if (timeRange === 'monthly') {
                     url += `&selected_month=${selectedMonth}`
                 }
+                if (clientUserId) {
+                    url += `&client_user_id=${clientUserId}`
+                }
 
                 const response = await fetch(url, {
                     headers: { Authorization: `Bearer ${token}` },
@@ -351,7 +357,7 @@ export const ViewProgress = () => {
         }
 
         fetchProgress()
-    }, [isAuthenticated, customAuth, getAccessTokenSilently, timeRange, selectedMonth])
+    }, [isAuthenticated, customAuth, getAccessTokenSilently, timeRange, selectedMonth, clientUserId])
 
     const monthOptions = useMemo(() => {
         const options = progressData?.weight_chart?.available_months || []
@@ -388,8 +394,17 @@ export const ViewProgress = () => {
             <div className="view-progress-container">
                 <div className="page-heading">
                     <div className="h2">
-                        <span className="text-black">Your Progress </span>
-                        <span className="text-purple">Insights</span>
+                        {progressData?.client_name ? (
+                            <>
+                                <span className="text-black">{progressData.client_name}&apos;s Progress </span>
+                                <span className="text-purple">Insights</span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="text-black">Your Progress </span>
+                                <span className="text-purple">Insights</span>
+                            </>
+                        )}
                     </div>
                 </div>
 
