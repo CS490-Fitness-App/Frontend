@@ -18,6 +18,8 @@ export const Survey = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
 
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('Prefer not to say');
   const [heightFeet, setHeightFeet] = useState('5');
   const [heightInches, setHeightInches] = useState('7');
   const [currentWeight, setCurrentWeight] = useState('');
@@ -107,11 +109,11 @@ export const Survey = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          DOB: null,
+          DOB: dob || null,
           height: heightCm || null,
           weight: toGrams(currentWeight, weightUnit) || null,
           goal_weight: toGrams(goalWeight, weightUnit) || null,
-          sex: null,
+          sex: gender || null,
           goal_type_ids: selectedGoalTypeId ? [selectedGoalTypeId] : [],
         }),
       });
@@ -134,7 +136,7 @@ export const Survey = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({
-            gender: 'Other',
+            gender: null,
             hourly_rate: parseFloat(hourlyRate) || 0,
             is_trainer: specializations.includes('Workout Coach') || specializations.includes('Both'),
             is_nutritionist: specializations.includes('Nutritionist') || specializations.includes('Both'),
@@ -199,6 +201,26 @@ export const Survey = () => {
             <div className="section-card">
               <div className="section-title">Body Metrics</div>
               <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">Date of Birth</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Gender</label>
+                  <select className="form-input" value={gender} onChange={(e) => setGender(e.target.value)}>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Non-binary">Non-binary</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                </div>
+
                 <div className="form-group">
                   <label className="form-label">Height (Feet)</label>
                   <select className="form-input" value={heightFeet} onChange={(e) => setHeightFeet(e.target.value)}>
