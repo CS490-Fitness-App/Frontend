@@ -91,7 +91,7 @@ export const Navbar = () => {
                         <circle cx="16" cy="16" r="5" fill="black" />
                         <rect x="6" y="14" width="20" height="4" rx="2" fill="black" />
                     </svg>
-                    <span>PrimalFitness</span>
+                    <div className="nav-title">PrimalFitness</div>
                 </Link>
                 <ul>
                     <li><NavLink to="/exercises">Exercises</NavLink></li>
