@@ -95,9 +95,12 @@ export const Navbar = () => {
                 </Link>
                 <ul>
                     <li><NavLink to="/exercises">Exercises</NavLink></li>
-                    <li><NavLink to={getDashboardRoute()}>Dashboard</NavLink></li>
                     <li><NavLink to="/workouts">Workouts</NavLink></li>
-                    <li><NavLink to="/survey">Survey</NavLink></li>
+                    <li><NavLink to="/coaches">Coaches</NavLink></li>
+                    {loggedIn && (
+                        <li><NavLink to={getDashboardRoute()}>Dashboard</NavLink></li>
+                    )}
+                    {/* <li><NavLink to="/survey">Survey</NavLink></li> */}
                     {loggedIn && (
                         <li className="nav-bell-item">
                             <NotificationBell />
