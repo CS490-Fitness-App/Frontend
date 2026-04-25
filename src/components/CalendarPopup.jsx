@@ -2,7 +2,7 @@ import './CalendarPopup.css'
 import React, { useEffect, useState } from "react"
 import moment from 'moment'
 
-export const CalendarPopup = ({ isOpen, onClose, onSave, onDelete, date, event, workouts, submitting }) => {
+export const CalendarPopup = ({ isOpen, onClose, onSave, onDelete, date, event, workouts, submitting, preselectedWorkoutId = null, clientName = null }) => {
     const [workoutId, setWorkoutId] = useState('');
     const [scheduledDate, setScheduledDate] = useState('');
 
@@ -11,10 +11,13 @@ export const CalendarPopup = ({ isOpen, onClose, onSave, onDelete, date, event, 
             setWorkoutId(event.workoutId.toString());
             setScheduledDate(event.scheduledDate);
         } else if (date) {
-            setWorkoutId(workouts[0]?.workout_id?.toString() || '');
+            const defaultId = preselectedWorkoutId
+                ? preselectedWorkoutId.toString()
+                : (workouts[0]?.workout_id?.toString() || '')
+            setWorkoutId(defaultId);
             setScheduledDate(moment(date).format('YYYY-MM-DD'));
         }
-    }, [event, date, workouts])
+    }, [event, date, workouts, preselectedWorkoutId])
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -28,6 +31,11 @@ export const CalendarPopup = ({ isOpen, onClose, onSave, onDelete, date, event, 
         <div className="calendar-popup-background">
             <div className="calendar-popup-container">
                 <div className="h3">{event ? "Edit workout" : "Add Workout"}</div>
+                {clientName && !event && (
+                    <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#8B8BF5', margin: '4px 0 8px' }}>
+                        for {clientName}
+                    </p>
+                )}
 
                 <form onSubmit={handleSubmit}>
                     <div className="calendar-popup-contents">

@@ -135,3 +135,12 @@
 .rbc-calendar .rbc-time-view .rbc-time-header-content {
     border-bottom: none;
 }
+
+.calendar-client-banner {
+    padding: 8px 14px;
+    background: #ededff;
+    border-left: 3px solid #8B8BF5;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    color: #3730a3;
+}
