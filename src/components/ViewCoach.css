@@ -21,7 +21,6 @@
 .coach-view-content {
     border-radius: 10px;
     position: relative;
-    height: auto;
     max-height: 85vh;
     width: 600px;
     max-width: 90%;
@@ -30,7 +29,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     overflow-y: auto;
     transform: scale(0.5);
     opacity: 0;
@@ -88,139 +87,48 @@
     text-overflow: clip;
 }
 
-/* Reviews section */
-.coach-reviews-section {
+.coach-availability {
     width: 100%;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 1rem;
 }
 
-.reviews-heading {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
+.coach-avail-heading {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
 }
 
-.no-reviews {
-    font-size: 0.85rem;
-    opacity: 0.75;
-    margin-bottom: 1rem;
+.coach-avail-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
 }
 
-.review-item {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    padding: 0.6rem 0.75rem;
-    margin-bottom: 0.5rem;
-}
-
-.review-item.my-review {
-    background: rgba(255, 255, 255, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-}
-
-.review-stars-row {
+.coach-avail-slot {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    flex-wrap: wrap;
+    gap: 6px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 8px 14px;
 }
 
-.review-star.static {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.35);
-}
-
-.review-star.static.filled {
-    color: #FFD700;
-}
-
-.review-author {
-    font-size: 0.75rem;
-    opacity: 0.85;
-    margin-left: 0.4rem;
-}
-
-.review-delete-btn {
-    margin-left: auto;
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 0.7rem;
-    text-decoration: underline;
-    cursor: pointer;
-    opacity: 0.75;
-    padding: 0;
-}
-
-.review-delete-btn:hover {
-    opacity: 1;
-}
-
-.review-description {
-    font-size: 0.82rem;
-    margin-top: 0.3rem;
-    opacity: 0.9;
-}
-
-/* Review form */
-.review-form {
-    margin-top: 1.25rem;
-    width: 100%;
-    border-top: 1px solid rgba(255, 255, 255, 0.4);
-    padding-top: 1rem;
-}
-
-.review-form-heading {
-    font-size: 0.9rem;
-    font-weight: 700;
-    margin-bottom: 0.6rem;
+.coach-avail-day {
+    font-size: 12px;
+    font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    text-align: center;
 }
 
-.star-picker {
-    display: flex;
-    gap: 0.25rem;
-    margin-bottom: 0.6rem;
-}
-
-.review-star.interactive {
-    font-size: 1.6rem;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.4);
-    transition: color 0.15s;
-    line-height: 1;
-}
-
-.review-star.interactive.filled,
-.review-star.interactive:hover {
-    color: #FFD700;
-}
-
-.review-textarea {
-    width: 100%;
-    border-radius: 6px;
-    border: none;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-    resize: vertical;
-    box-sizing: border-box;
-    margin-bottom: 0.5rem;
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-}
-
-.review-textarea::placeholder {
-    color: #888;
-}
-
-.review-error {
-    color: #fff;
-    background: rgba(200, 0, 0, 0.55);
-    border-radius: 4px;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
+.coach-avail-hours {
+    font-size: 12px;
+    text-transform: uppercase;
+    text-align: center;
 }

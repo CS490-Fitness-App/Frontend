@@ -167,10 +167,16 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
         return 'N/A'
     }
 
-    const renderStars = (rating) =>
-        [1, 2, 3, 4, 5].map(n => (
-            <span key={n} className={`review-star static ${n <= rating ? 'filled' : ''}`}>★</span>
-        ))
+    const parseAvailSlot = (s) => {
+        const [day, times] = s.split(' ')
+        const [start, end] = times.split('-')
+        const fmt = (t) => {
+            const [h, m] = t.split(':')
+            const hour = parseInt(h)
+            return `${hour % 12 || 12}:${m} ${hour < 12 ? 'AM' : 'PM'}`
+        }
+        return { day, hours: `${fmt(start)} – ${fmt(end)}` }
+    }
 
     return (
         <div>
@@ -218,7 +224,24 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
 
                     {coach.bio && <p style={{ margin: '1rem 0' }}>{coach.bio}</p>}
 
-                    {isLoggedIn && (
+                    {coach.availability && coach.availability.length > 0 && (
+                        <div className="coach-availability">
+                            <div className="coach-avail-heading">Availability</div>
+                            <div className="coach-avail-slots">
+                                {coach.availability.map((s, i) => {
+                                    const { day, hours } = parseAvailSlot(s)
+                                    return (
+                                        <div key={i} className="coach-avail-slot">
+                                            <span className="coach-avail-day">{day}</span>
+                                            <span className="coach-avail-hours">{hours}</span>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {(isAuthenticated || customAuth) && (
                         <div style={{ marginTop: '1rem' }}>
                             {requestStatus === 'success' ? (
                                 <p style={{ color: 'green' }}>Request sent successfully!</p>

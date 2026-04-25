@@ -30,7 +30,6 @@ export const Survey = () => {
   const [specializations, setSpecializations] = useState([]);
   const [certifications, setCertifications] = useState('');
   const [yearsExperience, setYearsExperience] = useState('');
-  const [education, setEducation] = useState('');
   const [bio, setBio] = useState('');
   const [hourlyRate, setHourlyRate] = useState('');
   const [pricingModel, setPricingModel] = useState('Per Hour');
@@ -103,7 +102,7 @@ export const Survey = () => {
       const heightCm = Math.round(parseFloat(heightFeet) * 30.48 + parseFloat(heightInches) * 2.54);
       const toGrams = (val, unit) =>
         unit === 'lb' ? Math.round(parseFloat(val) * 453.592) : Math.round(parseFloat(val) * 1000);
-      // POST /users/register
+
       const clientRes = await fetch(`${API_BASE_URL}/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -116,9 +115,9 @@ export const Survey = () => {
           goal_type_ids: selectedGoalTypeId ? [selectedGoalTypeId] : [],
         }),
       });
-      if (!clientRes.ok && clientRes.status !== 409) {
+      if (!clientRes.ok) {
         const err = await clientRes.json().catch(() => ({}));
-        throw new Error(err.detail || 'Failed to save client profile.');
+        throw new Error(err.detail || 'Failed to save profile.');
       }
 
       // POST /coaches/register (coach only)
@@ -340,17 +339,6 @@ export const Survey = () => {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Highest Education</label>
-                  <select className="form-input" value={education} onChange={(e) => setEducation(e.target.value)}>
-                    <option value="">SELECT</option>
-                    <option>High School</option>
-                    <option>Bachelor's Degree</option>
-                    <option>Master's Degree</option>
-                    <option>Doctorate</option>
-                    <option>Other</option>
-                  </select>
-                </div>
 
                 <div className="form-group full-width">
                   <label className="form-label">Short Bio (Visible to Clients)</label>
