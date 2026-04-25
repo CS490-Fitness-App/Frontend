@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../utils/apiBaseUrl';
 import './ChatPage.css';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 const POLL_INTERVAL_MS = 3000;
 
 // Backend returns timestamps without timezone info (e.g. "2026-04-16 05:00:36").
@@ -19,6 +18,7 @@ export const ChatPage = () => {
   const messagesAreaRef = useRef(null);
   const latestTimestampRef = useRef(null);
   const pollIntervalRef = useRef(null);
+  const [error, setError] = useState(null);
 
   // Helper to get auth token - define first so it can be used in useEffect
   const getToken = async () => {
@@ -82,6 +82,7 @@ export const ChatPage = () => {
         }
       } catch (err) {
         console.error('Failed to load conversations:', err);
+        setError(err.message);
       } finally {
         setLoadingConversations(false);
       }
@@ -270,28 +271,47 @@ export const ChatPage = () => {
           </div>
 
           <div className="conversation-list">
-            {filteredConversations.map((convo) => (
-              <div
-                key={convo.id}
-                className={`conversation-item ${selectedConvoId === convo.id ? 'active' : ''}`}
-                onClick={() => handleSelectConversation(convo.id)}
-              >
-                <div className={`convo-avatar ${convo.type}`}>{convo.initials}</div>
-                <div className="convo-info">
-                  <div className="convo-name">{convo.name}</div>
-                  <div className="convo-preview">{convo.preview}</div>
-                </div>
-                <div className="convo-meta">
-                  <div className="convo-time">{convo.time}</div>
-                  {convo.unread > 0 && <div className="convo-unread">{convo.unread}</div>}
-                </div>
+            {error && (
+              <div className="convo-error">
+                <div className="convo-error-title">Unable to load conversations</div>
+                <div className="convo-error-message">{error}</div>
+                <button className="convo-error-retry" onClick={() => { setError(null); window.location.reload(); }}>RETRY</button>
               </div>
-            ))}
+            )}
+            {loadingConversations && !error ? (
+              <div className="convo-empty">Loading conversations...</div>
+            ) : !error && filteredConversations.length === 0 ? (
+              <div className="convo-empty">No conversations yet. Start a chat with your coach or client!</div>
+            ) : (
+              filteredConversations.map((convo) => (
+                <div
+                  key={convo.id}
+                  className={`conversation-item ${selectedConvoId === convo.id ? 'active' : ''}`}
+                  onClick={() => handleSelectConversation(convo.id)}
+                >
+                  <div className={`convo-avatar ${convo.type}`}>{convo.initials}</div>
+                  <div className="convo-info">
+                    <div className="convo-name">{convo.name}</div>
+                    <div className="convo-preview">{convo.preview}</div>
+                  </div>
+                  <div className="convo-meta">
+                    <div className="convo-time">{convo.time}</div>
+                    {convo.unread > 0 && <div className="convo-unread">{convo.unread}</div>}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         <div className="chat-main">
-          {selectedConvo && (
+          {!selectedConvo ? (
+            <div className="chat-empty-state">
+              <div className="chat-empty-icon">💬</div>
+              <div className="chat-empty-title">Select a conversation</div>
+              <div className="chat-empty-text">Choose a conversation from the sidebar or start a new chat with your coach/client.</div>
+            </div>
+          ) : (
             <>
               <div className="chat-header">
                 <div className="chat-header-left">
