@@ -206,7 +206,7 @@ export const CalendarComponent = () => {
         <>
             <div className="calendar-shell">
             {loading && <p className="calendar-feedback">Loading calendar...</p>}
-            {error && <p className="calendar-feedback" style={{ color: '#b91c1c' }}>Error: {error}</p>}
+            {error && <p className="feedback-msg error calendar-feedback">{error}</p>}
             <div>
                 <DnDCalendar
                     selectable

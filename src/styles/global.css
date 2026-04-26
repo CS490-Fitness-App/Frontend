@@ -80,3 +80,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 
 .banner-divider { background: var(--periwinkle); height: 8px; margin: 0 0 24px; }
 .footer-spacer { height: 80px; }
+
+.feedback-msg { font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
+.feedback-msg.error { color: var(--red); background: #fde8e6; padding: 8px 12px; border-radius: 2px; }
+.feedback-msg.success { color: var(--green); }

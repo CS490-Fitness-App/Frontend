@@ -69,7 +69,7 @@ export const Exercises = () => {
             </div>
 
             {loading && <p>Loading exercises...</p>}
-            {error && <p>Error: {error}</p>}
+            {error && <p className="feedback-msg error" style={{ padding: '1rem 2rem' }}>{error}</p>}
 
             <ExerciseFilters filters={filters} setFilters={setFilters} />
 
