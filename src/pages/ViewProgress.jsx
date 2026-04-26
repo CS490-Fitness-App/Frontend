@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
+import { Calendar, momentLocalizer } from 'react-big-calendar'
+import moment from 'moment'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 import { Sidebar } from '../components/Sidebar'
 import { useCustomAuth } from '../context/AuthContext'
@@ -7,6 +11,8 @@ import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 import './Pages.css'
 import './ViewProgress.css'
+
+const localizer = momentLocalizer(moment)
 
 const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChange, progressData, selectedMonth, onMonthChange, monthOptions }) => {
     const width = 880
@@ -293,9 +299,113 @@ const WeeklyAveragesChart = ({ averages }) => {
     )
 }
 
+const STATUS_COLOR = {
+    Completed: '#6fbf73',
+    Scheduled: '#8B8BF5',
+    Missed: '#ef8354',
+}
+
+const SummaryCards = ({ summary }) => {
+    const cards = [
+        { label: 'Weekly Streak', value: summary.weekly_streak != null ? `${summary.weekly_streak} wks` : '—' },
+        { label: 'Current Plan', value: summary.current_plan_name || 'None assigned' },
+        {
+            label: 'Plan Progress',
+            value: summary.intended_duration_weeks
+                ? `${summary.weeks_completed} / ${summary.intended_duration_weeks} wks`
+                : summary.weeks_completed != null ? `${summary.weeks_completed} wks` : '—',
+        },
+        { label: 'Last Workout', value: summary.last_workout_date || 'No logs yet' },
+        { label: 'Height', value: summary.height || '—' },
+        { label: 'Weight', value: summary.current_weight_lb != null ? `${summary.current_weight_lb} lb` : '—' },
+        { label: 'Goal Weight', value: summary.goal_weight_lb != null ? `${summary.goal_weight_lb} lb` : '—' },
+        { label: 'Age', value: summary.age != null ? `${summary.age} yrs` : '—' },
+        { label: 'Sex', value: summary.sex || '—' },
+    ]
+    return (
+        <div className="progress-panel">
+            <div className="progress-panel-header">
+                <h3>Overview</h3>
+                <p>Streak, current workout plan, and recent activity.</p>
+            </div>
+            <div className="cp-summary-grid">
+                {cards.map((c) => (
+                    <div key={c.label} className="cp-summary-card">
+                        <div className="cp-summary-label">{c.label}</div>
+                        <div className="cp-summary-value">{c.value}</div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+const GoalsPanel = ({ goals }) => (
+    <div className="progress-panel">
+        <div className="progress-panel-header">
+            <h3>Goals</h3>
+            <p>Fitness goals the client has set.</p>
+        </div>
+        {goals.length === 0 ? (
+            <p className="cp-empty">No goals recorded.</p>
+        ) : (
+            <div className="cp-goals-list">
+                {goals.map((g, i) => (
+                    <span key={i} className="cp-goal-tag">{g.goal_type}</span>
+                ))}
+            </div>
+        )}
+    </div>
+)
+
+const WorkoutCalendarPanel = ({ events }) => {
+    const calEvents = useMemo(() => events.map((e) => ({
+        title: e.workout_name,
+        start: moment(e.date, 'YYYY-MM-DD').toDate(),
+        end: moment(e.date, 'YYYY-MM-DD').add(1, 'day').toDate(),
+        allDay: true,
+        status: e.status,
+    })), [events])
+
+    return (
+        <div className="progress-panel">
+            <div className="progress-panel-header">
+                <h3>Workout Calendar</h3>
+                <p>Scheduled workouts — past 30 days and next 90 days.</p>
+            </div>
+            <div style={{ height: 480 }}>
+                <Calendar
+                    localizer={localizer}
+                    events={calEvents}
+                    startAccessor="start"
+                    endAccessor="end"
+                    defaultView="month"
+                    views={['month', 'week']}
+                    style={{ height: '100%' }}
+                    eventPropGetter={(event) => ({
+                        style: { backgroundColor: STATUS_COLOR[event.status] || '#8B8BF5' },
+                    })}
+                />
+            </div>
+            <div className="cp-cal-legend">
+                {Object.entries(STATUS_COLOR).map(([label, color]) => (
+                    <span key={label} className="cp-cal-legend-item">
+                        <span className="cp-cal-dot" style={{ backgroundColor: color }} />
+                        {label}
+                    </span>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+
+
 export const ViewProgress = () => {
     const { isAuthenticated, getAccessTokenSilently } = useAuth0()
     const { customAuth } = useCustomAuth()
+    const [searchParams] = useSearchParams()
+    const clientUserId = searchParams.get('client_id')
 
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
@@ -328,6 +438,9 @@ export const ViewProgress = () => {
                 if (timeRange === 'monthly') {
                     url += `&selected_month=${selectedMonth}`
                 }
+                if (clientUserId) {
+                    url += `&client_user_id=${clientUserId}`
+                }
 
                 const response = await fetch(url, {
                     headers: { Authorization: `Bearer ${token}` },
@@ -351,7 +464,7 @@ export const ViewProgress = () => {
         }
 
         fetchProgress()
-    }, [isAuthenticated, customAuth, getAccessTokenSilently, timeRange, selectedMonth])
+    }, [isAuthenticated, customAuth, getAccessTokenSilently, timeRange, selectedMonth, clientUserId])
 
     const monthOptions = useMemo(() => {
         const options = progressData?.weight_chart?.available_months || []
@@ -388,8 +501,17 @@ export const ViewProgress = () => {
             <div className="view-progress-container">
                 <div className="page-heading">
                     <div className="h2">
-                        <span className="text-black">Your Progress </span>
-                        <span className="text-purple">Insights</span>
+                        {progressData?.client_name ? (
+                            <>
+                                <span className="text-black">{progressData.client_name}&apos;s Progress </span>
+                                <span className="text-purple">Insights</span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="text-black">Your Progress </span>
+                                <span className="text-purple">Insights</span>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -399,6 +521,14 @@ export const ViewProgress = () => {
 
                     {!loading && !error && progressData && (
                         <>
+                            {progressData.summary && (
+                                <SummaryCards summary={progressData.summary} />
+                            )}
+
+                            {progressData.goals && (
+                                <GoalsPanel goals={progressData.goals} />
+                            )}
+
                             <LineChart
                                 title="Weight Trend"
                                 subtitle="Current weight, goal weight, and daily survey weight changes."
@@ -418,6 +548,10 @@ export const ViewProgress = () => {
                             />
 
                             <WeeklyAveragesChart averages={progressData.weekly_averages} />
+
+                            {progressData.calendar_events && (
+                                <WorkoutCalendarPanel events={progressData.calendar_events} />
+                            )}
                         </>
                     )}
                 </div>

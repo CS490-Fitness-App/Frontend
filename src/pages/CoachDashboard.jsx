@@ -127,8 +127,8 @@ export const CoachDashboard = () => {
         }
     };
 
-    const handleViewClient = (clientId) => {
-        console.log('View client:', clientId);
+    const handleViewClient = (clientUserId) => {
+        navigate(`/view-progress?client_id=${clientUserId}`);
     };
 
     const handleMessageClient = async (clientUserId) => {
@@ -205,7 +205,7 @@ export const CoachDashboard = () => {
                         </div>
                     </div>
 
-                    <div class="dashboard-homepage-container">
+                    <div className="dashboard-homepage-container">
 
                         <div className="dashboard">
                             {error && <p className="feedback-msg error" style={{ padding: '1rem 0' }}>{error}</p>}
