@@ -1,7 +1,8 @@
 import "./Pages.css"
 import "./ViewWorkout.css"
+import "../components/CalendarPopup.css"
 import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { ViewExercise } from '../components/ViewExercise'
@@ -12,14 +13,28 @@ import { FaStar } from "react-icons/fa6";
 
 export const ViewWorkout = () => {
     const { workoutId } = useParams()
+    const navigate = useNavigate()
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
-    const { customAuth } = useCustomAuth()
+    const { customAuth, userRole } = useCustomAuth()
     const [workout, setWorkout] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const [selectedExercise, setSelectedExercise] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [starToggled, setStarToggled] = useState(false)
+
+    // Coach: schedule-for-client picker
+    const [showClientPicker, setShowClientPicker] = useState(false)
+    const [clients, setClients] = useState([])
+    const [loadingClients, setLoadingClients] = useState(false)
+
+    const getToken = async () => {
+        if (isAuthenticated) {
+            return getAccessTokenSilently({ authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE } })
+        }
+        if (customAuth) return customAuth
+        throw new Error('Not authenticated')
+    }
 
     useEffect(() => {
         const fetchWorkout = async () => {
@@ -73,6 +88,33 @@ export const ViewWorkout = () => {
         }
     }
 
+    const handleScheduleForMe = () => {
+        navigate(`/calendar?workout_id=${workoutId}`)
+    }
+
+    const handleOpenClientPicker = async () => {
+        setShowClientPicker(true)
+        if (clients.length > 0) return
+        setLoadingClients(true)
+        try {
+            const token = await getToken()
+            const meRes = await fetch(`${API_BASE_URL}/coaches/me`, { headers: { Authorization: `Bearer ${token}` } })
+            const me = await meRes.json()
+            const clientsRes = await fetch(`${API_BASE_URL}/coaches/${me.coach_id}/clients`, { headers: { Authorization: `Bearer ${token}` } })
+            const data = await clientsRes.json()
+            setClients(data.active_clients || [])
+        } catch (e) {
+            console.error('Failed to load clients', e)
+        } finally {
+            setLoadingClients(false)
+        }
+    }
+
+    const handleSelectClient = (client) => {
+        const name = encodeURIComponent(`${client.first_name} ${client.last_name}`.trim())
+        navigate(`/calendar?workout_id=${workoutId}&client_id=${client.user_id}&client_name=${name}`)
+    }
+
     return (
         <div>
             <div className="page-heading">
@@ -115,7 +157,7 @@ export const ViewWorkout = () => {
                 </div>
             </div>
 
-            {error && <p style={{ padding: '0 2rem', color: '#b91c1c' }}>{error}</p>}
+            {error && <p className="feedback-msg error" style={{ padding: '0.5rem 2rem' }}>{error}</p>}
 
             <table className="workout-table">
                 <thead>
@@ -148,9 +190,52 @@ export const ViewWorkout = () => {
                 </tbody>
             </table>
 
+            <div className="workout-action-row">
+                {userRole === 'coach' ? (
+                    <>
+                        <button className="btn" onClick={handleScheduleForMe}>Schedule for Me</button>
+                        <button className="btn" onClick={handleOpenClientPicker}>Schedule for Client</button>
+                    </>
+                ) : (
+                    <button className="btn" onClick={handleScheduleForMe}>Schedule Workout</button>
+                )}
+            </div>
+
             <Link to={`/edit-workout/${workoutId}`} className="edit-workout-plan-btn">
                 <div className="btn">Edit Workout</div>
             </Link>
+
+            {showClientPicker && (
+                <div className="calendar-popup-background">
+                    <div className="calendar-popup-container">
+                        <div className="calendar-popup-contents">
+                            <label className="calendar-form-label">Select a client:</label>
+                            {loadingClients && <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>Loading clients...</p>}
+                            {!loadingClients && clients.length === 0 && (
+                                <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>No active clients found.</p>
+                            )}
+                            {!loadingClients && clients.length > 0 && (
+                                <select
+                                    className="calendar-form-input"
+                                    defaultValue=""
+                                    onChange={(e) => {
+                                        const client = clients.find((c) => String(c.user_id) === e.target.value)
+                                        if (client) handleSelectClient(client)
+                                    }}
+                                >
+                                    <option value="" disabled>— pick a client —</option>
+                                    {clients.map((c) => (
+                                        <option key={c.user_id} value={c.user_id}>
+                                            {c.first_name} {c.last_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+                        </div>
+                        <button className="calendar-btn-outline" onClick={() => setShowClientPicker(false)}>Cancel</button>
+                    </div>
+                </div>
+            )}
 
             <ViewExercise
                 isOpen={isModalOpen}

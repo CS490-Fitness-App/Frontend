@@ -141,11 +141,11 @@ export const PaymentCards = () => {
                             <div className="dashboard-heading">SAVED CARDS</div>
 
                             {loading && <p className="stat-descriptor">Loading...</p>}
-                            {error && <p className="payment-error">{error}</p>}
+                            {error && <p className="feedback-msg error">{error}</p>}
                             {!loading && cards.length === 0 && !error && (
                                 <p className="stat-descriptor">No cards saved yet.</p>
                             )}
-                            {success && <p className="payment-success">{success}</p>}
+                            {success && <p className="feedback-msg success">{success}</p>}
 
                             <div className="cards-list">
                                 {cards.map(card => (
@@ -183,7 +183,7 @@ export const PaymentCards = () => {
                         <div className="payment-panel">
                             <div className="dashboard-heading">ADD NEW CARD</div>
 
-                            {formError && <p className="payment-error">{formError}</p>}
+                            {formError && <p className="feedback-msg error">{formError}</p>}
 
                             <form className="card-form" onSubmit={handleSubmit}>
                                 <div className="card-form-group">
