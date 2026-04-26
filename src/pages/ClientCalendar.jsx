@@ -8,17 +8,22 @@ import { CalendarComponent } from '../components/CalendarComponent'
 export const ClientCalendar = () => {
     return (
         <div>
-            <div className="client-dashboard-container">
+            <div className="dashboard-container">
+
                 <Sidebar />
+
                 <div>
-                    <div className="dashboard-page-heading" width="85vw">
+                    <div className="page-heading">
                         <div className="h2">
                             <span className="text-black">My Workout </span>
                             <span className="text-purple">Calendar</span>
                         </div>
+
                     </div>
 
-                    <CalendarComponent />
+                    <div className="calendar-container">
+                        <CalendarComponent />
+                    </div>
                 </div>
             </div>
         </div>
