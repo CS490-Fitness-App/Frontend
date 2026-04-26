@@ -209,6 +209,37 @@ export const ClientDashboard = () => {
         throw new Error('You must be logged in to submit a daily check-in.')
     }
 
+    const openCoachChat = async () => {
+        const coachUserId = data?.active_coach?.user_id
+        if (!coachUserId) {
+            setError('No active coach is available to message.')
+            return
+        }
+
+        try {
+            const token = await getAuthToken()
+            const response = await fetch(`${API_BASE_URL}/chats/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ other_user_id: coachUserId }),
+            })
+
+            if (!response.ok) {
+                const detail = await readErrorDetail(response, 'Unable to open coach chat.')
+                throw new Error(detail)
+            }
+
+            const chat = await response.json()
+            navigate(`/chat?chat=${chat.chat_id}`)
+        } catch (chatError) {
+            console.error('Failed to open coach chat:', chatError)
+            setError(chatError.message || 'Unable to open coach chat.')
+        }
+    }
+
     const submitDailyCheckIn = async (event) => {
         event.preventDefault()
         setCheckInSubmitting(true)
@@ -380,7 +411,9 @@ export const ClientDashboard = () => {
                                     </div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link className="panel-btn-purple">Message</Link>
+                                    <button type="button" className="panel-btn-purple" onClick={openCoachChat} disabled={loading || !data?.active_coach?.user_id}>
+                                        Message
+                                    </button>
                                     <Link className="panel-btn-white">View Profile</Link>
                                 </div>
                             </div>

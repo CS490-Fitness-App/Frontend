@@ -62,6 +62,49 @@
   overflow-y: auto;
 }
 
+.convo-empty {
+  padding: 40px 20px;
+  text-align: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #6B6BA0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.convo-error {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.convo-error-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #e74c3c;
+  margin-bottom: 8px;
+}
+
+.convo-error-message {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #6B6BA0;
+  margin-bottom: 16px;
+}
+
+.convo-error-retry {
+  padding: 10px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--periwinkle);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
 .conversation-item {
   display: flex;
   align-items: center;
@@ -158,6 +201,38 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.chat-empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.chat-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.chat-empty-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.chat-empty-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #6B6BA0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  max-width: 300px;
 }
 
 .chat-header {
