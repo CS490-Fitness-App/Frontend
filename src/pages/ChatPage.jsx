@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../utils/apiBaseUrl';
 import './ChatPage.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 const POLL_INTERVAL_MS = 3000;
 
 // Backend returns timestamps without timezone info (e.g. "2026-04-16 05:00:36").
@@ -12,36 +11,61 @@ const POLL_INTERVAL_MS = 3000;
 const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d{2}:\d{2}|Z)$/, 'Z') : null);
 
 export const ChatPage = () => {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
-  const { customAuth } = useCustomAuth();
+  const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
+  const { customAuth, backendAuthReady, backendAuthError } = useCustomAuth();
   const [conversations, setConversations] = useState([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const messagesAreaRef = useRef(null);
   const latestTimestampRef = useRef(null);
   const pollIntervalRef = useRef(null);
+  const [error, setError] = useState(null);
 
-  // Helper to get auth token - define first so it can be used in useEffect
+  // Resolve the active bearer token for either Auth0 or custom auth.
   const getToken = async () => {
-    let token;
     if (isAuthenticated) {
-      token = await getAccessTokenSilently({
+      const token = await getAccessTokenSilently({
         authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
       });
+      return token || null;
     } else if (customAuth) {
-      token = customAuth;
+      return customAuth;
+    }
+    return null;
+  };
+
+  const requireToken = async (requestName) => {
+    const token = await getToken();
+    if (!token) {
+      const message = backendAuthError || 'Authentication is still loading. Please wait and retry.';
+      console.warn(`[ChatPage] Skipping ${requestName} because no bearer token is available.`);
+      throw new Error(message);
     }
     return token;
   };
 
   useEffect(() => {
+    if (isLoading) return;
+    if (isAuthenticated && !backendAuthReady) {
+      setLoadingConversations(false);
+      return;
+    }
+
+    if (!isAuthenticated && !customAuth) {
+      setLoadingConversations(false);
+      setConversations([]);
+      return;
+    }
+
     setLoadingConversations(true);
+    setError(null);
+
     (async () => {
       try {
-        const token = await getToken();
-        const res = await fetch(`${API_BASE_URL}/chats`, {
+        const token = await requireToken('GET /chats');
+        const res = await fetch(`${API_BASE_URL}/chats/`, {
           headers: {
             'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            Authorization: `Bearer ${token}`,
           },
         });
         if (!res.ok) throw new Error('Failed to load conversations');
@@ -82,11 +106,12 @@ export const ChatPage = () => {
         }
       } catch (err) {
         console.error('Failed to load conversations:', err);
+        setError(err.message);
       } finally {
         setLoadingConversations(false);
       }
     })();
-  }, [isAuthenticated, customAuth]);
+  }, [isAuthenticated, customAuth, isLoading, backendAuthReady, backendAuthError]);
 
   const [selectedConvoId, setSelectedConvoId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -98,14 +123,14 @@ export const ChatPage = () => {
   const fetchMessages = async (chatId, convo, since = null) => {
     if (!chatId) return;
     try {
-      const token = await getToken();
+      const token = await requireToken(`GET /chats/${chatId}/messages`);
       const url = since
         ? `${API_BASE_URL}/chats/${chatId}/messages?since=${encodeURIComponent(since)}`
         : `${API_BASE_URL}/chats/${chatId}/messages`;
       const res = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!res.ok) throw new Error('Failed to load messages');
@@ -138,6 +163,7 @@ export const ChatPage = () => {
       }
     } catch (err) {
       console.error('Failed to fetch messages:', err);
+      setError(err.message);
     }
   };
 
@@ -154,7 +180,7 @@ export const ChatPage = () => {
       clearInterval(pollIntervalRef.current);
       pollIntervalRef.current = null;
     }
-    if (!selectedConvoId) return;
+    if (!selectedConvoId || !backendAuthReady) return;
 
     const convo = conversations.find((c) => c.id === selectedConvoId) || null;
     pollIntervalRef.current = setInterval(() => {
@@ -167,7 +193,7 @@ export const ChatPage = () => {
       clearInterval(pollIntervalRef.current);
       pollIntervalRef.current = null;
     };
-  }, [selectedConvoId, isAuthenticated, customAuth]);
+  }, [selectedConvoId, isAuthenticated, customAuth, backendAuthReady, conversations]);
 
 
 
@@ -204,12 +230,12 @@ export const ChatPage = () => {
 
     const payload = { type: 'text', body: newMessage };
     try {
-      const token = await getToken();
+      const token = await requireToken(`POST /chats/${selectedConvoId}/messages`);
       const res = await fetch(`${API_BASE_URL}/chats/${selectedConvoId}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -232,6 +258,7 @@ export const ChatPage = () => {
         setNewMessage('');
       } catch (err) {
         console.error('Error sending message:', err);
+        setError(err.message);
       }
   };
 
@@ -270,28 +297,47 @@ export const ChatPage = () => {
           </div>
 
           <div className="conversation-list">
-            {filteredConversations.map((convo) => (
-              <div
-                key={convo.id}
-                className={`conversation-item ${selectedConvoId === convo.id ? 'active' : ''}`}
-                onClick={() => handleSelectConversation(convo.id)}
-              >
-                <div className={`convo-avatar ${convo.type}`}>{convo.initials}</div>
-                <div className="convo-info">
-                  <div className="convo-name">{convo.name}</div>
-                  <div className="convo-preview">{convo.preview}</div>
-                </div>
-                <div className="convo-meta">
-                  <div className="convo-time">{convo.time}</div>
-                  {convo.unread > 0 && <div className="convo-unread">{convo.unread}</div>}
-                </div>
+            {error && (
+              <div className="convo-error">
+                <div className="convo-error-title">Unable to load conversations</div>
+                <div className="convo-error-message">{error}</div>
+                <button className="convo-error-retry" onClick={() => { setError(null); window.location.reload(); }}>RETRY</button>
               </div>
-            ))}
+            )}
+            {loadingConversations && !error ? (
+              <div className="convo-empty">Loading conversations...</div>
+            ) : !error && filteredConversations.length === 0 ? (
+              <div className="convo-empty">No conversations yet. Start a chat with your coach or client!</div>
+            ) : (
+              filteredConversations.map((convo) => (
+                <div
+                  key={convo.id}
+                  className={`conversation-item ${selectedConvoId === convo.id ? 'active' : ''}`}
+                  onClick={() => handleSelectConversation(convo.id)}
+                >
+                  <div className={`convo-avatar ${convo.type}`}>{convo.initials}</div>
+                  <div className="convo-info">
+                    <div className="convo-name">{convo.name}</div>
+                    <div className="convo-preview">{convo.preview}</div>
+                  </div>
+                  <div className="convo-meta">
+                    <div className="convo-time">{convo.time}</div>
+                    {convo.unread > 0 && <div className="convo-unread">{convo.unread}</div>}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         <div className="chat-main">
-          {selectedConvo && (
+          {!selectedConvo ? (
+            <div className="chat-empty-state">
+              <div className="chat-empty-icon">💬</div>
+              <div className="chat-empty-title">Select a conversation</div>
+              <div className="chat-empty-text">Choose a conversation from the sidebar or start a new chat with your coach/client.</div>
+            </div>
+          ) : (
             <>
               <div className="chat-header">
                 <div className="chat-header-left">

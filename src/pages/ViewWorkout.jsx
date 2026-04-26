@@ -157,7 +157,7 @@ export const ViewWorkout = () => {
                 </div>
             </div>
 
-            {error && <p style={{ padding: '0 2rem', color: '#b91c1c' }}>{error}</p>}
+            {error && <p className="feedback-msg error" style={{ padding: '0.5rem 2rem' }}>{error}</p>}
 
             <table className="workout-table">
                 <thead>

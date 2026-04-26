@@ -18,6 +18,7 @@ export const Survey = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
 
+  const [dob, setDob] = useState('');
   const [heightFeet, setHeightFeet] = useState('5');
   const [heightInches, setHeightInches] = useState('7');
   const [currentWeight, setCurrentWeight] = useState('');
@@ -38,6 +39,7 @@ export const Survey = () => {
   const [endTime, setEndTime] = useState('5:00 PM');
   const [maxClients, setMaxClients] = useState('15');
   const [sessionFormat, setSessionFormat] = useState('Virtual');
+  const [coachGender, setCoachGender] = useState('Other');
 
   const [goalTypes, setGoalTypes] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -107,7 +109,7 @@ export const Survey = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          DOB: null,
+          DOB: dob || null,
           height: heightCm || null,
           weight: toGrams(currentWeight, weightUnit) || null,
           goal_weight: toGrams(goalWeight, weightUnit) || null,
@@ -134,7 +136,7 @@ export const Survey = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({
-            gender: 'Other',
+            gender: coachGender,
             hourly_rate: parseFloat(hourlyRate) || 0,
             is_trainer: specializations.includes('Workout Coach') || specializations.includes('Both'),
             is_nutritionist: specializations.includes('Nutritionist') || specializations.includes('Both'),
@@ -197,8 +199,18 @@ export const Survey = () => {
         {currentStep === 1 && (
           <>
             <div className="section-card">
-              <div className="section-title">Body Metrics</div>
+              <div className="section-title">User Metrics</div>
               <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">Date of Birth</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                  />
+                </div>
+
                 <div className="form-group">
                   <label className="form-label">Height (Feet)</label>
                   <select className="form-input" value={heightFeet} onChange={(e) => setHeightFeet(e.target.value)}>
@@ -308,6 +320,24 @@ export const Survey = () => {
                         {specializations.includes(spec) && '✓'}
                       </div>
                       <span className="checkbox-text">{spec}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="section-card">
+              <div className="section-title">Personal Information</div>
+              <div className="form-group">
+                <label className="form-label">Gender</label>
+                <div className="pill-selector">
+                  {['Man', 'Woman', 'Other'].map((gender) => (
+                    <div
+                      key={gender}
+                      className={`pill-option ${coachGender === gender ? 'selected' : ''}`}
+                      onClick={() => setCoachGender(gender)}
+                    >
+                      {gender}
                     </div>
                   ))}
                 </div>
@@ -457,7 +487,7 @@ export const Survey = () => {
           </>
         )}
 
-        {submitError && <p style={{ color: 'red', textAlign: 'center', marginBottom: '1rem' }}>{submitError}</p>}
+        {submitError && <p className="feedback-msg error" style={{ textAlign: 'center', marginBottom: '1rem' }}>{submitError}</p>}
 
         <div className="survey-buttons">
           {currentStep > 1 && (

@@ -354,7 +354,7 @@ export const AdminDashboard = () => {
                                             <input type="text" placeholder="SEARCH COACHES..." value={coachSearch} onChange={(e) => setCoachSearch(e.target.value)} />
                                         </div>
                                     </div>
-                                    {coachError && <p className="admin-feedback error">{coachError}</p>}
+                                    {coachError && <p className="feedback-msg error">{coachError}</p>}
                                     <table className="admin-table">
                                         <thead>
                                             <tr><th>Coach</th><th>Email</th><th>Specialization</th><th>Status</th><th>Active</th><th>Actions</th></tr>
@@ -394,7 +394,7 @@ export const AdminDashboard = () => {
                             {activeTab === 1 && (
                                 <div className="tab-content">
                                     {exerciseLoading && <p>Loading exercises...</p>}
-                                    {exerciseError && <p className="admin-feedback error">{exerciseError}</p>}
+                                    {exerciseError && <p className="feedback-msg error">{exerciseError}</p>}
                                     <div className="section-header">
                                         <div className="search-bar">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
@@ -405,7 +405,7 @@ export const AdminDashboard = () => {
                                         </div>
                                         <button className="btn-add" onClick={openAddExerciseModal}>+ ADD EXERCISE</button>
                                     </div>
-                                    {exerciseError && <p className="admin-feedback error">{exerciseError}</p>}
+                                    {exerciseError && <p className="feedback-msg error">{exerciseError}</p>}
                                     <table className="admin-table">
                                         <thead>
                                             <tr><th>Exercise Name</th><th>Muscle Group</th><th>Equipment</th><th>Actions</th></tr>

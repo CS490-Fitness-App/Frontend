@@ -4,7 +4,7 @@ import { Navbar } from './components/Navbar'
 import { AuthSync } from './components/AuthSync'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
-import { Home, Exercises, Workouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches, PaymentCards, Profile, ViewWorkout, EditWorkout, ClientCalendar, ChatPage, ViewProgress } from './pages'
+import { Home, Exercises, Workouts, PublicWorkouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches, PaymentCards, Profile, ViewWorkout, EditWorkout, ClientCalendar, ChatPage, ViewProgress } from './pages'
 
 function App() {
     const NotFound = () => (
@@ -22,7 +22,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/coaches" element={<Coaches />} />
                 <Route path="/exercises" element={<Exercises />} />
-                <Route path="/workouts" element={<Workouts />} />
+                <Route path="/workouts" element={<PublicWorkouts />} />
+                <Route path="/my-workouts" element={<Workouts />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/client-dashboard" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ClientDashboard /></ProtectedRoute>} />
                 <Route path="/coach-dashboard" element={<ProtectedRoute allowedRoles={['coach']}><CoachDashboard /></ProtectedRoute>} />

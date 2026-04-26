@@ -209,6 +209,37 @@ export const ClientDashboard = () => {
         throw new Error('You must be logged in to submit a daily check-in.')
     }
 
+    const openCoachChat = async () => {
+        const coachUserId = data?.active_coach?.user_id
+        if (!coachUserId) {
+            setError('No active coach is available to message.')
+            return
+        }
+
+        try {
+            const token = await getAuthToken()
+            const response = await fetch(`${API_BASE_URL}/chats/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ other_user_id: coachUserId }),
+            })
+
+            if (!response.ok) {
+                const detail = await readErrorDetail(response, 'Unable to open coach chat.')
+                throw new Error(detail)
+            }
+
+            const chat = await response.json()
+            navigate(`/chat?chat=${chat.chat_id}`)
+        } catch (chatError) {
+            console.error('Failed to open coach chat:', chatError)
+            setError(chatError.message || 'Unable to open coach chat.')
+        }
+    }
+
     const submitDailyCheckIn = async (event) => {
         event.preventDefault()
         setCheckInSubmitting(true)
@@ -289,7 +320,7 @@ export const ClientDashboard = () => {
 
 
                     <div className="dashboard-homepage-container">
-                        {error && <p className="stat-descriptor">{error}</p>}
+                        {error && <p className="feedback-msg error">{error}</p>}
 
                         <div className="section-quick-stats">
                             <div className="quick-stat-card">
@@ -380,7 +411,9 @@ export const ClientDashboard = () => {
                                     </div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link className="panel-btn-purple">Message</Link>
+                                    <button type="button" className="panel-btn-purple" onClick={openCoachChat} disabled={loading || !data?.active_coach?.user_id}>
+                                        Message
+                                    </button>
                                     <Link className="panel-btn-white">View Profile</Link>
                                 </div>
                             </div>
@@ -474,8 +507,8 @@ export const ClientDashboard = () => {
                                 </select>
                             </label>
 
-                            {checkInError && <p className="daily-checkin-error">{checkInError}</p>}
-                            {checkInMessage && <p className="daily-checkin-success">{checkInMessage}</p>}
+                            {checkInError && <p className="feedback-msg error">{checkInError}</p>}
+                            {checkInMessage && <p className="feedback-msg success">{checkInMessage}</p>}
 
                             <div className="daily-checkin-actions">
                                 <button type="button" className="panel-btn-white" onClick={closeCheckIn}>Cancel</button>
