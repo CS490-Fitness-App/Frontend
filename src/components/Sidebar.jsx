@@ -10,17 +10,17 @@ const links = [
     { name: 'Coach Dashboard', path: '/coach-dashboard', allowedRoles: ['coach'] },
     { name: 'Admin Panel', path: '/admin-dashboard', allowedRoles: ['admin'] },
     { name: 'User Profile', path: '/profile', allowedRoles: ['client', 'coach', 'admin'] },
-    { name: 'My Workout Plans', path: '/workouts', allowedRoles: ['client', 'coach'] },
+    { name: 'My Workout Plans', path: '/my-workouts', allowedRoles: ['client', 'coach'] },
     { name: 'Calendar', path: '/calendar', allowedRoles: ['client', 'coach'] },
     { name: 'Activity Logger', path: '/', allowedRoles: ['client', 'coach'] },
     { name: 'View Progress', path: '/view-progress', allowedRoles: ['client', 'coach'] },
     { name: 'Chat', path: '/chat', allowedRoles: ['client', 'coach'] },
     { name: 'Payment Methods', path: '/payment-cards', allowedRoles: ['client', 'coach'] },
-    { name: 'My Clients', path: '/', allowedRoles: ['coach'] }
+    { name: 'My Clients', path: '/', allowedRoles: ['coach'] } 
 ];
 
 export const Sidebar = () => {
-    const { customAuth, backendAuthReady, backendAuthError, userRole } = useCustomAuth()
+    const { userRole } = useCustomAuth()
 
     const filteredItems = links.filter(item =>
         !item.allowedRoles || item.allowedRoles.includes(userRole)

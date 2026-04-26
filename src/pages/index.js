@@ -1,6 +1,7 @@
 export * from "./Home"
 export * from "./Exercises"
 export * from "./Workouts"
+export * from "./PublicWorkouts"
 export * from "./Login"
 export * from "./ClientDashboard"
 export * from "./CoachDashboard"
