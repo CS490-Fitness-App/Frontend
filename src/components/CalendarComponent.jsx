@@ -28,6 +28,9 @@ export const CalendarComponent = ({ preselectedWorkoutId = null, clientId = null
     const [error, setError] = useState('')
     const [submitting, setSubmitting] = useState(false)
 
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentView, setCurrentView] = useState('month');
+
     const getToken = async () => {
         if (isAuthenticated) {
             return getAccessTokenSilently({
@@ -225,6 +228,10 @@ export const CalendarComponent = ({ preselectedWorkoutId = null, clientId = null
                     selectable
                     localizer={localizer}
                     events={events}
+                    date={currentDate}
+                    view={currentView }
+                    onNavigate={(date) => setCurrentDate(date)}
+                    onView={(view) => setCurrentView(view)}
                     startAccessor="start"
                     endAccessor="end"
                     defaultView="month"

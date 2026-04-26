@@ -310,11 +310,11 @@ export const ClientDashboard = () => {
                 <Sidebar />
                 <div>
                     <div className="page-heading">
-                      <div className="h2">
-                        <span className="text-black">Welcome back, </span>
-                          <span className="text-purple">
-                                                        {loading ? "Loading..." : displayFirstName}
-                          </span>
+                        <div className="h2">
+                            <span className="text-black">Welcome back, </span>
+                            <span className="text-purple">
+                                {loading ? "Loading..." : displayFirstName}
+                            </span>
                         </div>
                       </div>
 
