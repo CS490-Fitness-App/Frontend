@@ -73,7 +73,7 @@ export const Exercises = () => {
 
             <ExerciseFilters filters={filters} setFilters={setFilters} />
 
-            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', padding: '0 2rem' }}>
                 {exercises.map(exercise => (
                     <ExerciseCard
                         key={exercise.exercise_id}

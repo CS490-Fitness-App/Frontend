@@ -329,7 +329,7 @@ export const AdminDashboard = () => {
                             <span className="text-purple">PANEL</span>
                         </div>
                     </div>
-                    <div className="dashboard-homepage-container">
+                    <div className="admin-section">
                         <div className="dashboard">
                             <div className="section-quick-stats">
                                 <div className="quick-stat-card"><div className="stat-heading">Total Users</div><div className="stat">847</div></div>
@@ -346,7 +346,7 @@ export const AdminDashboard = () => {
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">Coach Applications & Accounts</div>
-                                        <div className="search-bar">
+                                        <div className="admin-search-bar">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
                                                 <circle cx="11" cy="11" r="8" />
                                                 <path d="m21 21-4.35-4.35" />
@@ -396,7 +396,7 @@ export const AdminDashboard = () => {
                                     {exerciseLoading && <p>Loading exercises...</p>}
                                     {exerciseError && <p className="feedback-msg error">{exerciseError}</p>}
                                     <div className="section-header">
-                                        <div className="search-bar">
+                                        <div className="admin-search-bar">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
                                                 <circle cx="11" cy="11" r="8" />
                                                 <path d="m21 21-4.35-4.35" />
@@ -542,7 +542,7 @@ export const AdminDashboard = () => {
                         </div>
                         <div className="footer-spacer"></div>
                     </div>
-                </div>
+            </div>
         </div>
     );
 };

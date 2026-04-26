@@ -1,3 +1,13 @@
+* {
+    box-sizing: border-box;
+}
+
+.admin-section {
+    display: flex;
+    max-width: 100vw;
+    padding: 2rem;
+}
+
 .tabs {
     display: flex;
     gap: 0;
@@ -32,7 +42,8 @@
     }
 
 .tab-content {
-    display: block;
+    width: 100%;
+    overflow-x: auto;
 }
 
 .section-header {
@@ -49,7 +60,7 @@
     letter-spacing: 1px;
 }
 
-.search-bar {
+.admin-search-bar {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -59,7 +70,7 @@
     width: 300px;
 }
 
-    .search-bar input {
+    .admin-search-bar input {
         border: none;
         background: none;
         font-family: 'Space Mono', monospace;
@@ -71,12 +82,13 @@
         color: var(--black);
     }
 
-        .search-bar input::placeholder {
+        .admin-search-bar input::placeholder {
             color: var(--slate-purple);
         }
 
 .admin-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
 }
 
@@ -106,6 +118,9 @@
     letter-spacing: 1px;
     padding: 4px 10px;
     border-radius: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    white-space: nowrap;
 }
 
 .status-pending {

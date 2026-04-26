@@ -15,9 +15,7 @@ export const ClientCalendar = () => {
     return (
         <div>
             <div className="dashboard-container">
-
                 <Sidebar />
-
                 <div>
                     <div className="page-heading">
                         <div className="h2">
