@@ -18,6 +18,7 @@ export const Survey = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
 
+  const [dob, setDob] = useState('');
   const [heightFeet, setHeightFeet] = useState('5');
   const [heightInches, setHeightInches] = useState('7');
   const [currentWeight, setCurrentWeight] = useState('');
@@ -108,7 +109,7 @@ export const Survey = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          DOB: null,
+          DOB: dob || null,
           height: heightCm || null,
           weight: toGrams(currentWeight, weightUnit) || null,
           goal_weight: toGrams(goalWeight, weightUnit) || null,
@@ -198,8 +199,18 @@ export const Survey = () => {
         {currentStep === 1 && (
           <>
             <div className="section-card">
-              <div className="section-title">Body Metrics</div>
+              <div className="section-title">User Metrics</div>
               <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">Date of Birth</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                  />
+                </div>
+
                 <div className="form-group">
                   <label className="form-label">Height (Feet)</label>
                   <select className="form-input" value={heightFeet} onChange={(e) => setHeightFeet(e.target.value)}>

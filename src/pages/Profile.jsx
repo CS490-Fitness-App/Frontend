@@ -385,7 +385,7 @@ export const Profile = () => {
                                 <section className="profile-panel">
                                     <div className="dashboard-heading">Client Details</div>
                                     <div className="dashboard-list-container">
-                                        <div className="dashboard-list-contents"><div className="stat-heading">Date of Birth</div><div className="dashboard-list">{formatDate(clientProfile.DOB)}</div></div>
+                                        <div className="dashboard-list-contents"><div className="stat-heading">Age</div><div className="dashboard-list">{clientProfile.age ?? 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Height</div><div className="dashboard-list">{clientProfile.height ? `${clientProfile.height} cm` : 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Current Weight</div><div className="dashboard-list">{formatWeight(clientProfile.weight)}</div></div>
                                         <div className="dashboard-list-contents">
