@@ -26,6 +26,9 @@ export const CalendarComponent = () => {
     const [error, setError] = useState('')
     const [submitting, setSubmitting] = useState(false)
 
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentView, setCurrentView] = useState('month');
+
     const getToken = async () => {
         if (isAuthenticated) {
             return getAccessTokenSilently({
@@ -212,6 +215,10 @@ export const CalendarComponent = () => {
                     selectable
                     localizer={localizer}
                     events={events}
+                    date={currentDate}
+                    view={currentView }
+                    onNavigate={(date) => setCurrentDate(date)}
+                    onView={(view) => setCurrentView(view)}
                     startAccessor="start"
                     endAccessor="end"
                     defaultView="month"
