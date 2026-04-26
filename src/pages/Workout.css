@@ -11,3 +11,12 @@
         justify-content: center;
     }
 }
+
+.workouts-container {
+    display: flex; 
+    min-height: 100vh;
+}
+
+.workouts-content {
+    flex: 1;
+}
