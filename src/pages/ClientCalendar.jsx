@@ -36,11 +36,13 @@ export const ClientCalendar = () => {
 
                     </div>
 
-                    <CalendarComponent
-                        preselectedWorkoutId={preselectedWorkoutId}
-                        clientId={clientId}
-                        clientName={clientName}
-                    />
+                    <div className="calendar-container">
+                        <CalendarComponent
+                            preselectedWorkoutId={preselectedWorkoutId}
+                            clientId={clientId}
+                            clientName={clientName}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
