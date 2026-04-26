@@ -395,7 +395,7 @@ export const ViewProgress = () => {
 
                 <div className="view-progress-content">
                     {loading && <p className="stat-descriptor">Loading progress charts...</p>}
-                    {!loading && error && <p className="stat-descriptor">{error}</p>}
+                    {!loading && error && <p className="feedback-msg error">{error}</p>}
 
                     {!loading && !error && progressData && (
                         <>
