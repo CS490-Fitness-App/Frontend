@@ -86,7 +86,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
     }
 
     const getDashboardRoute = (role) => {
-        if (role === 'admin') return '/admin-dashboard'
+        if (role === 'admin') return '/dashboard/admin'
         if (role === 'coach') return '/coach-dashboard'
         return '/client-dashboard'
     }

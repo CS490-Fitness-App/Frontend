@@ -18,7 +18,7 @@ export const Navbar = () => {
     const loggedIn = isAuthenticated || !!customAuth
 
     const getDashboardRoute = () => {
-        if (userRole === 'admin') return '/admin-dashboard'
+        if (userRole === 'admin') return '/dashboard/admin'
         if (userRole === 'coach') return '/coach-dashboard'
         return '/client-dashboard'
     }

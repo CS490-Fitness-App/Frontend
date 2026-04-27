@@ -8,7 +8,7 @@ import { useCustomAuth } from '../context/AuthContext'
 const links = [
     { name: 'Client Dashboard', path: '/client-dashboard', allowedRoles: ['client', 'coach'] },
     { name: 'Coach Dashboard', path: '/coach-dashboard', allowedRoles: ['coach'] },
-    { name: 'Admin Panel', path: '/admin-dashboard', allowedRoles: ['admin'] },
+    { name: 'Admin Panel', path: '/dashboard/admin', allowedRoles: ['admin'] },
     { name: 'User Profile', path: '/profile', allowedRoles: ['client', 'coach', 'admin'] },
     { name: 'My Workout Plans', path: '/my-workouts', allowedRoles: ['client', 'coach'] },
     { name: 'Calendar', path: '/calendar', allowedRoles: ['client', 'coach'] },
