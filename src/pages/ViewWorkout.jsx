@@ -213,7 +213,6 @@ export const ViewWorkout = () => {
                         )}
                     </div>
 
-                    
 
                     {showClientPicker && (
                         <div className="calendar-popup-background">
@@ -255,7 +254,7 @@ export const ViewWorkout = () => {
                     setIsModalOpen(false)
                     setSelectedExercise(null)
                 }}
-                exercises={selectedExercise}
+                exercise={selectedExercise}
             />
         </div>
     )

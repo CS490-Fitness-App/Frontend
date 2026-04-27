@@ -3,7 +3,7 @@ import "./ViewWorkout.css"
 import "./Workout.css"
 import React, { useEffect, useState } from 'react'
 import { Sidebar } from "../components/Sidebar"
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
@@ -419,14 +419,21 @@ export const EditWorkout = () => {
                                 </div>
                             </div>
 
-                            <button
-                                className="btn"
-                                type="button"
-                                onClick={handleSaveWorkout}
-                                disabled={saving || loading}
-                            >
-                                {saving ? 'Saving...' : 'Save Workout Plan'}
-                            </button>
+                            <div className="workout-action-row">
+                                <Link to={`/view-workout/${workoutId}`} className="edit-workout-plan-btn">
+                                    <div className="btn">Cancel</div>
+                                </Link>
+                                <button
+                                    className="btn"
+                                    type="button"
+                                    onClick={handleSaveWorkout}
+                                    disabled={saving || loading}
+                                >
+                                    {saving ? 'Saving...' : 'Save Workout Plan'}
+                                </button>
+                            </div>
+
+                            
                         </div>
                     </div>
                 </div>
