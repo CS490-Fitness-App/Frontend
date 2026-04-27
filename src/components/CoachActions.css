@@ -1,0 +1,162 @@
+.coach-actions-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.coach-actions-row > button {
+    flex: 1;
+}
+
+.coach-fire-btn {
+    border-color: #b91c1c !important;
+    color: #b91c1c !important;
+}
+
+.coach-fire-btn:hover {
+    background-color: #b91c1c !important;
+    color: white !important;
+}
+
+.coach-report-btn {
+    border-color: #92400e !important;
+    color: #92400e !important;
+}
+
+.coach-report-btn:hover {
+    background-color: #92400e !important;
+    color: white !important;
+}
+
+.coach-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+}
+
+.coach-modal {
+    width: min(500px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    background-color: #ffffff;
+    border: 2px solid black;
+    padding: 20px;
+}
+
+.coach-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.coach-modal-title {
+    border-bottom: none;
+    padding: 0;
+}
+
+.coach-modal-close {
+    border: none;
+    background: transparent;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.coach-modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.coach-modal textarea {
+    border: 1px solid black;
+    padding: 10px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.coach-modal select {
+    border: 1px solid black;
+    padding: 10px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 14px;
+}
+
+.review-stars-input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.review-stars-row {
+    display: flex;
+    gap: 4px;
+}
+
+.review-star {
+    font-size: 28px;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.review-star.filled {
+    color: #F5A623;
+}
+
+.review-star:hover {
+    color: #F5A623;
+}
+
+.fire-warning {
+    margin: 8px 0 16px 0;
+    line-height: 1.6;
+}
+
+.panel-btn-fire {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 40px;
+    text-align: center;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    background-color: #b91c1c;
+    color: white;
+    font-family: "Anek Latin", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    text-decoration: none;
+}
+
+.panel-btn-fire:hover {
+    background-color: #991b1b;
+}
+
+.panel-btn-fire:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .coach-actions-row {
+        flex-direction: column;
+    }
+
+    .coach-modal {
+        padding: 16px;
+    }
+}

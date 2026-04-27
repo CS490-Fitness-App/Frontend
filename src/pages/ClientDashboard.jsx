@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FaRegUser, FaChartPie } from "react-icons/fa"
 import { BsBarChartFill } from "react-icons/bs"
 import { FaClipboardCheck } from "react-icons/fa6"
-
+import { CoachActions } from '../components/CoachActions'
 import { useCustomAuth } from '../context/AuthContext'
 import { Sidebar } from "../components/Sidebar"
 import './Pages.css'
@@ -380,9 +380,14 @@ export const ClientDashboard = () => {
                                     </div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link className="panel-btn-purple">Message</Link>
-                                    <Link className="panel-btn-white">View Profile</Link>
+                                <Link className="panel-btn-purple">Message</Link>
+                                <Link className="panel-btn-white">View Profile</Link>
                                 </div>
+                                <CoachActions
+                                    coachId={data?.coach_id}
+                                    coachName={data?.coach_name || 'your coach'}
+                                    onCoachFired={() => window.location.reload()}
+                                />
                             </div>
                         </div>
 
