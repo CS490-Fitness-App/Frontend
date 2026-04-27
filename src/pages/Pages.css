@@ -48,6 +48,7 @@
     color: white;
     text-decoration: none;
     margin: 0.5rem;
+    border: none;
 }
 
 .btn:hover {
@@ -57,7 +58,7 @@
 .page-heading {
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 10px;
