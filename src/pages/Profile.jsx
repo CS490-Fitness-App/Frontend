@@ -4,6 +4,7 @@ import { Sidebar } from '../components/Sidebar'
 import { useCustomAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
 import { resolveMediaUrl } from '../utils/mediaUrl'
+import { useNavigate } from 'react-router-dom'
 import './Pages.css'
 import './Profile.css'
 
@@ -24,8 +25,9 @@ const formatWeight = (grams) => {
 }
 
 export const Profile = () => {
-    const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
-    const { customAuth, setProfilePicture } = useCustomAuth()
+    const { getAccessTokenSilently, isAuthenticated, user, logout } = useAuth0()
+    const { customAuth, clearAuth, setProfilePicture } = useCustomAuth()
+    const navigate = useNavigate()
     const [profile, setProfile] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
@@ -40,12 +42,21 @@ export const Profile = () => {
     const [isUpdating, setIsUpdating] = useState(false)
     const [updateError, setUpdateError] = useState('')
 
+    const [isDeactivateOpen, setIsDeactivateOpen] = useState(false)
+    const [deactivateSubmitting, setDeactivateSubmitting] = useState(false)
+    const [deactivateError, setDeactivateError] = useState('')
+
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+    const [deleteConfirmText, setDeleteConfirmText] = useState('')
+    const [deleteSubmitting, setDeleteSubmitting] = useState(false)
+    const [deleteError, setDeleteError] = useState('')
+
     useEffect(() => {
-	    return () => {
-	        if (previewUrl) {
-	            URL.revokeObjectURL(previewUrl)
-	        }
-	    }
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl)
+            }
+        }
     }, [previewUrl])
 
     useEffect(() => {
@@ -295,6 +306,95 @@ export const Profile = () => {
         }
     }
 
+    const handleDeactivateAccount = async () => {
+        setDeactivateSubmitting(true)
+        setDeactivateError('')
+
+        try {
+            const token = await getAuthToken()
+            if (!token) throw new Error('Not authenticated')
+
+            const isCurrentlyActive = profile?.is_active !== false
+            const endpoint = isCurrentlyActive ? `${API_BASE_URL}/users/me/deactivate` : `${API_BASE_URL}/users/me/reactivate`
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}))
+                throw new Error(data.detail || `Failed to ${isCurrentlyActive ? 'deactivate' : 'reactivate'} account.`)
+            }
+
+            const updatedProfile = await response.json().catch(() => null)
+            if (updatedProfile) {
+                setProfile(updatedProfile)
+            } else {
+                setProfile((prev) => ({ ...prev, is_active: !isCurrentlyActive }))
+            }
+
+            setIsDeactivateOpen(false)
+
+            if (isCurrentlyActive) {
+                if (customAuth) {
+                    clearAuth()
+                    navigate('/')
+                } else if (isAuthenticated) {
+                    logout({ logoutParams: { returnTo: window.location.origin } })
+                }
+            }
+        } catch (err) {
+            setDeactivateError(err.message)
+        } finally {
+            setDeactivateSubmitting(false)
+        }
+    }
+
+    const handleDeleteAccount = async () => {
+        if (deleteConfirmText !== 'DELETE') {
+            setDeleteError('Please type DELETE to confirm.')
+            return
+        }
+
+        setDeleteSubmitting(true)
+        setDeleteError('')
+
+        try {
+            const token = await getAuthToken()
+            if (!token) throw new Error('Not authenticated')
+
+            const response = await fetch(`${API_BASE_URL}/users/me`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}))
+                throw new Error(data.detail || 'Failed to delete account.')
+            }
+
+            setIsDeleteOpen(false)
+
+            if (customAuth) {
+                clearAuth()
+                navigate('/')
+            } else if (isAuthenticated) {
+                logout({ logoutParams: { returnTo: window.location.origin } })
+            }
+        } catch (err) {
+            setDeleteError(err.message)
+        } finally {
+            setDeleteSubmitting(false)
+        }
+    }
+
+    const isAccountActive = profile?.is_active !== false
+
     return (
         <div className="dashboard-container">
             <Sidebar />
@@ -470,8 +570,110 @@ export const Profile = () => {
                             )}
                         </div>
                     )}
+
+                    {profile && (
+                        <div className="profile-account-actions">
+                            <div className="profile-deactivate-section">
+                                <button
+                                    type="button"
+                                    className="profile-deactivate-btn"
+                                    onClick={() => { setDeactivateError(''); setIsDeactivateOpen(true) }}
+                                >
+                                    {isAccountActive ? 'Deactivate Account' : 'Reactivate Account'}
+                                </button>
+                                <p className="stat-descriptor">
+                                    {isAccountActive
+                                        ? 'Deactivating your account will suspend access. You can reactivate anytime.'
+                                        : 'Your account is currently deactivated. Reactivate to regain access.'}
+                                </p>
+                            </div>
+
+                            <div className="profile-danger-zone">
+                                <div className="profile-danger-heading">⚠ DANGER ZONE</div>
+                                <p className="stat-descriptor">
+                                    Deleting your account is permanent. All your data, workout plans, progress history, and coach connections will be removed and cannot be recovered.
+                                </p>
+                                <button
+                                    type="button"
+                                    className="profile-delete-btn"
+                                    onClick={() => { setDeleteError(''); setDeleteConfirmText(''); setIsDeleteOpen(true) }}
+                                >
+                                    Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            {isDeactivateOpen && (
+                <div className="coach-modal-overlay" onClick={() => setIsDeactivateOpen(false)}>
+                    <div className="coach-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="coach-modal-header">
+                            <div className="dashboard-heading coach-modal-title">
+                                {isAccountActive ? 'Deactivate Account' : 'Reactivate Account'}
+                            </div>
+                            <button type="button" className="coach-modal-close" onClick={() => setIsDeactivateOpen(false)}>X</button>
+                        </div>
+                        <p className="stat-descriptor" style={{ margin: '8px 0 16px', lineHeight: '1.6' }}>
+                            {isAccountActive
+                                ? 'Are you sure you want to deactivate your account? Your profile will be hidden and you will be logged out. You can reactivate by logging in again.'
+                                : 'Would you like to reactivate your account? Your profile and data will be restored.'}
+                        </p>
+                        {deactivateError && <p className="daily-checkin-error">{deactivateError}</p>}
+                        <div className="daily-checkin-actions">
+                            <button type="button" className="panel-btn-white" onClick={() => setIsDeactivateOpen(false)}>Cancel</button>
+                            <button
+                                type="button"
+                                className={isAccountActive ? 'profile-deactivate-confirm-btn' : 'panel-btn-purple'}
+                                onClick={handleDeactivateAccount}
+                                disabled={deactivateSubmitting}
+                            >
+                                {deactivateSubmitting
+                                    ? (isAccountActive ? 'Deactivating...' : 'Reactivating...')
+                                    : (isAccountActive ? 'Yes, Deactivate' : 'Yes, Reactivate')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isDeleteOpen && (
+                <div className="coach-modal-overlay" onClick={() => setIsDeleteOpen(false)}>
+                    <div className="coach-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="coach-modal-header">
+                            <div className="dashboard-heading coach-modal-title">Delete Account</div>
+                            <button type="button" className="coach-modal-close" onClick={() => setIsDeleteOpen(false)}>X</button>
+                        </div>
+                        <p className="stat-descriptor" style={{ margin: '8px 0 12px', lineHeight: '1.6' }}>
+                            This action is <strong>permanent</strong> and cannot be undone. All your data will be deleted.
+                        </p>
+                        <label className="daily-checkin-field">
+                            <span className="stat-heading">Type DELETE to confirm</span>
+                            <input
+                                type="text"
+                                value={deleteConfirmText}
+                                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                placeholder="DELETE"
+                                style={{ border: '1px solid black', padding: '10px', fontFamily: '"Roboto Mono", sans-serif', fontSize: '14px' }}
+                            />
+                        </label>
+                        {deleteError && <p className="daily-checkin-error" style={{ marginTop: '8px' }}>{deleteError}</p>}
+                        <div className="daily-checkin-actions" style={{ marginTop: '12px' }}>
+                            <button type="button" className="panel-btn-white" onClick={() => setIsDeleteOpen(false)}>Cancel</button>
+                            <button
+                                type="button"
+                                className="profile-delete-confirm-btn"
+                                onClick={handleDeleteAccount}
+                                disabled={deleteSubmitting || deleteConfirmText !== 'DELETE'}
+                            >
+                                {deleteSubmitting ? 'Deleting...' : 'Permanently Delete'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
+ENDFILE
