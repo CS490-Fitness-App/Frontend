@@ -4,7 +4,7 @@ import { Navbar } from './components/Navbar'
 import { AuthSync } from './components/AuthSync'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
-import { Home, Exercises, Workouts, PublicWorkouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches, PaymentCards, Profile, ViewWorkout, EditWorkout, ClientCalendar, ChatPage, ViewProgress } from './pages'
+import { Home, Exercises, Workouts, PublicWorkouts, Login, ClientDashboard, CoachDashboard, AdminDashboard, SignUp, Survey, Coaches, PaymentCards, Profile, ViewWorkout, EditWorkout, ClientCalendar, ChatPage, ViewProgress, ActivityLogger } from './pages'
 
 function App() {
     const NotFound = () => (
@@ -35,6 +35,7 @@ function App() {
                 <Route path="/view-workout/:workoutId" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ViewWorkout /></ProtectedRoute>} />
                 <Route path="/edit-workout/:workoutId" element={<ProtectedRoute allowedRoles={['coach']}><EditWorkout /></ProtectedRoute>} />
                 <Route path="/calendar" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ClientCalendar /></ProtectedRoute>} />
+                <Route path="/activity-logger" element={<ProtectedRoute allowedRoles={['client']}><ActivityLogger /></ProtectedRoute>} />
                 <Route path="/chat" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ChatPage /></ProtectedRoute>} />
                 <Route path="/view-progress" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ViewProgress /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />

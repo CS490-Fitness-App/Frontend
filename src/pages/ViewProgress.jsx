@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
@@ -14,7 +14,7 @@ import './ViewProgress.css'
 
 const localizer = momentLocalizer(moment)
 
-const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChange, progressData, selectedMonth, onMonthChange, monthOptions }) => {
+const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChange, progressData, selectedMonth, onMonthChange, monthOptions, onDateSelect }) => {
     const width = 880
     const height = 320
     const margin = { top: 32, right: 32, bottom: timeRange === 'monthly' ? 64 : 56, left: 68 }
@@ -60,6 +60,7 @@ const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChan
             }
 
             currentSegment.push({
+                date: point.date,
                 x: xForIndex(index),
                 y: yForValue(value),
                 value,
@@ -153,7 +154,30 @@ const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChan
                         {/* Dots at data points */}
                         {segmentsForSeries(line).map((segment, segmentIndex) =>
                             segment.map((point, pointIndex) => (
-                                <circle key={`dot-${line.key}-${segmentIndex}-${pointIndex}`} cx={point.x} cy={point.y} r="3" fill={line.color} opacity="0.8" />
+                                <circle
+                                    key={`dot-${line.key}-${segmentIndex}-${pointIndex}`}
+                                    cx={point.x}
+                                    cy={point.y}
+                                    r="6"
+                                    fill={line.color}
+                                    opacity="0.28"
+                                    className="progress-chart-hit"
+                                    onClick={() => onDateSelect?.(point.date)}
+                                />
+                            ))
+                        )}
+                        {segmentsForSeries(line).map((segment, segmentIndex) =>
+                            segment.map((point, pointIndex) => (
+                                <circle
+                                    key={`visible-dot-${line.key}-${segmentIndex}-${pointIndex}`}
+                                    cx={point.x}
+                                    cy={point.y}
+                                    r="3"
+                                    fill={line.color}
+                                    opacity="0.9"
+                                    className="progress-chart-point progress-chart-point-clickable"
+                                    onClick={() => onDateSelect?.(point.date)}
+                                />
                             ))
                         )}
                     </g>
@@ -176,6 +200,8 @@ const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChan
                 })}
             </svg>
 
+            <div className="progress-chart-hint">Click a data point to open that day&apos;s activity log.</div>
+
             <div className="progress-legend">
                 {series.map((line) => (
                     <div key={line.key} className="legend-item">
@@ -188,7 +214,7 @@ const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChan
     )
 }
 
-const StepsBarChart = ({ points, averageSteps }) => {
+const StepsBarChart = ({ points, averageSteps, onDateSelect }) => {
     const sortedPoints = useMemo(
         () => [...points].sort((a, b) => new Date(a.date) - new Date(b.date)),
         [points]
@@ -225,7 +251,12 @@ const StepsBarChart = ({ points, averageSteps }) => {
                     const trendLabel = delta === null ? 'Start' : `${delta > 0 ? '+' : ''}${delta.toLocaleString()}`
 
                     return (
-                        <div key={point.date} className="steps-chart-day">
+                        <button
+                            key={point.date}
+                            type="button"
+                            className="steps-chart-day steps-chart-day-btn"
+                            onClick={() => onDateSelect?.(point.date)}
+                        >
                             <div className="steps-chart-column-wrap">
                                 <div className="steps-avg-line" style={{ bottom: `${averagePct}%` }} />
                                 <div className={`steps-chart-column ${trendClass}`} style={{ height: `${heightPct}%` }} />
@@ -233,11 +264,12 @@ const StepsBarChart = ({ points, averageSteps }) => {
                             <div className="steps-day-label">{point.label}</div>
                             <div className="steps-value-label">{point.steps.toLocaleString()}</div>
                             <div className={`steps-trend-label ${trendClass}`}>{trendLabel}</div>
-                        </div>
+                        </button>
                     )
                 })}
             </div>
 
+            <div className="progress-chart-hint">Click a day column to review that submitted log.</div>
             <div className="progress-summary">Weekly average: {averageSteps.toFixed(1)} steps</div>
         </div>
     )
@@ -404,6 +436,7 @@ const WorkoutCalendarPanel = ({ events }) => {
 export const ViewProgress = () => {
     const { isAuthenticated, getAccessTokenSilently } = useAuth0()
     const { customAuth } = useCustomAuth()
+    const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const clientUserId = searchParams.get('client_id')
 
@@ -495,6 +528,10 @@ export const ViewProgress = () => {
         },
     ]), [])
 
+    const openActivityDay = (date) => {
+        navigate(`/activity-logger?date=${date}`)
+    }
+
     return (
         <div className="dashboard-container">
             <Sidebar />
@@ -540,11 +577,13 @@ export const ViewProgress = () => {
                                 selectedMonth={selectedMonth}
                                 onMonthChange={setSelectedMonth}
                                 monthOptions={monthOptions}
+                                onDateSelect={openActivityDay}
                             />
 
                             <StepsBarChart
                                 points={progressData.steps_chart.points}
                                 averageSteps={progressData.steps_chart.average_steps}
+                                onDateSelect={openActivityDay}
                             />
 
                             <WeeklyAveragesChart averages={progressData.weekly_averages} />

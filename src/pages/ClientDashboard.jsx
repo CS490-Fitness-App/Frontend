@@ -429,7 +429,7 @@ export const ClientDashboard = () => {
                                     <div className="stat-descriptor">Record your sets, reps, weights, and cardio for today&apos;s workout.</div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link className="panel-btn-purple">Log Now</Link>
+                                    <Link to={`/activity-logger?date=${getLocalDateString()}`} className="panel-btn-purple">Log Now</Link>
                                 </div>
                             </div>
                             <div className="workout-plan-panel">
