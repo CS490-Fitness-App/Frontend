@@ -434,6 +434,10 @@
     padding: 24px;
 }
 
+.finance-card-soft {
+    background: linear-gradient(180deg, rgba(228, 229, 255, 0.55) 0%, rgba(255, 255, 255, 0.95) 100%);
+}
+
 .financial-period-group {
     display: flex;
     flex-wrap: wrap;
@@ -662,20 +666,63 @@
 
 .engage-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
+}
+
+.engagement-subtitle {
+    color: var(--slate-purple);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 22px;
+    text-transform: uppercase;
+}
+
+.engagement-metrics-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-bottom: 24px;
+}
+
+.engagement-overview-row {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: 20px;
+}
+
+.engagement-overview-card {
+    border: 1.5px solid var(--black);
+    min-height: 168px;
+    padding: 24px;
+    position: relative;
+}
+
+.engagement-overview-card::before,
+.engage-card::before {
+    background: linear-gradient(90deg, rgba(141, 153, 248, 0.28) 0%, rgba(255, 255, 255, 0) 100%);
+    content: '';
+    height: 6px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 .engage-card {
     border: 1.5px solid var(--black);
+    min-height: 420px;
     padding: 24px;
+    position: relative;
 }
 
 .line-chart {
     height: 140px;
     display: flex;
     align-items: flex-end;
-    gap: 4px;
+    gap: 6px;
     border-bottom: 1px solid #eee;
     padding-bottom: 4px;
     margin-bottom: 8px;
@@ -691,6 +738,110 @@
         background: var(--periwinkle);
     }
 
+.engagement-label-row {
+    display: grid;
+    gap: 6px;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    padding: 0 2px;
+}
+
+.engagement-label-row .bar-label {
+    min-width: 0;
+    text-align: center;
+}
+
+.engagement-meta-line {
+    color: var(--slate-purple);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    line-height: 1.45;
+    margin-top: 10px;
+}
+
+.mood-positive {
+    color: #1f8a57;
+}
+
+.mood-neutral {
+    color: #4b5563;
+}
+
+.mood-negative {
+    color: #c2410c;
+}
+
+.mood-breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.mood-breakdown-item {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.mood-breakdown-topline {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.mood-breakdown-meta {
+    color: var(--slate-purple);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+}
+
+.mood-pill {
+    border: 1.5px solid currentColor;
+    display: inline-flex;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 4px 9px;
+    text-transform: uppercase;
+}
+
+.mood-breakdown-track {
+    background: #eef1ff;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.mood-breakdown-fill {
+    border-radius: 999px;
+    height: 100%;
+    min-width: 8px;
+}
+
+.mood-breakdown-fill.mood-positive {
+    background: linear-gradient(90deg, #9de0b7 0%, #4db87c 100%);
+}
+
+.mood-breakdown-fill.mood-neutral {
+    background: linear-gradient(90deg, #c7cffc 0%, #8d99f8 100%);
+}
+
+.mood-breakdown-fill.mood-negative {
+    background: linear-gradient(90deg, #f7c3a7 0%, #ee8f63 100%);
+}
+
+@media (max-width: 1280px) {
+    .engagement-overview-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .engage-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 900px) {
     .admin-section {
         padding: 24px;
@@ -701,6 +852,12 @@
     }
 
     .finance-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .engagement-metrics-grid,
+    .engagement-overview-row,
+    .engage-row {
         grid-template-columns: 1fr;
     }
 
