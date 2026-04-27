@@ -12,7 +12,7 @@ const links = [
     { name: 'User Profile', path: '/profile', allowedRoles: ['client', 'coach', 'admin'] },
     { name: 'My Workout Plans', path: '/my-workouts', allowedRoles: ['client', 'coach'] },
     { name: 'Calendar', path: '/calendar', allowedRoles: ['client', 'coach'] },
-    { name: 'Activity Logger', path: '/', allowedRoles: ['client', 'coach'] },
+    { name: 'Activity Logger', path: '/activity-logger', allowedRoles: ['client'] },
     { name: 'View Progress', path: '/view-progress', allowedRoles: ['client', 'coach'] },
     { name: 'Chat', path: '/chat', allowedRoles: ['client', 'coach'] },
     { name: 'Payment Methods', path: '/payment-cards', allowedRoles: ['client', 'coach'] },

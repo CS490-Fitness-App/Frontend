@@ -191,6 +191,32 @@
     margin: 20px 0 16px 0;
 }
 
+.progress-chart-point {
+    transition: r 0.18s ease, opacity 0.18s ease;
+}
+
+.progress-chart-point-clickable,
+.progress-chart-hit {
+    cursor: pointer;
+}
+
+.progress-chart-point-clickable:hover {
+    r: 4.5;
+    opacity: 1;
+}
+
+.progress-chart-hit {
+    fill: transparent;
+}
+
+.progress-chart-hint {
+    color: #6b7280;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.2px;
+    margin-top: -4px;
+}
+
 .chart-grid-line {
     stroke: #e5e7eb;
     stroke-width: 0.75;
@@ -247,6 +273,19 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
+}
+
+.steps-chart-day-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-align: center;
+}
+
+.steps-chart-day-btn:hover .steps-chart-column-wrap {
+    border-color: #c4b5fd;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.12);
 }
 
 .steps-chart-column-wrap {
