@@ -4,6 +4,12 @@
     border: none;
 }
 
+.stats-row {
+    display: flex;
+    flex-direction: row;
+    background-color: #E9ECFF;
+}
+
 .workout-h5 {
     font-size: 15px;
 }

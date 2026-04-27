@@ -336,11 +336,12 @@ export const EditWorkout = () => {
                                     </tr>
                                 ))}
                             </tbody>
+                            <button className="btn" type="button" onClick={handleAddExercise}>
+                                Add new exercise
+                            </button>
                         </table>
 
-                        <button className="btn" type="button" onClick={handleAddExercise}>
-                            Add new exercise
-                        </button>
+                        
 
                         <div className="workout-textbox-container">
                             <div className="edit-workout-group">
