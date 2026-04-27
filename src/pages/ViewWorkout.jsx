@@ -1,11 +1,13 @@
 import "./Pages.css"
 import "./ViewWorkout.css"
+import "./Workout.css"
 import "../components/CalendarPopup.css"
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { ViewExercise } from '../components/ViewExercise'
+import { Sidebar } from "../components/Sidebar"
 import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 import { FaRegStar } from "react-icons/fa6";
@@ -117,125 +119,134 @@ export const ViewWorkout = () => {
 
     return (
         <div>
-            <div className="page-heading">
-                <h1 className="h1">{loading ? 'Loading workout...' : workout?.name || 'Workout Plan'}</h1>
-                <button onClick={() => setStarToggled(!starToggled)} className="workout-star">
-                    { starToggled ? <FaStar /> : <FaRegStar /> }
-                </button>
-            </div>
+            <div className="workouts-container">
+                <Sidebar />
 
-            <div className="stats-row">
-                <div className="stat-card">
-                    <h5 className="workout-h5">Experience Level</h5>
-                    <div className="stat-border">
-                        <div className="statistic">{workout?.experience_level || 'N/A'}</div>
-                    </div>
-                </div>
-                <div className="stat-card">
-                    <h5 className="workout-h5">Exercise Type</h5>
-                    <div className="stat-border">
-                        <div className="statistic">{workout?.goal_type || 'N/A'}</div>
-                    </div>
-                </div>
-                <div className="stat-card">
-                    <h5 className="workout-h5">Equipment Required</h5>
-                    <div className="stat-border">
-                        <div className="statistic">{workout?.equipment_required || 'None'}</div>
-                    </div>
-                </div>
-                <div className="stat-card">
-                    <h5 className="workout-h5">Workout Time</h5>
-                    <div className="stat-border">
-                        <div className="statistic">{workout?.workout_time_mins || 'None'} minutes</div>
-                    </div>
-                </div>
-                <div className="stat-card">
-                    <h5 className="workout-h5">Intended Duration</h5>
-                    <div className="stat-border">
-                        <div className="statistic">{workout?.intended_duration_weeks || 'None'} weeks</div>
-                    </div>
-                </div>
-            </div>
-
-            {error && <p className="feedback-msg error" style={{ padding: '0.5rem 2rem' }}>{error}</p>}
-
-            <table className="workout-table">
-                <thead>
-                    <tr>
-                        <th>Exercise</th>
-                        <th>Sets</th>
-                        <th>Target</th>
-                        <th>Rest</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {!loading && workout?.exercises?.length === 0 && (
-                        <tr>
-                            <td colSpan="4">No exercises in this workout yet.</td>
-                        </tr>
-                    )}
-                    {workout?.exercises?.map((exercise) => (
-                        <tr
-                            key={`${exercise.exercise_id}-${exercise.order_in_workout}`}
-                            className="workout-exercise-row"
-                            onClick={() => handleExerciseClick(exercise.exercise_id)}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <td className="exercise-row-first">{exercise.exercise_name}</td>
-                            <td>{exercise.sets ?? 'N/A'}</td>
-                            <td>{exercise.target_value ?? 'N/A'} {exercise.unit_name}</td>
-                            <td className="exercise-row-last">{exercise.rest ?? 'N/A'} sec</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            <div className="workout-action-row">
-                {userRole === 'coach' ? (
-                    <>
-                        <button className="btn" onClick={handleScheduleForMe}>Schedule for Me</button>
-                        <button className="btn" onClick={handleOpenClientPicker}>Schedule for Client</button>
-                    </>
-                ) : (
-                    <button className="btn" onClick={handleScheduleForMe}>Schedule Workout</button>
-                )}
-            </div>
-
-            <Link to={`/edit-workout/${workoutId}`} className="edit-workout-plan-btn">
-                <div className="btn">Edit Workout</div>
-            </Link>
-
-            {showClientPicker && (
-                <div className="calendar-popup-background">
-                    <div className="calendar-popup-container">
-                        <div className="calendar-popup-contents">
-                            <label className="calendar-form-label">Select a client:</label>
-                            {loadingClients && <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>Loading clients...</p>}
-                            {!loadingClients && clients.length === 0 && (
-                                <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>No active clients found.</p>
-                            )}
-                            {!loadingClients && clients.length > 0 && (
-                                <select
-                                    className="calendar-form-input"
-                                    defaultValue=""
-                                    onChange={(e) => {
-                                        const client = clients.find((c) => String(c.user_id) === e.target.value)
-                                        if (client) handleSelectClient(client)
-                                    }}
-                                >
-                                    <option value="" disabled>— pick a client —</option>
-                                    {clients.map((c) => (
-                                        <option key={c.user_id} value={c.user_id}>
-                                            {c.first_name} {c.last_name}
-                                        </option>
-                                    ))}
-                                </select>
-                            )}
+                <div className="workouts-content">
+                    <div className="page-heading">
+                        <div className="h2">
+                            <button onClick={() => setStarToggled(!starToggled)} className="workout-star">
+                                { starToggled ? <FaStar /> : <FaRegStar /> }
+                            </button>
+                            <span> </span>
+                            {loading ? 'Loading workout...' : workout?.name || 'Workout Plan'}
                         </div>
-                        <button className="calendar-btn-outline" onClick={() => setShowClientPicker(false)}>Cancel</button>
+                        <Link to={`/edit-workout/${workoutId}`} className="edit-workout-plan-btn">
+                            <div className="btn">Edit Workout</div>
+                        </Link>
                     </div>
+
+                    <div className="stats-row">
+                        <div className="stat-card">
+                            <h5 className="workout-h5">Experience Level</h5>
+                            <div className="stat-border">
+                                <div className="statistic">{workout?.experience_level || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <h5 className="workout-h5">Exercise Type</h5>
+                            <div className="stat-border">
+                                <div className="statistic">{workout?.goal_type || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <h5 className="workout-h5">Equipment Required</h5>
+                            <div className="stat-border">
+                                <div className="statistic">{workout?.equipment_required || 'None'}</div>
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <h5 className="workout-h5">Workout Time</h5>
+                            <div className="stat-border">
+                                <div className="statistic">{workout?.workout_time_mins || 'None'} minutes</div>
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <h5 className="workout-h5">Intended Duration</h5>
+                            <div className="stat-border">
+                                <div className="statistic">{workout?.intended_duration_weeks || 'None'} weeks</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {error && <p className="feedback-msg error" style={{ padding: '0.5rem 2rem' }}>{error}</p>}
+
+                    <table className="workout-table">
+                        <thead>
+                            <tr>
+                                <th>Exercise</th>
+                                <th>Sets</th>
+                                <th>Target</th>
+                                <th>Rest</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {!loading && workout?.exercises?.length === 0 && (
+                                <tr>
+                                    <td colSpan="4">No exercises in this workout yet.</td>
+                                </tr>
+                            )}
+                            {workout?.exercises?.map((exercise) => (
+                                <tr
+                                    key={`${exercise.exercise_id}-${exercise.order_in_workout}`}
+                                    className="workout-exercise-row"
+                                    onClick={() => handleExerciseClick(exercise.exercise_id)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <td className="exercise-row-first">{exercise.exercise_name}</td>
+                                    <td>{exercise.sets ?? 'N/A'}</td>
+                                    <td>{exercise.target_value ?? 'N/A'} {exercise.unit_name}</td>
+                                    <td className="exercise-row-last">{exercise.rest ?? 'N/A'} sec</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                    <div className="workout-action-row">
+                        {userRole === 'coach' ? (
+                            <>
+                                <button className="btn" onClick={handleScheduleForMe}>Schedule for Me</button>
+                                <button className="btn" onClick={handleOpenClientPicker}>Schedule for Client</button>
+                            </>
+                        ) : (
+                            <button className="btn" onClick={handleScheduleForMe}>Schedule Workout</button>
+                        )}
+                    </div>
+
+
+                    {showClientPicker && (
+                        <div className="calendar-popup-background">
+                            <div className="calendar-popup-container">
+                                <div className="calendar-popup-contents">
+                                    <label className="calendar-form-label">Select a client:</label>
+                                    {loadingClients && <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>Loading clients...</p>}
+                                    {!loadingClients && clients.length === 0 && (
+                                        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>No active clients found.</p>
+                                    )}
+                                    {!loadingClients && clients.length > 0 && (
+                                        <select
+                                            className="calendar-form-input"
+                                            defaultValue=""
+                                            onChange={(e) => {
+                                                const client = clients.find((c) => String(c.user_id) === e.target.value)
+                                                if (client) handleSelectClient(client)
+                                            }}
+                                        >
+                                            <option value="" disabled>— pick a client —</option>
+                                            {clients.map((c) => (
+                                                <option key={c.user_id} value={c.user_id}>
+                                                    {c.first_name} {c.last_name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
+                                </div>
+                                <button className="calendar-btn-outline" onClick={() => setShowClientPicker(false)}>Cancel</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
 
             <ViewExercise
                 isOpen={isModalOpen}
@@ -243,7 +254,7 @@ export const ViewWorkout = () => {
                     setIsModalOpen(false)
                     setSelectedExercise(null)
                 }}
-                exercises={selectedExercise}
+                exercise={selectedExercise}
             />
         </div>
     )

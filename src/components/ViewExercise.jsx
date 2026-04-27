@@ -39,13 +39,13 @@ export const ViewExercise = ({ isOpen, onClose, exercise }) => {
                     <MdCancel className="cancel" onClick={onClose} />
 
                     <div className="header-section">
-                        <h3 className="view-header">{exercise.name}</h3>
                         <button onClick={() => setStarToggled(!starToggled)} className="star">
                             {starToggled ? <FaRegStar /> : <FaStar />}
                         </button>
+                        <h3 className="view-header">{exercise.name}</h3>
                     </div>
 
-                    <div className="btn">Add to workout plan</div>
+                    {/*<div className="btn">Add to workout plan</div>*/}
 
                     {/* Stats Row */}
                     <div className="stats-row">

@@ -1,7 +1,13 @@
 .workout-star {
-    font-size: 45px;
+    font-size: 35px;
     background: none;
     border: none;
+}
+
+.stats-row {
+    display: flex;
+    flex-direction: row;
+    background-color: #E9ECFF;
 }
 
 .workout-h5 {
@@ -69,9 +75,7 @@
 .edit-workout-plan-btn {
     text-decoration: none;
     display: flex;
-    justify-content: center;
-    width: 100%;
-    border-top: 1px solid rgba(209, 213, 219, 1);
+    justify-content: flex-start;
 }
 
 .edit-exercises-container {
