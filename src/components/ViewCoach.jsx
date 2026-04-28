@@ -6,6 +6,11 @@ import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 import { MdCancel } from "react-icons/md"
 import { MdFitnessCenter } from "react-icons/md"
+const renderStars = (rating = 0) => {
+    return [1, 2, 3, 4, 5].map(n => (
+        <span key={n} className={`review-star ${n <= rating ? 'filled' : ''}`}>★</span>
+    ))
+}
 
 export const ViewCoach = ({ isOpen, onClose, coach }) => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
@@ -46,7 +51,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
 
         if (!coach?.coach_id) return
 
-        fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews`)
+        fetch(`${API_BASE_URL}/reviews/${coach.coach_id}`)
             .then(r => r.ok ? r.json() : [])
             .then(data => setReviews(Array.isArray(data) ? data : []))
             .catch(() => {})
@@ -54,7 +59,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
         if (isLoggedIn && isClient) {
             getToken().then(token => {
                 if (!token) return
-                fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews/can-review`, {
+                fetch(`${API_BASE_URL}/reviews/${coach.coach_id}/can-review`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
                     .then(r => r.ok ? r.json() : { allowed: false })
@@ -102,8 +107,8 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
             const token = await getToken()
             const method = myReview ? 'PUT' : 'POST'
             const url = myReview
-                ? `${API_BASE_URL}/coaches/${coach.coach_id}/reviews/${myReview.review_id}`
-                : `${API_BASE_URL}/coaches/${coach.coach_id}/reviews`
+                ? `${API_BASE_URL}/reviews/${coach.coach_id}/${myReview.review_id}`
+                : `${API_BASE_URL}/reviews/${coach.coach_id}`
 
             const res = await fetch(url, {
                 method,
@@ -146,7 +151,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
         try {
             const token = await getToken()
             const res = await fetch(
-                `${API_BASE_URL}/coaches/${coach.coach_id}/reviews/${myReview.review_id}`,
+                `${API_BASE_URL}/reviews/${coach.coach_id}/${myReview.review_id}`,
                 { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }
             )
             if (res.ok) {
