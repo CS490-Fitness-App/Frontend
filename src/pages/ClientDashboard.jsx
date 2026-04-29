@@ -379,15 +379,27 @@ export const ClientDashboard = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="btn-container">
-                                <Link className="panel-btn-purple">Message</Link>
-                                <Link className="panel-btn-white">View Profile</Link>
-                                </div>
-                                <CoachActions
-                                    coachId={data?.coach_id}
-                                    coachName={data?.coach_name || 'your coach'}
-                                    onCoachFired={() => window.location.reload()}
-                                />
+                                {data?.active_coach ? (
+                                    <>
+                                        <div className="btn-container">
+                                            <Link className="panel-btn-purple">Message</Link>
+                                            <Link className="panel-btn-white">View Profile</Link>
+                                        </div>
+                                        <CoachActions
+                                            coachId={data?.active_coach?.coach_id}
+                                            coachName={
+                                                data?.coach_name
+                                                || `${data?.active_coach?.first_name || ''} ${data?.active_coach?.last_name || ''}`.trim()
+                                                || 'your coach'
+                                            }
+                                            onCoachFired={() => window.location.reload()}
+                                        />
+                                    </>
+                                ) : (
+                                    <div className="btn-container">
+                                        <Link to="/coaches" className="panel-btn-purple">Hire a Coach</Link>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

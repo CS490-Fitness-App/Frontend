@@ -51,7 +51,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
 
         if (!coach?.coach_id) return
 
-        fetch(`${API_BASE_URL}/reviews/${coach.coach_id}`)
+        fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews`)
             .then(r => r.ok ? r.json() : [])
             .then(data => setReviews(Array.isArray(data) ? data : []))
             .catch(() => {})
@@ -59,7 +59,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
         if (isLoggedIn && isClient) {
             getToken().then(token => {
                 if (!token) return
-                fetch(`${API_BASE_URL}/reviews/${coach.coach_id}/can-review`, {
+                fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews/can-review`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
                     .then(r => r.ok ? r.json() : { allowed: false })
@@ -107,8 +107,8 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
             const token = await getToken()
             const method = myReview ? 'PUT' : 'POST'
             const url = myReview
-                ? `${API_BASE_URL}/reviews/${coach.coach_id}/${myReview.review_id}`
-                : `${API_BASE_URL}/reviews/${coach.coach_id}`
+                ? `${API_BASE_URL}/coaches/${coach.coach_id}/reviews/${myReview.review_id}`
+                : `${API_BASE_URL}/coaches/${coach.coach_id}/reviews`
 
             const res = await fetch(url, {
                 method,
@@ -151,7 +151,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
         try {
             const token = await getToken()
             const res = await fetch(
-                `${API_BASE_URL}/reviews/${coach.coach_id}/${myReview.review_id}`,
+                `${API_BASE_URL}/coaches/${coach.coach_id}/reviews/${myReview.review_id}`,
                 { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }
             )
             if (res.ok) {

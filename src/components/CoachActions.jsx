@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
@@ -15,6 +15,8 @@ export const CoachActions = ({ coachId, coachName, onCoachFired }) => {
     const [reviewRating, setReviewRating] = useState(0)
     const [reviewHover, setReviewHover] = useState(0)
     const [reviewText, setReviewText] = useState('')
+    const [myReview, setMyReview] = useState(null)
+    const [reviewAllowed, setReviewAllowed] = useState(true)
     const [reviewSubmitting, setReviewSubmitting] = useState(false)
     const [reviewMessage, setReviewMessage] = useState('')
     const [reviewError, setReviewError] = useState('')
@@ -38,26 +40,72 @@ export const CoachActions = ({ coachId, coachName, onCoachFired }) => {
         throw new Error('Not authenticated')
     }
 
+    useEffect(() => {
+        const loadReviewState = async () => {
+            if (!coachId) return
+
+            try {
+                const token = await getToken()
+                const [canReviewResponse, myReviewResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/coaches/${coachId}/reviews/can-review`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }),
+                    fetch(`${API_BASE_URL}/coaches/${coachId}/reviews/mine`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }),
+                ])
+
+                const canReviewData = canReviewResponse.ok
+                    ? await canReviewResponse.json()
+                    : { allowed: false }
+                setReviewAllowed(!!canReviewData.allowed)
+
+                const reviewData = myReviewResponse.ok
+                    ? await myReviewResponse.json()
+                    : null
+
+                if (reviewData) {
+                    setMyReview(reviewData)
+                    setReviewRating(reviewData.rating || 0)
+                    setReviewText(reviewData.description || '')
+                } else {
+                    setMyReview(null)
+                    setReviewRating(0)
+                    setReviewText('')
+                }
+            } catch {
+                setReviewAllowed(false)
+            }
+        }
+
+        loadReviewState()
+    }, [coachId])
+
     const handleSubmitReview = async (e) => {
         e.preventDefault()
         if (reviewRating === 0) {
             setReviewError('Please select a star rating.')
             return
         }
+
         setReviewSubmitting(true)
         setReviewError('')
         setReviewMessage('')
 
         try {
             const token = await getToken()
-            const response = await fetch(`${API_BASE_URL}/reviews`, {
-                method: 'POST',
+            const method = myReview ? 'PUT' : 'POST'
+            const endpoint = myReview
+                ? `${API_BASE_URL}/coaches/${coachId}/reviews/${myReview.review_id}`
+                : `${API_BASE_URL}/coaches/${coachId}/reviews`
+
+            const response = await fetch(endpoint, {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    coach_id: coachId,
                     rating: reviewRating,
                     description: reviewText,
                 }),
@@ -68,13 +116,50 @@ export const CoachActions = ({ coachId, coachName, onCoachFired }) => {
                 throw new Error(data.detail || 'Failed to submit review.')
             }
 
-            setReviewMessage('Review submitted!')
+            const savedReview = await response.json().catch(() => null)
+            if (savedReview) {
+                setMyReview(savedReview)
+                setReviewRating(savedReview.rating || 0)
+                setReviewText(savedReview.description || '')
+            }
+
+            setReviewMessage(myReview ? 'Review updated!' : 'Review submitted!')
             setTimeout(() => {
                 setIsReviewOpen(false)
-                setReviewRating(0)
-                setReviewText('')
                 setReviewMessage('')
             }, 1000)
+        } catch (err) {
+            setReviewError(err.message)
+        } finally {
+            setReviewSubmitting(false)
+        }
+    }
+
+    const handleDeleteReview = async () => {
+        if (!myReview) return
+
+        setReviewSubmitting(true)
+        setReviewError('')
+        setReviewMessage('')
+
+        try {
+            const token = await getToken()
+            const response = await fetch(`${API_BASE_URL}/coaches/${coachId}/reviews/${myReview.review_id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}))
+                throw new Error(data.detail || 'Failed to delete review.')
+            }
+
+            setMyReview(null)
+            setReviewRating(0)
+            setReviewText('')
+            setReviewMessage('Review deleted.')
         } catch (err) {
             setReviewError(err.message)
         } finally {
@@ -88,13 +173,11 @@ export const CoachActions = ({ coachId, coachName, onCoachFired }) => {
 
         try {
             const token = await getToken()
-            const response = await fetch(`${API_BASE_URL}/clients/fire-coach`, {
+            const response = await fetch(`${API_BASE_URL}/coaches/contract/end?other_user_id=${coachId}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ coach_id: coachId }),
             })
 
             if (!response.ok) {
@@ -155,7 +238,9 @@ export const CoachActions = ({ coachId, coachName, onCoachFired }) => {
     return (
         <>
             <div className="coach-actions-row">
-                <button type="button" className="panel-btn-purple" onClick={() => setIsReviewOpen(true)}>Review Coach</button>
+                <button type="button" className="panel-btn-purple" onClick={() => setIsReviewOpen(true)}>
+                    {myReview ? 'Edit Review' : 'Review Coach'}
+                </button>
                 <button type="button" className="panel-btn-white coach-fire-btn" onClick={() => setIsFireOpen(true)}>Fire Coach</button>
                 <button type="button" className="panel-btn-white coach-report-btn" onClick={() => setIsReportOpen(true)}>Report</button>
             </div>
@@ -164,7 +249,9 @@ export const CoachActions = ({ coachId, coachName, onCoachFired }) => {
                 <div className="coach-modal-overlay" onClick={() => setIsReviewOpen(false)}>
                     <div className="coach-modal" onClick={(e) => e.stopPropagation()}>
                         <div className="coach-modal-header">
-                            <div className="dashboard-heading coach-modal-title">Review {coachName}</div>
+                            <div className="dashboard-heading coach-modal-title">
+                                {myReview ? `Edit Review for ${coachName}` : `Review ${coachName}`}
+                            </div>
                             <button type="button" className="coach-modal-close" onClick={() => setIsReviewOpen(false)}>X</button>
                         </div>
                         <form onSubmit={handleSubmitReview}>
@@ -193,12 +280,24 @@ export const CoachActions = ({ coachId, coachName, onCoachFired }) => {
                                     rows="4"
                                 />
                             </label>
+                            {!reviewAllowed && !myReview && (
+                                <p className="daily-checkin-error">You can only review a coach you have or had a contract with.</p>
+                            )}
                             {reviewError && <p className="daily-checkin-error">{reviewError}</p>}
                             {reviewMessage && <p className="daily-checkin-success">{reviewMessage}</p>}
                             <div className="daily-checkin-actions">
                                 <button type="button" className="panel-btn-white" onClick={() => setIsReviewOpen(false)}>Cancel</button>
-                                <button type="submit" className="panel-btn-purple" disabled={reviewSubmitting}>
-                                    {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
+                                {myReview && (
+                                    <button type="button" className="panel-btn-white coach-report-btn" onClick={handleDeleteReview} disabled={reviewSubmitting}>
+                                        {reviewSubmitting ? 'Deleting...' : 'Delete Review'}
+                                    </button>
+                                )}
+                                <button type="submit" className="panel-btn-purple" disabled={reviewSubmitting || (!reviewAllowed && !myReview)}>
+                                    {reviewSubmitting
+                                        ? 'Submitting...'
+                                        : myReview
+                                            ? 'Update Review'
+                                            : 'Submit Review'}
                                 </button>
                             </div>
                         </form>
