@@ -162,7 +162,8 @@
 }
 
 .btn-container > .panel-btn-purple,
-.btn-container > .panel-btn-white {
+.btn-container > .panel-btn-white,
+.btn-container > .panel-btn-red {
     flex: 1;
 }
 
@@ -210,6 +211,39 @@
     font-size: 14px;
     line-height: 20px;
     text-decoration: none;
+}
+
+.panel-btn-red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 40px;
+    text-align: center;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 2px solid #EA4335;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    background-color: transparent;
+    color: #EA4335;
+    font-family: "Anek Latin", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    text-decoration: none;
+}
+
+.panel-btn-red:hover {
+    background-color: #EA4335;
+    color: white;
+}
+
+.error-text {
+    color: #EA4335;
+    font-size: 13px;
+    margin-top: 6px;
+    text-align: center;
 }
 
 .coach-container {

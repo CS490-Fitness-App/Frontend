@@ -157,6 +157,24 @@ export const CoachDashboard = () => {
         }
     };
 
+    const handleTerminateContract = async (clientId, clientName) => {
+        if (!window.confirm(`Are you sure you want to terminate the contract with ${clientName}?`)) return;
+        try {
+            const token = await getToken();
+            const res = await fetch(`${API_BASE_URL}/coaches/contract/end?other_user_id=${clientId}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || 'Failed to terminate contract.');
+            }
+            await loadDashboard();
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
     const toggleDay = (day) => {
         setAvailDays(prev =>
             prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
@@ -264,6 +282,9 @@ export const CoachDashboard = () => {
                                                                 </button>
                                                                 <button className="btn-sm btn-outline-dark" onClick={() => handleMessageClient(client.user_id)}>
                                                                     MESSAGE
+                                                                </button>
+                                                                <button className="btn-sm btn-red" onClick={() => handleTerminateContract(client.client_id, `${client.first_name} ${client.last_name}`)}>
+                                                                    TERMINATE
                                                                 </button>
                                                             </div>
                                                         </td>

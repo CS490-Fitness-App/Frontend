@@ -69,6 +69,7 @@ export const ClientDashboard = () => {
     const [checkInError, setCheckInError] = useState('')
     const [checkInLocked, setCheckInLocked] = useState(false)
     const [checkInCountdown, setCheckInCountdown] = useState('00:00:00')
+    const [terminateError, setTerminateError] = useState('')
 
     const displayFirstName = data?.full_name?.split(' ')[0] || data?.name?.split(' ')[0] || ''
 
@@ -211,32 +212,49 @@ export const ClientDashboard = () => {
 
     const openCoachChat = async () => {
         const coachUserId = data?.active_coach?.user_id
-        if (!coachUserId) {
-            setError('No active coach is available to message.')
-            return
-        }
-
+        if (!coachUserId) return
         try {
             const token = await getAuthToken()
             const response = await fetch(`${API_BASE_URL}/chats/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ other_user_id: coachUserId }),
             })
-
             if (!response.ok) {
-                const detail = await readErrorDetail(response, 'Unable to open coach chat.')
-                throw new Error(detail)
+                const err = await response.json().catch(() => ({}))
+                throw new Error(err.detail || 'Failed to open coach chat.')
             }
-
             const chat = await response.json()
             navigate(`/chat?chat=${chat.chat_id}`)
-        } catch (chatError) {
-            console.error('Failed to open coach chat:', chatError)
-            setError(chatError.message || 'Unable to open coach chat.')
+        } catch (err) {
+            setError(err.message)
+        }
+    }
+
+    const handleTerminateContract = async () => {
+        const coachId = data?.active_coach?.coach_id
+        if (!coachId) return
+        if (!window.confirm('Are you sure you want to terminate your contract with this coach?')) return
+        setTerminateError('')
+        try {
+            const token = await getAuthToken()
+            const res = await fetch(`${API_BASE_URL}/coaches/contract/end?other_user_id=${coachId}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}))
+                throw new Error(err.detail || 'Failed to terminate contract.')
+            }
+            const updated = await fetch(`${API_BASE_URL}/dashboard/client`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            if (updated.ok) setData(await updated.json())
+        } catch (err) {
+            setTerminateError(err.message)
         }
     }
 
@@ -415,7 +433,13 @@ export const ClientDashboard = () => {
                                         Message
                                     </button>
                                     <Link className="panel-btn-white">View Profile</Link>
+                                    {data?.active_coach?.coach_id && (
+                                        <button type="button" className="panel-btn-red" onClick={handleTerminateContract}>
+                                            Terminate
+                                        </button>
+                                    )}
                                 </div>
+                                {terminateError && <div className="error-text">{terminateError}</div>}
                             </div>
                         </div>
 
