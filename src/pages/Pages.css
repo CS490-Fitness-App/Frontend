@@ -72,7 +72,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: stretch;
 }
 
 .hero-section {
@@ -92,12 +92,16 @@
 }
 
 .home-container {
+    width: 100%;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: wrap;
     background-color: rgba(233, 236, 255, 1);
     padding: 80px 5%;
     gap: 40px;
+    box-sizing: border-box;
 }
 
 .home-card {
@@ -108,7 +112,8 @@
     align-items: center;
     gap: 10px;
     padding: 40px 20px 40px 20px;
-    max-width: 450px;
+    flex: 1 1 260px;
+    max-width: 380px;
     background: white;
     border-radius: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -131,10 +136,12 @@
 @media (max-width: 900px) {
     .home-container {
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
     }
 
     .home-card {
+        width: 100%;
+        max-width: 500px;
         border-left: none;
         border-top: 1px solid black;
     }
