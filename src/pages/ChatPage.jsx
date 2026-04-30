@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 import './ChatPage.css';
 
 const POLL_INTERVAL_MS = 3000;
@@ -17,6 +18,7 @@ export const ChatPage = () => {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
+  const [myProfilePicture, setMyProfilePicture] = useState('');
   const messagesAreaRef = useRef(null);
   const latestTimestampRef = useRef(null);
   const pollIntervalRef = useRef(null);
@@ -44,6 +46,25 @@ export const ChatPage = () => {
     }
     return token;
   };
+
+  // Fetch own profile picture once authenticated
+  useEffect(() => {
+    if (isLoading) return;
+    if (!isAuthenticated && !customAuth) return;
+    (async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setMyProfilePicture(resolveMediaUrl(data.profile_picture));
+        }
+      } catch (_) {}
+    })();
+  }, [isAuthenticated, customAuth, isLoading]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -86,6 +107,7 @@ export const ChatPage = () => {
             name,
             other_user_name: c.other_user_name,
             initials,
+            otherProfilePicture: resolveMediaUrl(c.other_user_profile_picture),
             preview: '',
             time: parseUTC(c.created_at).toLocaleDateString(),
             unread: 0,
@@ -343,7 +365,11 @@ export const ChatPage = () => {
             <>
               <div className="chat-header">
                 <div className="chat-header-left">
-                  <div className="chat-header-avatar">{selectedConvo.initials}</div>
+                  <div className="chat-header-avatar">
+                    {selectedConvo.otherProfilePicture
+                      ? <img src={selectedConvo.otherProfilePicture} alt={selectedConvo.initials} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                      : selectedConvo.initials}
+                  </div>
                   <div className="chat-header-info">
                     <div className="chat-header-name">{selectedConvo.name}</div>
                   </div>
@@ -371,12 +397,14 @@ export const ChatPage = () => {
                     {groupedMessages[date].map((msg) => (
                       <div key={msg.id} className={`message-row ${msg.sender === 'me' ? 'sent' : 'received'}`}>
                         <div className={`msg-avatar ${msg.sender === 'me' ? 'me' : 'coach'}`}>
-                          {(msg.sender_name || '')
-                            .split(' ')
-                            .map((p) => p[0] || '')
-                            .slice(0, 2)
-                            .join('')
-                            .toUpperCase() || '?'}
+                          {msg.sender === 'me'
+                            ? (myProfilePicture
+                                ? <img src={myProfilePicture} alt="me" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                                : ((msg.sender_name || '').split(' ').map((p) => p[0] || '').slice(0, 2).join('').toUpperCase() || '?'))
+                            : (selectedConvo?.otherProfilePicture
+                                ? <img src={selectedConvo.otherProfilePicture} alt="them" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                                : ((msg.sender_name || '').split(' ').map((p) => p[0] || '').slice(0, 2).join('').toUpperCase() || '?'))
+                          }
                         </div>
                         <div className="msg-content">
                           <div className="msg-bubble">{msg.text}</div>

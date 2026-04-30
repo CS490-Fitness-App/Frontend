@@ -1,5 +1,6 @@
 .chat-page {
-  height: 100vh;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -447,7 +448,7 @@
   border-top: 2px solid var(--black);
   display: flex;
   gap: 12px;
-  align-items: flex-end;
+  align-items: stretch;
   flex-shrink: 0;
   background: var(--white);
 }
@@ -480,7 +481,7 @@
 }
 
 .send-btn {
-  padding: 14px 28px;
+  padding: 0 28px;
   background: var(--periwinkle);
   border: none;
   font-family: 'Space Mono', monospace;
@@ -493,6 +494,7 @@
   border-radius: 2px;
   transition: all 0.2s;
   flex-shrink: 0;
+  align-self: stretch;
 }
 
 .send-btn:hover {
