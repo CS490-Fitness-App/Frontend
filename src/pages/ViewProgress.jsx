@@ -339,7 +339,7 @@ const STATUS_COLOR = {
 
 const SummaryCards = ({ summary }) => {
     const cards = [
-        { label: 'Weekly Streak', value: summary.weekly_streak != null ? `${summary.weekly_streak} wks` : '—' },
+        { label: 'Weekly Streak', value: summary.days_logged_this_week != null ? `${summary.days_logged_this_week} / 7` : '—' },
         { label: 'Current Plan', value: summary.current_plan_name || 'None assigned' },
         {
             label: 'Plan Progress',
