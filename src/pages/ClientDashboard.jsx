@@ -69,6 +69,7 @@ export const ClientDashboard = () => {
     const [checkInError, setCheckInError] = useState('')
     const [checkInLocked, setCheckInLocked] = useState(false)
     const [checkInCountdown, setCheckInCountdown] = useState('00:00:00')
+    const [terminateError, setTerminateError] = useState('')
 
     const displayFirstName = data?.full_name?.split(' ')[0] || data?.name?.split(' ')[0] || ''
 
@@ -209,6 +210,54 @@ export const ClientDashboard = () => {
         throw new Error('You must be logged in to submit a daily check-in.')
     }
 
+    const openCoachChat = async () => {
+        const coachUserId = data?.active_coach?.user_id
+        if (!coachUserId) return
+        try {
+            const token = await getAuthToken()
+            const response = await fetch(`${API_BASE_URL}/chats/`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ other_user_id: coachUserId }),
+            })
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}))
+                throw new Error(err.detail || 'Failed to open coach chat.')
+            }
+            const chat = await response.json()
+            navigate(`/chat?chat=${chat.chat_id}`)
+        } catch (err) {
+            setError(err.message)
+        }
+    }
+
+    const handleTerminateContract = async () => {
+        const coachId = data?.active_coach?.coach_id
+        if (!coachId) return
+        if (!window.confirm('Are you sure you want to terminate your contract with this coach?')) return
+        setTerminateError('')
+        try {
+            const token = await getAuthToken()
+            const res = await fetch(`${API_BASE_URL}/coaches/contract/end?other_user_id=${coachId}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}))
+                throw new Error(err.detail || 'Failed to terminate contract.')
+            }
+            const updated = await fetch(`${API_BASE_URL}/dashboard/client`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            if (updated.ok) setData(await updated.json())
+        } catch (err) {
+            setTerminateError(err.message)
+        }
+    }
+
     const submitDailyCheckIn = async (event) => {
         event.preventDefault()
         setCheckInSubmitting(true)
@@ -279,17 +328,17 @@ export const ClientDashboard = () => {
                 <Sidebar />
                 <div>
                     <div className="page-heading">
-                      <div className="h2">
-                        <span className="text-black">Welcome back, </span>
-                          <span className="text-purple">
-                                                        {loading ? "Loading..." : displayFirstName}
-                          </span>
+                        <div className="h2">
+                            <span className="text-black">Welcome back, </span>
+                            <span className="text-purple">
+                                {loading ? "Loading..." : displayFirstName}
+                            </span>
                         </div>
                       </div>
 
 
                     <div className="dashboard-homepage-container">
-                        {error && <p className="stat-descriptor">{error}</p>}
+                        {error && <p className="feedback-msg error">{error}</p>}
 
                         <div className="section-quick-stats">
                             <div className="quick-stat-card">
@@ -372,7 +421,7 @@ export const ClientDashboard = () => {
                                             {loading ? "Loading..." : data?.coach_status || "No active coach"}
                                         </div>
                                     </div>
-                                    <div className="dashboard-list-contents">
+                                     <div className="dashboard-list-contents">
                                         <div className="stat-heading">RECENT ACTIVITY</div>
                                         <div className="dashboard-list">
                                             {loading ? "Loading..." : data?.recent_activity || "No recent activity."}
@@ -380,26 +429,34 @@ export const ClientDashboard = () => {
                                     </div>
                                 </div>
                                 {data?.active_coach ? (
-                                    <>
-                                        <div className="btn-container">
-                                            <Link className="panel-btn-purple">Message</Link>
-                                            <Link className="panel-btn-white">View Profile</Link>
-                                        </div>
-                                        <CoachActions
-                                            coachId={data?.active_coach?.coach_id}
-                                            coachName={
-                                                data?.coach_name
-                                                || `${data?.active_coach?.first_name || ''} ${data?.active_coach?.last_name || ''}`.trim()
-                                                || 'your coach'
-                                            }
-                                            onCoachFired={() => window.location.reload()}
-                                        />
-                                    </>
-                                ) : (
+                                  <>
                                     <div className="btn-container">
-                                        <Link to="/coaches" className="panel-btn-purple">Hire a Coach</Link>
+                                      <button
+                                        type="button"
+                                        className="panel-btn-purple"
+                                        onClick={openCoachChat}
+                                        disabled={loading || !data?.active_coach?.user_id}
+                                      >
+                                        Message
+                                      </button>
+                                      <Link className="panel-btn-white">View Profile</Link>
                                     </div>
+                                    <CoachActions
+                                      coachId={data?.active_coach?.coach_id}
+                                      coachName={
+                                        data?.coach_name
+                                        || ${data?.active_coach?.first_name || ''} ${data?.active_coach?.last_name || ''}.trim()
+                                        || 'your coach'
+                                      }
+                                      onCoachFired={() => window.location.reload()}
+                                    />
+                                  </>
+                                ) : (
+                                  <div className="btn-container">
+                                    <Link to="/coaches" className="panel-btn-purple">Hire a Coach</Link>
+                                  </div>
                                 )}
+
                             </div>
                         </div>
 
@@ -413,7 +470,7 @@ export const ClientDashboard = () => {
                                     <div className="stat-descriptor">Record your sets, reps, weights, and cardio for today&apos;s workout.</div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link className="panel-btn-purple">Log Now</Link>
+                                    <Link to={`/activity-logger?date=${getLocalDateString()}`} className="panel-btn-purple">Log Now</Link>
                                 </div>
                             </div>
                             <div className="workout-plan-panel">
@@ -491,8 +548,8 @@ export const ClientDashboard = () => {
                                 </select>
                             </label>
 
-                            {checkInError && <p className="daily-checkin-error">{checkInError}</p>}
-                            {checkInMessage && <p className="daily-checkin-success">{checkInMessage}</p>}
+                            {checkInError && <p className="feedback-msg error">{checkInError}</p>}
+                            {checkInMessage && <p className="feedback-msg success">{checkInMessage}</p>}
 
                             <div className="daily-checkin-actions">
                                 <button type="button" className="panel-btn-white" onClick={closeCheckIn}>Cancel</button>

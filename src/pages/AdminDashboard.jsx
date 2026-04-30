@@ -6,6 +6,43 @@ import './AdminDashboard.css';
 import './ClientDashboard.css';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
 
+const FINANCIAL_PERIODS = [
+    { value: 'all', label: 'All Time' },
+    { value: 'this_month', label: 'This Month' },
+    { value: 'this_year', label: 'This Year' },
+    { value: 'last_90_days', label: 'Last 90 Days' },
+];
+
+const ENGAGEMENT_PERIODS = [
+    { value: 'week', label: 'This Week' },
+    { value: 'month', label: 'This Month' },
+    { value: 'quarter', label: 'This Quarter' },
+    { value: 'year', label: 'This Year' },
+];
+
+const formatCurrency = (value) =>
+    new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+    }).format(value || 0);
+
+const formatPercent = (value) => `${Number(value || 0).toFixed(1)}%`;
+
+const getEngagementLabelStep = (count) => {
+    if (count <= 14) return 1;
+    if (count <= 31) return 3;
+    if (count <= 90) return 7;
+    return 30;
+};
+
+const getMoodToneClass = (label) => {
+    const normalized = (label || 'okay').toLowerCase();
+    if (normalized === 'amazing' || normalized === 'good') return 'mood-positive';
+    if (normalized === 'bad' || normalized === 'awful') return 'mood-negative';
+    return 'mood-neutral';
+};
+
 export const AdminDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0();
     const { customAuth } = useCustomAuth();
@@ -36,6 +73,18 @@ export const AdminDashboard = () => {
 
     const [coachSearch, setCoachSearch] = useState('');
     const [exerciseSearch, setExerciseSearch] = useState('');
+    const [financialPeriod, setFinancialPeriod] = useState('all');
+    const [financialYear, setFinancialYear] = useState('');
+    const [financialSearch, setFinancialSearch] = useState('');
+    const [financialSummary, setFinancialSummary] = useState(null);
+    const [financialLoading, setFinancialLoading] = useState(false);
+    const [financialError, setFinancialError] = useState('');
+    const [adminOverview, setAdminOverview] = useState(null);
+    const [adminOverviewError, setAdminOverviewError] = useState('');
+    const [engagementSummary, setEngagementSummary] = useState(null);
+    const [engagementLoading, setEngagementLoading] = useState(false);
+    const [engagementError, setEngagementError] = useState('');
+    const [engagementPeriod, setEngagementPeriod] = useState('month');
 
     const getToken = async () => {
         if (isAuthenticated) {
@@ -90,6 +139,32 @@ export const AdminDashboard = () => {
         fetchCoaches();
     }, [isAuthenticated, customAuth]);
 
+    const fetchAdminOverview = async () => {
+        setAdminOverviewError('');
+        try {
+            const token = await getToken();
+            if (!token) {
+                setAdminOverview(null);
+                return;
+            }
+            const res = await fetch(`${API_BASE_URL}/admin/overview`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || 'Failed to load admin overview');
+            }
+            setAdminOverview(data);
+        } catch (err) {
+            setAdminOverviewError(err.message || 'Failed to load admin overview');
+            setAdminOverview(null);
+        }
+    };
+
+    useEffect(() => {
+        fetchAdminOverview();
+    }, [isAuthenticated, customAuth]);
+
     const fetchExerciseMeta = async () => {
         const token = await getToken();
         if (!token) {
@@ -111,6 +186,76 @@ export const AdminDashboard = () => {
             fetchExercises();
         }
     }, [activeTab, isAuthenticated, customAuth]);
+
+    const fetchFinancialSummary = async () => {
+        setFinancialLoading(true);
+        setFinancialError('');
+        try {
+            const token = await getToken();
+            if (!token) {
+                setFinancialError('Log in as an admin to view financial tracking.');
+                setFinancialLoading(false);
+                return;
+            }
+
+            const params = new URLSearchParams({ period: financialPeriod });
+            if (financialYear.trim()) params.set('year', financialYear.trim());
+            if (financialSearch.trim()) params.set('q', financialSearch.trim());
+
+            const res = await fetch(`${API_BASE_URL}/admin/financial-summary?${params.toString()}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || 'Failed to load financial data');
+            }
+            setFinancialSummary(data);
+        } catch (err) {
+            setFinancialError(err.message || 'Failed to load financial data');
+            setFinancialSummary(null);
+        } finally {
+            setFinancialLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 2) {
+            fetchFinancialSummary();
+        }
+    }, [activeTab, financialPeriod, financialYear, financialSearch, isAuthenticated, customAuth]);
+
+    const fetchEngagementSummary = async () => {
+        setEngagementLoading(true);
+        setEngagementError('');
+        try {
+            const token = await getToken();
+            if (!token) {
+                setEngagementError('Log in as an admin to view user engagement.');
+                setEngagementLoading(false);
+                return;
+            }
+
+            const res = await fetch(`${API_BASE_URL}/admin/engagement-summary?period=${engagementPeriod}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || 'Failed to load engagement data');
+            }
+            setEngagementSummary(data);
+        } catch (err) {
+            setEngagementError(err.message || 'Failed to load engagement data');
+            setEngagementSummary(null);
+        } finally {
+            setEngagementLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 3) {
+            fetchEngagementSummary();
+        }
+    }, [activeTab, engagementPeriod, isAuthenticated, customAuth]);
 
     const updateCoachStatus = async (coachId, action) => {
         setCoachActionId(coachId);
@@ -320,6 +465,23 @@ export const AdminDashboard = () => {
         return 'status-rejected';
     };
 
+    const financialChart = financialSummary?.chart || [];
+    const maxChartRevenue = Math.max(...financialChart.map((point) => point.revenue), 0);
+    const averageChartRevenue = financialChart.length
+        ? financialChart.reduce((total, point) => total + point.revenue, 0) / financialChart.length
+        : 0;
+    const averageLineBottom = maxChartRevenue
+        ? Math.min((averageChartRevenue / maxChartRevenue) * 210, 210)
+        : 0;
+    const hasFinancialTransactions = Boolean(financialSummary?.recent_transactions?.length);
+    const engagementChart = engagementSummary?.chart || [];
+    const maxActiveUsers = Math.max(...engagementChart.map((point) => point.active_users), 0);
+    const bestActiveUsers = Math.max(...engagementChart.map((point) => point.active_users), 0);
+    const bestSurveyRate = Math.max(...engagementChart.map((point) => point.survey_completion_rate), 0);
+    const maxSurveyCompletions = Math.max(...engagementChart.map((point) => point.survey_completions), 0);
+    const moodBreakdown = engagementSummary?.mood_breakdown || [];
+    const engagementLabelStep = getEngagementLabelStep(engagementChart.length);
+
     return (
         <div>
             <div>
@@ -329,14 +491,15 @@ export const AdminDashboard = () => {
                             <span className="text-purple">PANEL</span>
                         </div>
                     </div>
-                    <div className="dashboard-homepage-container">
+                    <div className="admin-section">
                         <div className="dashboard">
                             <div className="section-quick-stats">
-                                <div className="quick-stat-card"><div className="stat-heading">Total Users</div><div className="stat">847</div></div>
-                                <div className="quick-stat-card"><div className="stat-heading">Active Coaches</div><div className="stat">{coaches.filter((coach) => coach.status === 'Active').length}</div></div>
-                                <div className="quick-stat-card"><div className="stat-heading">Pending Approvals</div><div className="stat">{coaches.filter((coach) => coach.status === 'Pending').length} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div></div>
-                                <div className="quick-stat-card"><div className="stat-heading">Revenue This Month</div><div className="stat">$18,420</div></div>
+                                <div className="quick-stat-card"><div className="stat-heading">Total Users</div><div className="stat">{adminOverview?.total_users ?? '—'}</div></div>
+                                <div className="quick-stat-card"><div className="stat-heading">Active Coaches</div><div className="stat">{adminOverview?.active_coaches ?? coaches.filter((coach) => coach.status === 'Active').length}</div></div>
+                                <div className="quick-stat-card"><div className="stat-heading">Pending Approvals</div><div className="stat">{adminOverview?.pending_approvals ?? coaches.filter((coach) => coach.status === 'Pending').length} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div></div>
+                                <div className="quick-stat-card" onClick={() => setActiveTab(2)}><div className="stat-heading">Revenue This Month</div><div className="stat">{adminOverview ? formatCurrency(adminOverview.revenue_this_month) : '—'}</div></div>
                             </div>
+                            {adminOverviewError && <p className="feedback-msg error">{adminOverviewError}</p>}
                             <div className="tabs">
                                 {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT'].map((tab, i) => (
                                     <div key={i} className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{tab}</div>
@@ -346,7 +509,7 @@ export const AdminDashboard = () => {
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">Coach Applications & Accounts</div>
-                                        <div className="search-bar">
+                                        <div className="admin-search-bar">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
                                                 <circle cx="11" cy="11" r="8" />
                                                 <path d="m21 21-4.35-4.35" />
@@ -354,7 +517,7 @@ export const AdminDashboard = () => {
                                             <input type="text" placeholder="SEARCH COACHES..." value={coachSearch} onChange={(e) => setCoachSearch(e.target.value)} />
                                         </div>
                                     </div>
-                                    {coachError && <p className="admin-feedback error">{coachError}</p>}
+                                    {coachError && <p className="feedback-msg error">{coachError}</p>}
                                     <table className="admin-table">
                                         <thead>
                                             <tr><th>Coach</th><th>Email</th><th>Specialization</th><th>Status</th><th>Active</th><th>Actions</th></tr>
@@ -394,9 +557,9 @@ export const AdminDashboard = () => {
                             {activeTab === 1 && (
                                 <div className="tab-content">
                                     {exerciseLoading && <p>Loading exercises...</p>}
-                                    {exerciseError && <p className="admin-feedback error">{exerciseError}</p>}
+                                    {exerciseError && <p className="feedback-msg error">{exerciseError}</p>}
                                     <div className="section-header">
-                                        <div className="search-bar">
+                                        <div className="admin-search-bar">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
                                                 <circle cx="11" cy="11" r="8" />
                                                 <path d="m21 21-4.35-4.35" />
@@ -405,7 +568,7 @@ export const AdminDashboard = () => {
                                         </div>
                                         <button className="btn-add" onClick={openAddExerciseModal}>+ ADD EXERCISE</button>
                                     </div>
-                                    {exerciseError && <p className="admin-feedback error">{exerciseError}</p>}
+                                    {exerciseError && <p className="feedback-msg error">{exerciseError}</p>}
                                     <table className="admin-table">
                                         <thead>
                                             <tr><th>Exercise Name</th><th>Muscle Group</th><th>Equipment</th><th>Actions</th></tr>
@@ -503,46 +666,304 @@ export const AdminDashboard = () => {
                             )}
                             {activeTab === 2 && (
                                 <div className="tab-content">
+                                    <div className="section-header">
+                                        <div className="admin-section-title">Financial Tracking</div>
+                                        <div className="financial-period-group">
+                                            <span className="financial-filter-label">Time Range</span>
+                                            {FINANCIAL_PERIODS.map((period) => (
+                                                <button
+                                                    key={period.value}
+                                                    type="button"
+                                                    className={`financial-filter ${financialPeriod === period.value ? 'active' : ''}`}
+                                                    onClick={() => setFinancialPeriod(period.value)}
+                                                >
+                                                    {period.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="financial-search-panel">
+                                        <div className="admin-search-bar financial-search-bar">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
+                                                <circle cx="11" cy="11" r="8" />
+                                                <path d="m21 21-4.35-4.35" />
+                                            </svg>
+                                            <input
+                                                type="text"
+                                                placeholder="SEARCH CLIENT, COACH, OR PAYMENT ID..."
+                                                value={financialSearch}
+                                                onChange={(e) => setFinancialSearch(e.target.value)}
+                                            />
+                                        </div>
+                                        <input
+                                            className="financial-year-input"
+                                            type="number"
+                                            placeholder="YEAR"
+                                            value={financialYear}
+                                            onWheel={(e) => e.currentTarget.blur()}
+                                            onChange={(e) => setFinancialYear(e.target.value)}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="financial-filter"
+                                            onClick={() => {
+                                                setFinancialPeriod('all');
+                                                setFinancialYear('');
+                                                setFinancialSearch('');
+                                            }}
+                                        >
+                                            Clear Filters
+                                        </button>
+                                    </div>
+                                    {financialError && <p className="feedback-msg error">{financialError}</p>}
                                     <div className="finance-grid">
-                                        <div className="finance-card"><div className="stat-label">Total Revenue</div><div className="finance-value">$18,420</div></div>
-                                        <div className="finance-card"><div className="stat-label">Transactions This Month</div><div className="finance-value">156</div></div>
-                                        <div className="finance-card"><div className="stat-label">Average Per Transaction</div><div className="finance-value">$118</div></div>
+                                        <div className="finance-card"><div className="stat-label">Total Revenue</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.total_revenue)}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Transactions</div><div className="finance-value">{financialLoading ? 'Loading...' : financialSummary?.transaction_count ?? 0}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Average Per Transaction</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.average_transaction)}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Platform Earnings</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.platform_revenue)}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Coach Payouts</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.coach_payout_total)}</div></div>
+                                        <div className="finance-card"><div className="stat-label">Refunded Amount</div><div className="finance-value">{financialLoading ? 'Loading...' : formatCurrency(financialSummary?.refunded_amount)}</div></div>
                                     </div>
-                                    <div className="admin-section-title" style={{ marginBottom: '16px' }}>Monthly Revenue</div>
-                                    <div className="bar-chart">
-                                        {[{ label: 'Sep', height: '40%' }, { label: 'Oct', height: '55%' }, { label: 'Nov', height: '48%' }, { label: 'Dec', height: '65%' }, { label: 'Jan', height: '72%' }, { label: 'Feb', height: '85%' }].map((bar) => (
-                                            <div key={bar.label} className="bar-col"><div className="bar" style={{ height: bar.height }}></div><div className="bar-label">{bar.label}</div></div>
-                                        ))}
+                                    <div className="finance-chart-card">
+                                        <div className="finance-chart-header">
+                                            <div>
+                                                <div className="admin-section-title">Monthly Revenue</div>
+                                                <div className="finance-chart-subtitle">Completed payment revenue with average line.</div>
+                                            </div>
+                                            <div className="finance-chart-average">Avg {formatCurrency(averageChartRevenue)}</div>
+                                        </div>
+                                        {financialLoading && !financialSummary ? (
+                                            <div className="finance-chart-loading">Loading monthly revenue...</div>
+                                        ) : financialSummary && !financialSummary.has_transactions ? (
+                                            <p className="finance-empty-state">No transactions available for this period.</p>
+                                        ) : (
+                                            <>
+                                                <div className="finance-chart-body">
+                                                    <div className="finance-average-line" style={{ bottom: `${averageLineBottom + 82}px` }}></div>
+                                                    {financialChart.map((point) => (
+                                                        <div key={point.label} className="finance-bar-col">
+                                                            <div className="finance-bar-panel">
+                                                                <div
+                                                                    className={`finance-bar ${point.revenue >= averageChartRevenue ? 'above-average' : 'below-average'}`}
+                                                                    title={`${point.label}: ${formatCurrency(point.revenue)} from ${point.transaction_count} transactions`}
+                                                                    style={{ height: `${maxChartRevenue ? Math.max((point.revenue / maxChartRevenue) * 210, 12) : 0}px` }}
+                                                                ></div>
+                                                            </div>
+                                                            <div className="bar-label">{point.label}</div>
+                                                            <div className="finance-bar-value">{formatCurrency(point.revenue)}</div>
+                                                            <div className="finance-bar-count">{point.transaction_count} txns</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="finance-chart-footer">Average monthly revenue: {formatCurrency(averageChartRevenue)}</div>
+                                            </>
+                                        )}
                                     </div>
+                                    <div className="admin-section-title" style={{ margin: '26px 0 16px' }}>Recent Transactions</div>
+                                    {financialLoading ? (
+                                        <p className="finance-empty-state">Loading transactions...</p>
+                                    ) : hasFinancialTransactions ? (
+                                        <table className="admin-table financial-transactions-table">
+                                            <thead>
+                                                <tr><th>Date</th><th>Client</th><th>Coach</th><th>Amount</th><th>Platform Fee</th><th>Coach Payout</th><th>Status</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                {financialSummary.recent_transactions.map((transaction) => (
+                                                    <tr key={transaction.payment_id}>
+                                                        <td>{new Date(transaction.payment_date).toLocaleDateString()}</td>
+                                                        <td>{transaction.client_name}</td>
+                                                        <td>{transaction.coach_name}</td>
+                                                        <td>{formatCurrency(transaction.amount)}</td>
+                                                        <td>{formatCurrency(transaction.platform_fee)}</td>
+                                                        <td>{formatCurrency(transaction.coach_payout_amount)}</td>
+                                                        <td><span className={`status-badge status-${transaction.status.toLowerCase()}`}>{transaction.status}</span></td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <p className="finance-empty-state">No transactions available for this period.</p>
+                                    )}
                                 </div>
                             )}
                             {activeTab === 3 && (
                                 <div className="tab-content">
-                                    <div className="engage-row">
-                                        <div className="engage-card">
-                                            <div className="stat-label">Daily Active Users (Last 14 Days)</div>
-                                            <div className="finance-value" style={{ margin: '8px 0 16px' }}>312</div>
-                                            <div className="line-chart">
-                                                {[45, 52, 48, 60, 55, 42, 38, 58, 65, 70, 62, 75, 80, 85].map((h, i) => <div key={i} className={`line-bar ${i >= 12 ? 'highlight' : ''}`} style={{ height: `${h}%` }}></div>)}
-                                            </div>
-                                        </div>
-                                        <div className="engage-card">
-                                            <div className="stat-label">Workouts Logged This Week</div>
-                                            <div className="finance-value" style={{ margin: '8px 0 16px' }}>1,247</div>
-                                            <div className="line-chart">
-                                                {[30, 65, 80, 70, 85, 55, 25].map((h, i) => <div key={i} className={`line-bar ${i === 5 ? 'highlight' : ''}`} style={{ height: `${h}%` }}></div>)}
-                                            </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 2px' }}>
-                                                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => <span key={d} className="bar-label">{d}</span>)}
-                                            </div>
+                                    <div className="section-header">
+                                        <div className="admin-section-title">User Engagement</div>
+                                        <div className="financial-period-group">
+                                            <span className="financial-filter-label">Time Range</span>
+                                            {ENGAGEMENT_PERIODS.map((period) => (
+                                                <button
+                                                    key={period.value}
+                                                    type="button"
+                                                    className={`financial-filter ${engagementPeriod === period.value ? 'active' : ''}`}
+                                                    onClick={() => setEngagementPeriod(period.value)}
+                                                >
+                                                    {period.label}
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
+                                    <div className="engagement-subtitle">
+                                        Live usage, survey follow-through, and mood trends for the selected period.
+                                    </div>
+                                    {engagementError && <p className="feedback-msg error">{engagementError}</p>}
+                                    <div className="engagement-metrics-grid">
+                                        <div className="finance-card finance-card-soft">
+                                            <div className="stat-label">Active Clients Today</div>
+                                            <div className="finance-value">{engagementLoading ? 'Loading...' : engagementSummary?.today_active_users ?? 0}</div>
+                                        </div>
+                                        <div className="finance-card finance-card-soft">
+                                            <div className="stat-label">Surveys Completed Today</div>
+                                            <div className="finance-value">{engagementLoading ? 'Loading...' : engagementSummary?.today_survey_completions ?? 0}</div>
+                                        </div>
+                                        <div className="finance-card finance-card-soft">
+                                            <div className="stat-label">Avg Daily Active Users</div>
+                                            <div className="finance-value">{engagementLoading ? 'Loading...' : engagementSummary?.average_daily_active_users ?? 0}</div>
+                                        </div>
+                                        <div className="finance-card finance-card-soft">
+                                            <div className="stat-label">Avg Survey Completion</div>
+                                            <div className="finance-value">{engagementLoading ? 'Loading...' : formatPercent(engagementSummary?.average_survey_completion_rate)}</div>
+                                        </div>
+                                    </div>
+                                    {engagementLoading && !engagementSummary ? (
+                                        <p className="finance-empty-state">Loading engagement analytics...</p>
+                                    ) : engagementSummary ? (
+                                        <>
+                                            <div className="engagement-overview-row">
+                                                <div className="engagement-overview-card">
+                                                    <div className="stat-label">Reach Into Client Base</div>
+                                                    <div className="finance-value">{formatPercent(engagementSummary.active_user_rate)}</div>
+                                                    <div className="engagement-meta-line">
+                                                        {engagementSummary.unique_active_users}/{engagementSummary.total_clients} clients active
+                                                    </div>
+                                                </div>
+                                                <div className="engagement-overview-card">
+                                                    <div className="stat-label">Stickiness</div>
+                                                    <div className="finance-value">{formatPercent(engagementSummary.stickiness_rate)}</div>
+                                                    <div className="engagement-meta-line">
+                                                        Habit strength across returning users
+                                                    </div>
+                                                </div>
+                                                <div className="engagement-overview-card">
+                                                    <div className="stat-label">Repeat Active Clients</div>
+                                                    <div className="finance-value">{engagementSummary.repeat_active_users}</div>
+                                                    <div className="engagement-meta-line">
+                                                        2+ active days in this range
+                                                    </div>
+                                                </div>
+                                                <div className="engagement-overview-card">
+                                                    <div className="stat-label">Surveys Per Active Client</div>
+                                                    <div className="finance-value">{engagementSummary.surveys_per_active_user}</div>
+                                                    <div className="engagement-meta-line">
+                                                        Visit-to-log conversion
+                                                    </div>
+                                                </div>
+                                                <div className="engagement-overview-card">
+                                                    <div className="stat-label">Avg Reported Mood</div>
+                                                    <div className={`finance-value ${getMoodToneClass(engagementSummary.average_mood_label)}`}>
+                                                        {engagementSummary.average_mood_label || 'No Data'}
+                                                    </div>
+                                                    <div className="engagement-meta-line">
+                                                        {engagementSummary.total_surveys_logged} survey logs
+                                                        {engagementSummary.average_mood_score !== null && engagementSummary.average_mood_score !== undefined
+                                                            ? ` • score ${engagementSummary.average_mood_score}`
+                                                            : ''}
+                                                    </div>
+                                                </div>
+                                                <div className="engagement-overview-card">
+                                                    <div className="stat-label">Positive Mood Rate</div>
+                                                    <div className={`finance-value ${getMoodToneClass(engagementSummary.average_mood_label)}`}>
+                                                        {formatPercent(engagementSummary.positive_mood_rate)}
+                                                    </div>
+                                                    <div className="engagement-meta-line">
+                                                        Good or Amazing survey entries
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="engage-row">
+                                                <div className="engage-card">
+                                                    <div className="stat-label">Daily Active Users</div>
+                                                    <div className="finance-value" style={{ margin: '8px 0 16px' }}>{engagementSummary.today_active_users}</div>
+                                                    <div className="line-chart">
+                                                        {engagementChart.map((point) => (
+                                                            <div
+                                                                key={point.date}
+                                                                className={`line-bar ${point.active_users === bestActiveUsers && point.active_users > 0 ? 'highlight' : ''}`}
+                                                                style={{ height: `${maxActiveUsers ? Math.max((point.active_users / maxActiveUsers) * 100, point.active_users > 0 ? 10 : 0) : 0}%` }}
+                                                                title={`${point.label}: ${point.active_users} active client${point.active_users === 1 ? '' : 's'}`}
+                                                            ></div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="engagement-label-row">
+                                                        {engagementChart.map((point, index) => (
+                                                            <span key={point.date} className="bar-label">
+                                                                {index % engagementLabelStep === 0 || index === engagementChart.length - 1 ? point.label : ''}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                    <div className="finance-chart-footer">Peak activity day: {engagementSummary.best_active_day_label || 'N/A'}</div>
+                                                </div>
+                                                <div className="engage-card">
+                                                    <div className="stat-label">Daily Survey Completions</div>
+                                                    <div className="finance-value" style={{ margin: '8px 0 16px' }}>{formatPercent(engagementSummary.average_survey_completion_rate)}</div>
+                                                    <div className="line-chart">
+                                                        {engagementChart.map((point) => (
+                                                            <div
+                                                                key={point.date}
+                                                                className={`line-bar ${point.survey_completion_rate === bestSurveyRate && point.survey_completion_rate > 0 ? 'highlight' : ''}`}
+                                                                style={{ height: `${maxSurveyCompletions ? Math.max((point.survey_completions / maxSurveyCompletions) * 100, point.survey_completions > 0 ? 10 : 0) : 0}%` }}
+                                                                title={`${point.label}: ${point.survey_completions} surveys, ${formatPercent(point.survey_completion_rate)} completion`}
+                                                            ></div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="engagement-label-row">
+                                                        {engagementChart.map((point, index) => (
+                                                            <span key={point.date} className="bar-label">
+                                                                {index % engagementLabelStep === 0 || index === engagementChart.length - 1 ? point.label : ''}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                    <div className="finance-chart-footer">Best completion day: {engagementSummary.best_completion_day_label || 'N/A'} • Avg rate {formatPercent(engagementSummary.average_survey_completion_rate)}</div>
+                                                </div>
+                                                <div className="engage-card">
+                                                    <div className="stat-label">Mood Breakdown</div>
+                                                    <div className={`finance-value ${getMoodToneClass(engagementSummary.average_mood_label)}`} style={{ margin: '8px 0 16px' }}>
+                                                        {engagementSummary.average_mood_label || 'No Data'}
+                                                    </div>
+                                                    <div className="mood-breakdown-list">
+                                                        {moodBreakdown.map((mood) => (
+                                                            <div key={mood.label} className="mood-breakdown-item">
+                                                                <div className="mood-breakdown-topline">
+                                                                    <span className={`mood-pill ${getMoodToneClass(mood.label)}`}>{mood.label}</span>
+                                                                    <span className="mood-breakdown-meta">{mood.count} surveys • {formatPercent(mood.percentage)}</span>
+                                                                </div>
+                                                                <div className="mood-breakdown-track">
+                                                                    <div
+                                                                        className={`mood-breakdown-fill ${getMoodToneClass(mood.label)}`}
+                                                                        style={{ width: `${mood.percentage}%` }}
+                                                                    ></div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="finance-chart-footer">
+                                                        Most common mood: {engagementSummary.most_common_mood_label || 'No Data'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="finance-empty-state">
+                                            No engagement data is available yet. Once clients log in and submit daily surveys, trends will appear here.
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
                         <div className="footer-spacer"></div>
                     </div>
-                </div>
+            </div>
         </div>
     );
 };

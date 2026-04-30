@@ -18,7 +18,7 @@ export const Navbar = () => {
     const loggedIn = isAuthenticated || !!customAuth
 
     const getDashboardRoute = () => {
-        if (userRole === 'admin') return '/admin-dashboard'
+        if (userRole === 'admin') return '/dashboard/admin'
         if (userRole === 'coach') return '/coach-dashboard'
         return '/client-dashboard'
     }
@@ -91,13 +91,16 @@ export const Navbar = () => {
                         <circle cx="16" cy="16" r="5" fill="black" />
                         <rect x="6" y="14" width="20" height="4" rx="2" fill="black" />
                     </svg>
-                    <span>PrimalFitness</span>
+                    <div className="nav-title">PrimalFitness</div>
                 </Link>
                 <ul>
                     <li><NavLink to="/exercises">Exercises</NavLink></li>
-                    <li><NavLink to={getDashboardRoute()}>Dashboard</NavLink></li>
                     <li><NavLink to="/workouts">Workouts</NavLink></li>
-                    <li><NavLink to="/survey">Survey</NavLink></li>
+                    <li><NavLink to="/coaches">Coaches</NavLink></li>
+                    {loggedIn && (
+                        <li><NavLink to={getDashboardRoute()}>Dashboard</NavLink></li>
+                    )}
+                    {/* <li><NavLink to="/survey">Survey</NavLink></li> */}
                     {loggedIn && (
                         <li className="nav-bell-item">
                             <NotificationBell />

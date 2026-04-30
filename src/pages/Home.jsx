@@ -27,14 +27,13 @@ export const Home = () => {
 
             <div className="homepage-body">
                 <div className="hero-section">
-                    <div className="hero-overlay">
-                        <div className="home-card hero-card">
-                            <h2>FOR THE COMMITTED</h2>
-                            <p className="p">Workout planning, coaching, nutrition guidance, and wellness tracking, all in one platform. Whether you're building muscle or just trying to stay fit, we're here to help you achieve your goals and unlock your full potential!</p>
-                            <Link onClick={openModal} className="btn">Let's get Started!</Link>
-                        </div>
+                    <div className="home-card hero-card">
+                        <h2>FOR THE COMMITTED</h2>
+                        <p className="p">Workout planning, coaching, nutrition guidance, and wellness tracking, all in one platform. Whether you're building muscle or just trying to stay fit, we're here to help you achieve your goals and unlock your full potential!</p>
+                        <Link onClick={openModal} className="btn">Let's get Started!</Link>
                     </div>
                 </div>
+
                 <div className="home-container">
                     <div className="home-card">
                         <GiBiceps />

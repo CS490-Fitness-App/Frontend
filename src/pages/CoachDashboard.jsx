@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
 import { Sidebar } from "../components/Sidebar"
@@ -8,6 +8,7 @@ import './ClientDashboard.css';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
 
 const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d{2}:\d{2}|Z)$/, 'Z') : null);
 
 const parseAvailability = (availStrings) => {
     const days = [];
@@ -30,6 +31,7 @@ const parseAvailability = (availStrings) => {
 export const CoachDashboard = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0();
     const { customAuth } = useCustomAuth();
+    const navigate = useNavigate();
     const [clients, setClients] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [notifications] = useState([]);
@@ -125,8 +127,52 @@ export const CoachDashboard = () => {
         }
     };
 
-    const handleViewClient = (clientId) => {
-        console.log('View client:', clientId);
+    const handleViewClient = (clientUserId) => {
+        navigate(`/view-progress?client_id=${clientUserId}`);
+    };
+
+    const handleMessageClient = async (clientUserId) => {
+        try {
+            const token = await getToken();
+            if (!token) throw new Error('Not authenticated');
+
+            const response = await fetch(`${API_BASE_URL}/chats/`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ other_user_id: clientUserId }),
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.detail || 'Failed to open client chat.');
+            }
+
+            const chat = await response.json();
+            navigate(`/chat?chat=${chat.chat_id}`);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    const handleTerminateContract = async (clientId, clientName) => {
+        if (!window.confirm(`Are you sure you want to terminate the contract with ${clientName}?`)) return;
+        try {
+            const token = await getToken();
+            const res = await fetch(`${API_BASE_URL}/coaches/contract/end?other_user_id=${clientId}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || 'Failed to terminate contract.');
+            }
+            await loadDashboard();
+        } catch (err) {
+            setError(err.message);
+        }
     };
 
     const toggleDay = (day) => {
@@ -177,10 +223,10 @@ export const CoachDashboard = () => {
                         </div>
                     </div>
 
-                    <div class="dashboard-homepage-container">
+                    <div className="dashboard-homepage-container">
 
                         <div className="dashboard">
-                            {error && <p style={{ color: 'red', padding: '1rem' }}>{error}</p>}
+                            {error && <p className="feedback-msg error" style={{ padding: '1rem 0' }}>{error}</p>}
 
                             <div className="section-quick-stats">
                                 <div className="quick-stat-card">
@@ -209,7 +255,7 @@ export const CoachDashboard = () => {
                                             <tr>
                                                 <th>Client</th>
                                                 <th>Since</th>
-                                                <th></th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -230,9 +276,17 @@ export const CoachDashboard = () => {
                                                         </td>
                                                         <td>{client.since ? parseUTC(client.since).toLocaleDateString() : '—'}</td>
                                                         <td>
-                                                            <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.client_id)}>
-                                                                VIEW
-                                                            </button>
+                                                            <div className="client-row-actions">
+                                                                <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.client_id)}>
+                                                                    VIEW
+                                                                </button>
+                                                                <button className="btn-sm btn-outline-dark" onClick={() => handleMessageClient(client.user_id)}>
+                                                                    MESSAGE
+                                                                </button>
+                                                                <button className="btn-sm btn-red" onClick={() => handleTerminateContract(client.client_id, `${client.first_name} ${client.last_name}`)}>
+                                                                    TERMINATE
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 );
@@ -339,7 +393,7 @@ export const CoachDashboard = () => {
                                     </div>
                                 </div>
 
-                                {availError && <p className="avail-error">{availError}</p>}
+                                {availError && <p className="feedback-msg error">{availError}</p>}
 
                                 <div className="avail-modal-actions">
                                     <button className="btn-outline" onClick={() => setShowAvailModal(false)}>CANCEL</button>

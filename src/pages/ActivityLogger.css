@@ -1,0 +1,367 @@
+.activity-logger-page {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-logger-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 32px;
+}
+
+.activity-date-bar {
+    align-items: center;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: auto 1fr auto auto;
+}
+
+.activity-date-btn {
+    background: var(--white);
+    border: 1.5px solid var(--black);
+    color: var(--black);
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 12px 18px;
+    text-transform: uppercase;
+}
+
+.activity-date-btn:hover {
+    background: var(--black);
+    color: var(--white);
+}
+
+.activity-date-center {
+    align-items: center;
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+}
+
+.activity-date-label {
+    font-family: 'Anton', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.activity-date-input {
+    background: var(--periwinkle-light);
+    border: 1.5px solid transparent;
+    color: var(--black);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 12px 14px;
+}
+
+.activity-top-grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+}
+
+.activity-section-card {
+    margin-bottom: 0;
+}
+
+.activity-notes-input {
+    min-height: 120px;
+}
+
+.activity-history-banner {
+    background: #f6f6fb;
+    border: 1.5px solid #d7d7ea;
+    color: var(--black);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    text-transform: uppercase;
+}
+
+.activity-goals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.activity-goal-pill {
+    background: var(--periwinkle-light);
+    border: 1px solid var(--periwinkle);
+    color: var(--black);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 8px 12px;
+    text-transform: uppercase;
+}
+
+.activity-helper-card {
+    border: 1.5px solid var(--black);
+    margin-top: 16px;
+    padding: 18px;
+}
+
+.activity-helper-value {
+    font-family: 'Anton', sans-serif;
+    font-size: 42px;
+    line-height: 1;
+    margin: 10px 0;
+}
+
+.activity-workout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.activity-workout-card {
+    border: 1.5px solid var(--black);
+    padding: 20px;
+}
+
+.activity-workout-header {
+    align-items: flex-start;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.activity-workout-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.activity-status-group {
+    min-width: 180px;
+}
+
+.activity-status-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activity-status-pill {
+    border: 1.5px solid var(--black);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.4px;
+    padding: 10px 12px;
+    text-transform: uppercase;
+}
+
+.activity-status-pill.completed {
+    background: #e9f8ef;
+    border-color: #9fd4b1;
+}
+
+.activity-status-pill.in-progress {
+    background: #eef3ff;
+    border-color: #b7c7ff;
+}
+
+.activity-status-pill.skipped,
+.activity-status-pill.missed {
+    background: #fff2e8;
+    border-color: #f0bf95;
+}
+
+.activity-status-pill.scheduled {
+    background: #f6f6fb;
+    border-color: #d7d7ea;
+}
+
+.activity-status-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.activity-status-btn {
+    background: var(--white);
+    border: 1.5px solid var(--black);
+    color: var(--black);
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 10px 12px;
+    text-transform: uppercase;
+}
+
+.activity-status-btn.active {
+    background: var(--periwinkle);
+    border-color: var(--periwinkle);
+    color: var(--white);
+}
+
+.activity-skip-btn {
+    background: var(--white);
+    border: 1.5px solid var(--black);
+    color: var(--black);
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 8px 10px;
+    text-transform: uppercase;
+}
+
+.activity-skip-btn.active {
+    background: #fff2e8;
+    border-color: #f0bf95;
+}
+
+.activity-exercise-table {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.activity-exercise-table-head,
+.activity-exercise-row {
+    align-items: center;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(220px, 2fr) minmax(120px, 1fr) minmax(170px, 1.15fr) minmax(140px, 1fr) minmax(160px, 1fr);
+}
+
+.activity-exercise-table-head {
+    border-bottom: 1px solid #ddd;
+    color: var(--slate-purple);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.6px;
+    padding-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.activity-exercise-row {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 12px;
+}
+
+.activity-exercise-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.activity-target-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+.activity-metric-input {
+    min-height: 54px;
+}
+
+.activity-metric-input:not(:placeholder-shown) {
+    color: var(--black);
+    font-weight: 700;
+}
+
+.activity-exercise-state {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.activity-na-field {
+    align-items: center;
+    background: #f6f6fb;
+    border: 1.5px dashed #c7c7e8;
+    color: var(--slate-purple);
+    display: flex;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    justify-content: center;
+    letter-spacing: 1px;
+    min-height: 54px;
+    padding: 12px;
+    text-transform: uppercase;
+}
+
+.activity-empty-state {
+    align-items: flex-start;
+    border: 1.5px dashed var(--slate-purple);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+}
+
+.activity-empty-state p {
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.activity-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+@media (max-width: 1080px) {
+    .activity-top-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-date-bar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .activity-date-center {
+        grid-column: 1 / -1;
+        justify-content: space-between;
+    }
+
+    .activity-workout-header {
+        flex-direction: column;
+    }
+
+    .activity-status-group {
+        width: 100%;
+    }
+
+    .activity-exercise-table-head {
+        display: none;
+    }
+
+    .activity-exercise-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .activity-logger-content {
+        padding: 20px;
+    }
+
+    .activity-date-bar,
+    .activity-date-center,
+    .activity-actions {
+        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .activity-date-label {
+        font-size: 22px;
+        text-align: center;
+    }
+}

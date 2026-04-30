@@ -247,22 +247,18 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                     )}
 
                     {(isAuthenticated || customAuth) && (
-                        <div style={{ marginTop: '1rem' }}>
+                        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <p className="feedback-msg error" style={{ visibility: requestStatus === 'error' ? 'visible' : 'hidden' }}>{requestError || ' '}</p>
                             {requestStatus === 'success' ? (
-                                <p style={{ color: 'green' }}>Request sent successfully!</p>
+                                <p className="feedback-msg success">Request sent successfully!</p>
                             ) : (
-                                <>
-                                    {requestStatus === 'error' && (
-                                        <p style={{ color: 'red', marginBottom: '0.5rem' }}>{requestError}</p>
-                                    )}
-                                    <button
-                                        className="btn-periwinkle"
-                                        onClick={handleRequestCoach}
-                                        disabled={requestStatus === 'sending'}
-                                    >
-                                        {requestStatus === 'sending' ? 'SENDING...' : 'REQUEST COACH'}
-                                    </button>
-                                </>
+                                <button
+                                    className="btn-periwinkle"
+                                    onClick={handleRequestCoach}
+                                    disabled={requestStatus === 'sending'}
+                                >
+                                    {requestStatus === 'sending' ? 'SENDING...' : 'REQUEST COACH'}
+                                </button>
                             )}
                         </div>
                     )}
@@ -317,7 +313,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                                     placeholder="Write your review (optional)..."
                                     rows={3}
                                 />
-                                {formError && <p className="review-error">{formError}</p>}
+                                {formError && <p className="feedback-msg error">{formError}</p>}
                                 <button
                                     className="btn-periwinkle"
                                     onClick={handleSubmitReview}
