@@ -304,7 +304,7 @@ export const CoachDashboard = () => {
                                                         <td>{client.since ? parseUTC(client.since).toLocaleDateString() : '—'}</td>
                                                         <td>
                                                             <div className="client-row-actions">
-                                                                <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.client_id)}>
+                                                                <button className="btn-sm btn-periwinkle" onClick={() => handleViewClient(client.user_id)}>
                                                                     VIEW
                                                                 </button>
                                                                 <button className="btn-sm btn-outline-dark" onClick={() => handleMessageClient(client.user_id)}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
@@ -12,7 +13,8 @@ const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d
 
 export const ChatPage = () => {
   const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
-  const { customAuth, backendAuthReady, backendAuthError } = useCustomAuth();
+  const { customAuth, backendAuthReady, backendAuthError, userRole } = useCustomAuth();
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const messagesAreaRef = useRef(null);
@@ -347,7 +349,14 @@ export const ChatPage = () => {
                   </div>
                 </div>
                 <div className="chat-header-right">
-                  <button className="header-btn">VIEW PROFILE</button>
+                  {userRole === 'coach' && selectedConvo?.client_user_id && (
+                    <button
+                      className="header-btn"
+                      onClick={() => navigate(`/view-progress?client_id=${selectedConvo.client_user_id}`)}
+                    >
+                      VIEW PROGRESS
+                    </button>
+                  )}
                 </div>
               </div>
 
