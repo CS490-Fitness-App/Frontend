@@ -5,7 +5,7 @@
     flex-direction: column;
     margin: 0.5rem;
     background-color: white;
-    height: fit-content;
+    min-height: 390px;
     border: 1.5px solid black;
     transition: all 0.4s;
 }
@@ -18,7 +18,11 @@
 
 .workout-card-img {
     width: 100%;
+    height: 160px;
+    object-fit: cover;
+    object-position: center;
     border-radius: 1rem 1rem 0 0;
+    display: block;
 }
 
 .workout-card-tag {
@@ -32,6 +36,10 @@
 .workout-card-title {
     color: black;
     margin: 0.5rem 5%;
+    font-size: clamp(1rem, 1.5vw, 1.5rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .workout-card-meta {
@@ -59,6 +67,7 @@
     border: none;
     cursor: pointer;
     margin: 0.5rem;
+    margin-top: auto;
 }
 
 .workout-card-btn:hover {
