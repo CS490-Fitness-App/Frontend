@@ -270,7 +270,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                                 required
                             />
 
-                            <button type="submit" className="signup-btn" disabled={loading}>
+                            <button id="login-button" type="submit" className="signup-btn" disabled={loading}>
                                 {loading ? 'LOGGING IN...' : 'LOG IN'}
                             </button>
 
@@ -356,7 +356,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
-                            <button type="submit" className="signup-btn" disabled={loading}>
+                            <button id="signup-button" type="submit" className="signup-btn" disabled={loading}>
                                 {loading ? 'CREATING ACCOUNT...' : 'SIGN UP'}
                             </button>
 
