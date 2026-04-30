@@ -67,12 +67,13 @@ def login_as_admin(driver):
 
 
 def wait_for_coach_management(driver):
-    wait_for(driver, lambda d: "admin panel" in visible_text(d), 20)
+    wait_for(driver, lambda d: "/dashboard/admin" in d.current_url, 20)
     wait_for_visible(driver, By.XPATH, "//table[contains(@class, 'admin-table')]", 20)
+    # Wait for rows with actual action buttons — rules out the loading/empty-state rows
     wait_for(
         driver,
         lambda d: bool(
-            d.find_elements(By.XPATH, "//button[normalize-space()='SUSPEND'] | //button[normalize-space()='REACTIVATE']")
+            d.find_elements(By.XPATH, "//table[contains(@class,'admin-table')]//tbody/tr[.//button]")
         ),
         20,
     )
@@ -84,20 +85,36 @@ def reactivate_arvid_lindblad(driver):
     if not rows:
         raise RuntimeError("No coach rows were found in Coach Management.")
 
-    for row in rows:
+    arvid_row_index = None
+    for i, row in enumerate(rows):
         coach_name = row.find_element(By.XPATH, ".//td[1]").text.strip().lower()
-        if coach_name != "arvid lindblad":
-            continue
+        if coach_name == "arvid lindblad":
+            arvid_row_index = i
+            break
 
-        reactivate_buttons = row.find_elements(By.XPATH, ".//button[normalize-space()='REACTIVATE']")
-        if not reactivate_buttons:
-            raise RuntimeError("Arvid Lindblad was found, but no REACTIVATE button is available on that row.")
+    if arvid_row_index is None:
+        raise RuntimeError("Could not find Arvid Lindblad in the Coach Management table.")
 
-        click(driver, reactivate_buttons[0])
-        wait_for(driver, lambda d: "suspend" in row.text.lower() or "active" in row.text.lower(), 20)
-        return "Reactivated coach: Arvid Lindblad"
+    row = rows[arvid_row_index]
+    reactivate_buttons = row.find_elements(By.XPATH, ".//button[normalize-space()='REACTIVATE']")
+    if not reactivate_buttons:
+        raise RuntimeError("Arvid Lindblad was found, but no REACTIVATE button is available on that row.")
 
-    raise RuntimeError("Could not find Arvid Lindblad in the Coach Management table.")
+    click(driver, reactivate_buttons[0])
+
+    # Wait for the row to update — re-fetch by index to avoid stale element after React re-render
+    def arvid_row_shows_active(d):
+        try:
+            refreshed_rows = d.find_elements(By.XPATH, "//table[contains(@class, 'admin-table')]//tbody/tr")
+            if arvid_row_index >= len(refreshed_rows):
+                return False
+            row_text = refreshed_rows[arvid_row_index].text.lower()
+            return "suspend" in row_text
+        except Exception:
+            return False
+
+    wait_for(driver, arvid_row_shows_active, 20)
+    return "Reactivated coach: Arvid Lindblad"
 
 
 def main():

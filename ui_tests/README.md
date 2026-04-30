@@ -1,190 +1,135 @@
-# UI Tests Handoff
+# PrimalFitness — UI Tests
 
-This folder contains the Selenium UI testing work done on branch `feature/ui-testing`.
+Selenium-based end-to-end tests for the frontend. Three test suites, one combined runner.
 
-The goal of this branch was to get quick, class-appropriate UI automation in place for:
-- general frontend smoke coverage
-- one stronger client daily flow
-- one admin flow starter
+---
 
-This is not a production test framework. It is a practical Selenium setup for class testing and demo coverage.
+## Setup
 
-## Files in this folder
+### Prerequisites
 
-- `run_ui_tests.py`
-  - smoke test script
-- `run_daily_user_flow.py`
-  - richer client flow
-- `run_admin_flow.py`
-  - admin flow starter
-- `screenshots/`
-  - failure screenshots are saved here automatically
+Both servers must be running before executing any test:
 
-## Required setup
+```bash
+# Terminal 1 — backend
+cd Backend
+.\venv\Scripts\activate
+uvicorn main:app --reload
 
-1. Start the backend
-2. Start the frontend on `http://localhost:5173`
-3. Install Selenium in the same Python environment you will use to run the scripts
+# Terminal 2 — frontend
+cd Frontend
+npm run dev
+```
 
-Example:
+### Install Selenium
 
-```powershell
+```bash
 pip install selenium
 ```
 
-## Test credentials
+Chrome or Edge must be installed. The scripts auto-detect Chrome first, then fall back to Edge.
 
-These scripts currently expect environment variables instead of hardcoded credentials.
+---
 
-### Client flow
+## Credentials
 
-```powershell
-$env:UI_TEST_EMAIL="bob.smith@gmail.com"
-$env:UI_TEST_PASSWORD="YOUR_CLIENT_PASSWORD"
-```
-
-### Admin flow
+Set these environment variables in the same PowerShell window you run the tests from:
 
 ```powershell
-$env:UI_TEST_ADMIN_EMAIL="YOUR_ADMIN_EMAIL"
-$env:UI_TEST_ADMIN_PASSWORD="YOUR_ADMIN_PASSWORD"
+# Client account (used by smoke tests + daily flow)
+$env:UI_TEST_EMAIL="your-client@example.com"
+$env:UI_TEST_PASSWORD="yourpassword"
+
+# Admin account (used by admin flow)
+$env:UI_TEST_ADMIN_EMAIL="your-admin@example.com"
+$env:UI_TEST_ADMIN_PASSWORD="yourpassword"
 ```
 
-### Optional base URL override
+These must be real Auth0 accounts that exist in the database. The login uses Auth0's password grant directly — no OAuth popup.
+
+---
+
+## Running Tests
+
+All commands run from the `Frontend/` directory.
+
+### Run all suites
 
 ```powershell
-$env:UI_BASE_URL="http://localhost:5173"
+python .\ui_tests\run_all_tests.py
 ```
 
-## Smoke test
+Runs smoke tests → daily client flow → admin flow in order. A failing suite does not stop the next one. Exits with code 1 if any suite fails.
 
-Run:
+### Run a single suite
 
 ```powershell
-python .\ui_tests\run_ui_tests.py
+python .\ui_tests\run_ui_tests.py       # Smoke tests
+python .\ui_tests\run_daily_user_flow.py  # Daily client flow
+python .\ui_tests\run_admin_flow.py       # Admin flow
 ```
 
-What it covers:
-- home page
-- exercises page
-- coaches page
-- client login
-- client dashboard
-- activity logger page
-- view progress page
-- profile page
+---
 
-## Daily client flow
+## What Each Suite Tests
 
-Run:
+### Smoke Tests (`run_ui_tests.py`)
 
-```powershell
-python .\ui_tests\run_daily_user_flow.py
-```
+Verifies that key pages load and the client can log in.
 
-What it currently does:
-- log in as client
-- lower goal weight
-- open Activity Logger
-- fill the daily survey/log fields
-- save the activity log
-- verify redirect to View Progress
+| Test | What it checks |
+|------|----------------|
+| Home Page | Page loads, "primal" or "fitness" text present |
+| Exercises Page | Page loads, "exercise" text present |
+| Coaches Page | Page loads, "coach" text present |
+| Client Login | Email/password login succeeds, redirects to client dashboard |
+| Client Dashboard | Dashboard loads with expected content |
+| Activity Logger Page | Page loads |
+| View Progress Page | Page loads |
+| Profile Page | Page loads |
 
-Important note:
-- this flow currently skips the planned workout row inputs in Activity Logger
-- we tried several approaches, but those specific inputs were not behaving reliably under Selenium in the available time
-- the rest of the flow is working and was left stable instead of forcing fake coverage
+### Daily Client Flow (`run_daily_user_flow.py`)
 
-## Admin flow
+Full client workflow from login to cleanup.
 
-Run:
+1. Log in as client
+2. Navigate to Profile → lower goal weight by 1 lb → verify update saved
+3. Navigate to Activity Logger → fill all fields (steps, calories, water, weight, mood, notes)
+4. Save the log → verify redirect to View Progress
+5. Return to Activity Logger → delete today's log (cleanup)
 
-```powershell
-python .\ui_tests\run_admin_flow.py
-```
+### Admin Flow (`run_admin_flow.py`)
 
-Current intent:
-- log in as admin
-- land on Admin Panel
-- use Coach Management
-- specifically target **Arvid Lindblad**
-- click `REACTIVATE`
+Admin coach management workflow.
 
-Current status:
-- this script is a starter/handoff script
-- admin login works
-- page screenshot showed the correct Admin Panel and Coach Management table
-- the script still needs final tightening around the coach row/action interaction
+1. Log in as admin
+2. Wait for Coach Management table to load with real data
+3. Find Arvid Lindblad in the table
+4. Click REACTIVATE → verify row updates to show SUSPEND (confirming status changed to Active)
 
-If continuing this script, start by checking:
-- the row lookup for `Arvid Lindblad`
-- the `REACTIVATE` button click
-- the post-click state change in that row
+---
 
-## Important project-specific note
+## Files
 
-We found and fixed a frontend dev-server route issue in:
+| File | Purpose |
+|------|---------|
+| `run_all_tests.py` | Combined runner — runs all three suites |
+| `run_ui_tests.py` | Smoke tests + shared helpers (login, driver setup, screenshots) |
+| `run_daily_user_flow.py` | Daily client flow; imports helpers from run_ui_tests |
+| `run_admin_flow.py` | Admin flow; imports helpers from run_ui_tests |
+| `screenshots/` | Failure screenshots saved here automatically |
 
-- `Frontend/vite.config.js`
+---
 
-Problem:
-- `/dashboard/admin` refresh was going to the backend and returning 404
+## Failure Screenshots
 
-Cause:
-- the Vite proxy config had:
+On any test failure, a screenshot is saved to `ui_tests/screenshots/` named after the failing test or suite. Check here first when debugging.
 
-```js
-'/dashboard': proxyTarget
-```
+---
 
-This conflicted with the frontend React route.
+## Known Limitations
 
-Fix already applied on this branch:
-- removed the `'/dashboard'` proxy entry from `vite.config.js`
-
-If `/dashboard/admin` still 404s:
-- restart the frontend dev server after pulling this branch
-
-## Known limitations / honest status
-
-- Activity Logger planned-workout row inputs are still not reliably automated
-- Admin coach action flow is partially implemented but not fully validated end to end
-- These scripts are meant for class UI testing coverage, not for CI or long-term regression infrastructure
-
-## Recommended next steps for teammate
-
-1. Pull this branch and restart the frontend dev server
-2. Run the smoke test first:
-
-```powershell
-python .\ui_tests\run_ui_tests.py
-```
-
-3. Run the client daily flow:
-
-```powershell
-python .\ui_tests\run_daily_user_flow.py
-```
-
-4. Then continue debugging the admin flow:
-
-```powershell
-python .\ui_tests\run_admin_flow.py
-```
-
-5. If admin flow fails again, check the latest image in:
-
-```text
-ui_tests/screenshots/
-```
-
-## Branch status summary
-
-This branch includes:
-- Selenium smoke test setup
-- client daily flow automation
-- admin flow starter
-- screenshot capture on failures
-- Vite `/dashboard/admin` refresh fix
-
-That should be enough for someone else to pick up without having to rediscover everything from scratch.
+- Activity Logger planned-workout row inputs are not automated — those specific inputs were not reliably interactable under Selenium
+- The admin flow targets Arvid Lindblad specifically; it will fail if that account does not exist or is not in Suspended status
+- Tests make real Auth0 network calls on login (~1–2s per login)
+- Tests are not isolated from each other's database state — run them against a consistent test dataset

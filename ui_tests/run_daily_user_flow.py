@@ -5,6 +5,7 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 
 from run_ui_tests import (
     BASE_URL,
@@ -73,7 +74,7 @@ def hover(driver, element):
 def type_into_input(driver, element, value):
     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
     click(driver, element)
-    element.send_keys(Keys.CONTROL, "a")
+    element.send_keys(Keys.CONTROL + "a")
     element.send_keys(str(value))
     element.send_keys(Keys.TAB)
 
@@ -81,6 +82,7 @@ def type_into_input(driver, element, value):
 def edit_goal_weight(driver):
     driver.get(f"{BASE_URL}/profile")
     wait_for(driver, lambda d: "user profile" in visible_text(d), 20)
+    wait_for(driver, lambda d: "goal weight" in visible_text(d), 20)
 
     # Check if goal weight section exists
     goal_weight_rows = driver.find_elements(By.XPATH, "//*[contains(normalize-space(), 'Goal Weight')]/ancestor::*[contains(@class, 'dashboard-list-contents')]")
@@ -106,7 +108,7 @@ def edit_goal_weight(driver):
 
     next_value = max(1.0, round(current_value - 1.0, 1))
     goal_input.click()
-    goal_input.send_keys(Keys.CONTROL, "a")
+    goal_input.send_keys(Keys.CONTROL + "a")
     goal_input.send_keys(str(next_value))
 
     save_button = wait_for_clickable(
@@ -152,7 +154,7 @@ def fill_activity_log(driver):
         input_el.send_keys(value)
 
     mood_select = wait_for_visible(driver, By.TAG_NAME, "select")
-    mood_select.send_keys("Good")
+    Select(mood_select).select_by_visible_text("Good")
 
     notes = wait_for_visible(driver, By.XPATH, "//textarea[@placeholder='How did training feel today?']")
     notes.clear()
@@ -202,6 +204,10 @@ def main():
         log("STEP 4: Fill and save today's activity log")
         fill_activity_log(driver)
         log("PASS: Activity log saved and redirected to progress")
+
+        log("STEP 5: Clean up — delete today's log")
+        delete_today_log(driver)
+        log("PASS: Log deleted")
 
         print("\nDaily user flow completed successfully.")
     except Exception as exc:

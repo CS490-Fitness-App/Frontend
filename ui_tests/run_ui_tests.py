@@ -171,8 +171,9 @@ def main():
         for name, passed, message in results:
             status = "PASS" if passed else "FAIL"
             print(f"{status} | {name}")
-            if not passed and message:
-                print(f"      Message: {message}")
+            if not passed:
+                if message:
+                    print(f"      Message: {message}")
                 failures += 1
         if failures:
             print(f"\nCompleted with {failures} failing test(s).")
