@@ -348,7 +348,6 @@ export const ChatPage = () => {
                 </div>
                 <div className="chat-header-right">
                   <button className="header-btn">VIEW PROFILE</button>
-                  <button className="header-btn">VIEW PLAN</button>
                 </div>
               </div>
 
