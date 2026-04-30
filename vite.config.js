@@ -1,31 +1,40 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import process from 'node:process'
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler']],
+export default defineConfig(({ mode }) => {
+  // Load env file based on `mode` in the current working directory.
+  const env = loadEnv(mode, process.cwd(), '')
+  const backendUrl = env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+  const proxyTarget = { target: backendUrl, changeOrigin: true }
+
+  return {
+    plugins: [
+      react({
+        babel: {
+          plugins: [['babel-plugin-react-compiler']],
+        },
+      }),
+    ],
+    server: {
+      proxy: {
+        '/auth': proxyTarget,
+        '/admin': proxyTarget,
+        '/chat': proxyTarget,
+        '/chats': proxyTarget,
+        '/clients': proxyTarget,
+        '/coaches': proxyTarget,
+        '/dashboard': proxyTarget,
+        '/exercises': proxyTarget,
+        '/notifications': proxyTarget,
+        '/logs': proxyTarget,
+        '/payments': proxyTarget,
+        '/reviews': proxyTarget,
+        '/uploads': proxyTarget,
+        '/users': proxyTarget,
+        '/workouts': proxyTarget,
       },
-    }),
-  ],
-  server: {
-    proxy: {
-      '/auth': 'http://127.0.0.1:8000',
-      '/admin': 'http://127.0.0.1:8000',
-      '/chat': 'http://127.0.0.1:8000',
-      '/clients': 'http://127.0.0.1:8000',
-      '/coaches': 'http://127.0.0.1:8000',
-      '/dashboard': 'http://127.0.0.1:8000',
-      '/exercises': 'http://127.0.0.1:8000',
-      '/notifications': 'http://127.0.0.1:8000',
-      '/logs': 'http://127.0.0.1:8000',
-      '/payments': 'http://127.0.0.1:8000',
-      '/reviews': 'http://127.0.0.1:8000',
-      '/uploads': 'http://127.0.0.1:8000',
-      '/users': 'http://127.0.0.1:8000',
-      '/workouts': 'http://127.0.0.1:8000',
     },
-  },
+  }
 })
