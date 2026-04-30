@@ -16,6 +16,8 @@ const getLocalDateString = () => {
     return `${year}-${month}-${day}`
 }
 
+const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d{2}:\d{2}|Z)$/, 'Z') : null)
+
 export const NotificationBell = () => {
     const { isAuthenticated, getAccessTokenSilently } = useAuth0()
     const { customAuth, userRole } = useCustomAuth()
@@ -99,6 +101,14 @@ export const NotificationBell = () => {
         try {
             const token = await getToken()
             if (!token) return
+
+            // Run billing reminder/auto-charge poll first so payment notifications
+            // appear in the unread count for both clients and coaches.
+            await fetch(`${API_BASE_URL}/payments/billing/poll`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            }).catch(() => null)
+
             const res = await fetch(`${API_BASE_URL}/notifications/${userId}/count`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
@@ -205,7 +215,7 @@ export const NotificationBell = () => {
     }
 
     const formatTime = (isoString) => {
-        const date = new Date(isoString)
+        const date = parseUTC(isoString)
         const now = new Date()
         const diffMs = now - date
         const diffMins = Math.floor(diffMs / 60000)

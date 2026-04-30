@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { WorkoutCard } from '../components/WorkoutCard'
 import { WorkoutFilters } from '../components/WorkoutFilters'
+import { Sidebar } from "../components/Sidebar"
 import './Pages.css'
 import './Workout.css'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
@@ -110,26 +111,33 @@ export const Workouts = () => {
 
     return (
         <div>
-            <div className="page-heading">
-                <div className="h1">
-                    <span className="text-black">Workout </span>
-                    <span className="text-purple">Plans</span>
+            <div className="workouts-container">
+                <Sidebar />
+
+                <div className="workouts-content">
+           
+                    <div className="page-heading">
+                        <div className="h2">
+                            <span className="text-black">My </span>
+                            <span className="text-purple">Workout Plans</span>
+                        </div>
+                    </div>
+
+                    {loading && <p style={{ padding: '1rem 2rem' }}>Loading workouts...</p>}
+                    {error && <p className="feedback-msg error" style={{ padding: '1rem 2rem' }}>{error}</p>}
+
+                    <WorkoutFilters filters={filters} setFilters={setFilters} />
+
+                    <div className="workouts-grid">
+                        {workouts.map((workout) => (
+                            <WorkoutCard
+                                key={workout.workout_id}
+                                workout={workout}
+                                onClick={() => navigate(`/view-workout/${workout.workout_id}`)}
+                            />
+                        ))}
+                    </div>
                 </div>
-            </div>
-
-            {loading && <p style={{ padding: '1rem 2rem' }}>Loading workouts...</p>}
-            {error && <p style={{ padding: '1rem 2rem' }}>Error: {error}</p>}
-
-            <WorkoutFilters filters={filters} setFilters={setFilters} />
-
-            <div className="workouts-grid">
-                {workouts.map((workout) => (
-                    <WorkoutCard
-                        key={workout.workout_id}
-                        workout={workout}
-                        onClick={() => navigate(`/view-workout/${workout.workout_id}`)}
-                    />
-                ))}
             </div>
         </div>
     )

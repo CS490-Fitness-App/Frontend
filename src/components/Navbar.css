@@ -6,13 +6,16 @@
 
 nav {
     display: flex;
-    padding: 0 1% 0 1%;
+    padding: 0 2% 0 2%;
     justify-content: space-between;
     align-items: center;
     background-color: #E9ECFF;
     position: sticky;
     top: 0;
-    min-height: 96px;
+}
+
+nav .nav-title {
+    font-size: clamp(1rem, 2vw, 3rem);
 }
 
 nav .nav-logo {

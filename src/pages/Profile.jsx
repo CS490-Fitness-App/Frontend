@@ -308,7 +308,7 @@ export const Profile = () => {
 
                 <div className="dashboard-homepage-container">
                     {loading && <p className="stat-descriptor">Loading profile...</p>}
-                    {error && <p className="stat-descriptor">{error}</p>}
+                    {error && <p className="feedback-msg error">{error}</p>}
 
                     {profile && (
                         <div className="profile-grid">
@@ -361,8 +361,8 @@ export const Profile = () => {
                                                 {isSaving ? 'Saving...' : 'Save photo'}
                                             </button>
                                         </div>
-                                        {saveError && <div className="stat-descriptor">{saveError}</div>}
-                                        {updateError && <div className="stat-descriptor">{updateError}</div>}
+                                        {saveError && <p className="feedback-msg error">{saveError}</p>}
+                                        {updateError && <p className="feedback-msg error">{updateError}</p>}
                                     </div>
                                 </div>
                                 <div className="dashboard-list-container">
@@ -385,7 +385,7 @@ export const Profile = () => {
                                 <section className="profile-panel">
                                     <div className="dashboard-heading">Client Details</div>
                                     <div className="dashboard-list-container">
-                                        <div className="dashboard-list-contents"><div className="stat-heading">Date of Birth</div><div className="dashboard-list">{formatDate(clientProfile.DOB)}</div></div>
+                                        <div className="dashboard-list-contents"><div className="stat-heading">Age</div><div className="dashboard-list">{clientProfile.age ?? 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Height</div><div className="dashboard-list">{clientProfile.height ? `${clientProfile.height} cm` : 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Current Weight</div><div className="dashboard-list">{formatWeight(clientProfile.weight)}</div></div>
                                         <div className="dashboard-list-contents">

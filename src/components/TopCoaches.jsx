@@ -65,7 +65,7 @@ export const TopCoaches = () => {
                 // Fetch one review per coach in parallel
                 Promise.all(
                     top.map(coach =>
-                        fetch(`${API_BASE_URL}/reviews/${coach.coach_id}?limit=1`)
+                        fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews?limit=1`)
                             .then(res => res.json())
                             .then(data => ({ coach_id: coach.coach_id, review: data[0] || null }))
                             .catch(() => ({ coach_id: coach.coach_id, review: null }))

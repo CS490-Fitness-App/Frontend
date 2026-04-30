@@ -1,16 +1,37 @@
 .coach-view-container {
     visibility: hidden;
     opacity: 0;
-    position: absolute;
+    position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(77,77,77,0.7);
-    transition: all 0.4s
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.cancel {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    cursor: pointer;
+    font-size: 1.75rem;
+    z-index: 10;
+    color: #334155;
+    background: #ffffff;
+    border-radius: 999px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.14);
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.cancel:hover {
+    transform: scale(1.07);
+    color: #0f172a;
 }
 
 .coach-view-container.open {
@@ -19,48 +40,70 @@
 }
 
 .coach-view-content {
-    border-radius: 10px;
+    border-radius: 18px;
     position: relative;
-    height: 300px;
-    width: 600px;
-    max-width: 90%;
-    background: #868BF7;
-    padding: 1em 2em;
+    max-height: 88vh;
+    width: min(860px, 94vw);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+    padding: 28px 32px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    transform: scale(0.5);
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 16px;
+    overflow-y: auto;
+    transform: translateY(12px) scale(0.98);
     opacity: 0;
-    transition: transform 0.2s, opacity 0.2s ease;
+    transition: transform 0.22s ease, opacity 0.22s ease;
 }
 
 .coach-view-content.open {
-    transform: scale(1);
+    transform: translateY(0) scale(1);
     opacity: 1;
+}
+
+.coach-view-content h1 {
+    margin: 4px 0 0;
+    padding-right: 38px;
+        color: #1f2a44;
+    font-size: 1.8rem;
+    line-height: 1.2;
+    letter-spacing: 0.3px;
 }
 
 .coach-stats-row {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    padding: 1rem;
-    margin-top: 2rem;
-    background-color: #f3f4f6;
-    border-radius: 0.5rem;
-    gap: 1rem;
+    padding: 14px;
+    margin-top: 2px;
+        background: linear-gradient(135deg, #eef2ff 0%, #e0ecff 50%, #eaf7ff 100%);
+        border: 1px solid #d7e2ff;
+    border-radius: 14px;
+    gap: 12px;
 }
 
 .coach-stat-card {
     text-align: center;
-    margin-top: 0.25rem;
+    margin-top: 0;
 }
 
 .coach-stats-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.25rem;
+    margin-bottom: 6px;
+    color: #4f46e5;
+    font-size: 1.15rem;
+}
+
+.coach-stat-card h5 {
+    margin: 0 0 8px;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+        color: #3f4a66;
 }
 
 .coach-stat-border {
@@ -68,21 +111,253 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 12px 24px 12px 24px;
-    flex-basis: auto;
-    background-color: white;
-    border: 1px solid black;
+    min-height: 56px;
+    padding: 10px 12px;
+        background-color: #ffffff;
+        border: 1px solid #ccd8ea;
+    border-radius: 10px;
 }
-
-.h5 {
-    text-transform: uppercase;
-}
+    .coach-stat-card:nth-child(1) .coach-stat-border {
+        background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
+        border-color: #c7d2fe;
+    }
+    .coach-stat-card:nth-child(2) .coach-stat-border {
+        background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+        border-color: #bbf7d0;
+    }
+    .coach-stat-card:nth-child(3) .coach-stat-border {
+        background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+        border-color: #fed7aa;
+    }
+    .coach-stat-card:nth-child(4) .coach-stat-border {
+        background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%);
+        border-color: #ddd6fe;
+    }
 
 .coach-stat {
     text-align: center;
-    font-weight: normal;
-    font-size: 12px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    color: #0f172a;
     text-decoration: none;
+    text-transform: none;
+    margin: 0;
+}
+
+.coach-availability {
+    width: 100%;
+    margin-top: 4px;
+        background: linear-gradient(135deg, #f0f9ff 0%, #eef2ff 100%);
+        border: 1px solid #d7e2ff;
+    border-radius: 14px;
+    padding: 14px;
+}
+
+.coach-avail-heading {
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
     text-transform: uppercase;
-    text-overflow: clip;
+    letter-spacing: 1px;
+        color: #334155;
+    margin-bottom: 10px;
+}
+
+.coach-avail-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.coach-avail-slot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #cfd9ea;
+    border-radius: 999px;
+    padding: 7px 12px;
+}
+
+.coach-avail-day {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    color: #3730a3;
+}
+
+.coach-avail-hours {
+    font-size: 0.72rem;
+    text-transform: none;
+    text-align: center;
+    color: #334155;
+}
+
+.coach-view-content > p {
+    margin: 0;
+    color: #334155;
+    font-size: 0.93rem;
+    line-height: 1.55;
+}
+
+.coach-reviews-section {
+    margin-top: 4px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+        background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 100%);
+    padding: 14px;
+}
+
+.reviews-heading {
+    margin: 0 0 10px;
+    font-size: 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+        color: #334155;
+}
+
+.no-reviews {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.review-item {
+    background: #ffffff;
+    border: 1px solid #dbe2ea;
+        border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.review-item + .review-item {
+    margin-top: 8px;
+}
+
+.review-stars-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.review-stars {
+    display: inline-flex;
+    gap: 1px;
+}
+
+.review-star {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.review-star.filled {
+    color: #f59e0b;
+}
+
+.review-star.interactive {
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.12s ease;
+}
+
+.review-star.interactive:hover {
+    transform: translateY(-1px);
+}
+
+.review-author {
+    color: #475569;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.review-description {
+    margin: 8px 0 0;
+    color: #334155;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.review-delete-btn {
+    margin-left: auto;
+    border: 1px solid #fecaca;
+    background: #fff5f5;
+    color: #b91c1c;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.review-delete-btn:hover {
+    background: #fee2e2;
+}
+
+.review-form {
+    margin-top: 12px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review-form-heading {
+    margin: 0;
+    font-size: 0.92rem;
+    color: #0f172a;
+}
+
+.star-picker {
+    display: flex;
+    gap: 6px;
+}
+
+.review-textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 72px;
+        border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.92rem;
+    color: #0f172a;
+        background: #ffffff;
+}
+
+.review-textarea:focus {
+    outline: none;
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
+
+@media (max-width: 980px) {
+    .coach-stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .coach-view-content {
+        width: min(96vw, 96vw);
+        max-height: 92vh;
+        padding: 20px 16px;
+        border-radius: 14px;
+    }
+
+    .coach-view-content h1 {
+        font-size: 1.4rem;
+    }
+
+    .coach-stats-row {
+        grid-template-columns: 1fr;
+    }
+
+    .coach-avail-slot {
+        width: 100%;
+        justify-content: space-between;
+    }
 }

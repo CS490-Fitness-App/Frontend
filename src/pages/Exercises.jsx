@@ -69,11 +69,11 @@ export const Exercises = () => {
             </div>
 
             {loading && <p>Loading exercises...</p>}
-            {error && <p>Error: {error}</p>}
+            {error && <p className="feedback-msg error" style={{ padding: '1rem 2rem' }}>{error}</p>}
 
             <ExerciseFilters filters={filters} setFilters={setFilters} />
 
-            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', padding: '0 2rem' }}>
                 {exercises.map(exercise => (
                     <ExerciseCard
                         key={exercise.exercise_id}

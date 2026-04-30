@@ -8,26 +8,18 @@ const isLocalHost = (hostname) => (
 )
 
 const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined' && isLocalHost(window.location.hostname)) {
+    // Always use relative paths locally so Vite's proxy handles routing.
+    // The proxy target is configured from VITE_API_BASE_URL in vite.config.js.
+    return ''
+  }
+
   const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
   if (configuredBaseUrl) {
-    if (typeof window !== 'undefined' && isLocalHost(window.location.hostname)) {
-      const normalizedConfiguredBaseUrl = trimTrailingSlash(configuredBaseUrl)
-      if (
-        normalizedConfiguredBaseUrl === 'http://127.0.0.1:8000' ||
-        normalizedConfiguredBaseUrl === 'http://localhost:8000'
-      ) {
-        return ''
-      }
-    }
-
     return trimTrailingSlash(configuredBaseUrl)
   }
 
   if (typeof window !== 'undefined') {
-    if (isLocalHost(window.location.hostname)) {
-      return ''
-    }
-
     return trimTrailingSlash(window.location.origin)
   }
 

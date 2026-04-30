@@ -18,6 +18,7 @@ export const Survey = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
 
+  const [dob, setDob] = useState('');
   const [heightFeet, setHeightFeet] = useState('5');
   const [heightInches, setHeightInches] = useState('7');
   const [currentWeight, setCurrentWeight] = useState('');
@@ -30,7 +31,6 @@ export const Survey = () => {
   const [specializations, setSpecializations] = useState([]);
   const [certifications, setCertifications] = useState('');
   const [yearsExperience, setYearsExperience] = useState('');
-  const [education, setEducation] = useState('');
   const [bio, setBio] = useState('');
   const [hourlyRate, setHourlyRate] = useState('');
   const [pricingModel, setPricingModel] = useState('Per Hour');
@@ -39,6 +39,7 @@ export const Survey = () => {
   const [endTime, setEndTime] = useState('5:00 PM');
   const [maxClients, setMaxClients] = useState('15');
   const [sessionFormat, setSessionFormat] = useState('Virtual');
+  const [coachGender, setCoachGender] = useState('Other');
 
   const [goalTypes, setGoalTypes] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -103,12 +104,12 @@ export const Survey = () => {
       const heightCm = Math.round(parseFloat(heightFeet) * 30.48 + parseFloat(heightInches) * 2.54);
       const toGrams = (val, unit) =>
         unit === 'lb' ? Math.round(parseFloat(val) * 453.592) : Math.round(parseFloat(val) * 1000);
-      // POST /users/register
+
       const clientRes = await fetch(`${API_BASE_URL}/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          DOB: null,
+          DOB: dob || null,
           height: heightCm || null,
           weight: toGrams(currentWeight, weightUnit) || null,
           goal_weight: toGrams(goalWeight, weightUnit) || null,
@@ -116,9 +117,9 @@ export const Survey = () => {
           goal_type_ids: selectedGoalTypeId ? [selectedGoalTypeId] : [],
         }),
       });
-      if (!clientRes.ok && clientRes.status !== 409) {
+      if (!clientRes.ok) {
         const err = await clientRes.json().catch(() => ({}));
-        throw new Error(err.detail || 'Failed to save client profile.');
+        throw new Error(err.detail || 'Failed to save profile.');
       }
 
       // POST /coaches/register (coach only)
@@ -135,7 +136,7 @@ export const Survey = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({
-            gender: 'Other',
+            gender: coachGender,
             hourly_rate: parseFloat(hourlyRate) || 0,
             is_trainer: specializations.includes('Workout Coach') || specializations.includes('Both'),
             is_nutritionist: specializations.includes('Nutritionist') || specializations.includes('Both'),
@@ -198,8 +199,18 @@ export const Survey = () => {
         {currentStep === 1 && (
           <>
             <div className="section-card">
-              <div className="section-title">Body Metrics</div>
+              <div className="section-title">User Metrics</div>
               <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">Date of Birth</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                  />
+                </div>
+
                 <div className="form-group">
                   <label className="form-label">Height (Feet)</label>
                   <select className="form-input" value={heightFeet} onChange={(e) => setHeightFeet(e.target.value)}>
@@ -316,6 +327,24 @@ export const Survey = () => {
             </div>
 
             <div className="section-card">
+              <div className="section-title">Personal Information</div>
+              <div className="form-group">
+                <label className="form-label">Gender</label>
+                <div className="pill-selector">
+                  {['Man', 'Woman', 'Other'].map((gender) => (
+                    <div
+                      key={gender}
+                      className={`pill-option ${coachGender === gender ? 'selected' : ''}`}
+                      onClick={() => setCoachGender(gender)}
+                    >
+                      {gender}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="section-card">
               <div className="section-title">Qualifications & Experience</div>
               <div className="form-grid">
                 <div className="form-group full-width">
@@ -340,17 +369,6 @@ export const Survey = () => {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Highest Education</label>
-                  <select className="form-input" value={education} onChange={(e) => setEducation(e.target.value)}>
-                    <option value="">SELECT</option>
-                    <option>High School</option>
-                    <option>Bachelor's Degree</option>
-                    <option>Master's Degree</option>
-                    <option>Doctorate</option>
-                    <option>Other</option>
-                  </select>
-                </div>
 
                 <div className="form-group full-width">
                   <label className="form-label">Short Bio (Visible to Clients)</label>
@@ -469,7 +487,7 @@ export const Survey = () => {
           </>
         )}
 
-        {submitError && <p style={{ color: 'red', textAlign: 'center', marginBottom: '1rem' }}>{submitError}</p>}
+        {submitError && <p className="feedback-msg error" style={{ textAlign: 'center', marginBottom: '1rem' }}>{submitError}</p>}
 
         <div className="survey-buttons">
           {currentStep > 1 && (
