@@ -215,3 +215,74 @@ select.card-input {
     background-color: #e6f4ec;
     border-left: 3px solid #1e6f3e;
 }
+
+.billing-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.billing-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.billing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.billing-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px;
+    background: #f4f5ff;
+    border: 1px solid #dde0ff;
+}
+
+.billing-item-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.billing-item-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    text-align: right;
+}
+
+.billing-status {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 2px;
+}
+
+.billing-status.paid {
+    background: #e8f8ee;
+    color: #166534;
+}
+
+.billing-status.due {
+    background: #fff4e5;
+    color: #92400e;
+}
+
+@media (max-width: 900px) {
+    .billing-item {
+        flex-direction: column;
+    }
+
+    .billing-item-side {
+        align-items: flex-start;
+        text-align: left;
+    }
+}

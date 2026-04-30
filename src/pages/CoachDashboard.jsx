@@ -38,6 +38,7 @@ export const CoachDashboard = () => {
     const [coachId, setCoachId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [monthlyEarnings, setMonthlyEarnings] = useState(0);
 
     const [showAvailModal, setShowAvailModal] = useState(false);
     const [availDays, setAvailDays] = useState([]);
@@ -82,6 +83,20 @@ export const CoachDashboard = () => {
             const clientsData = await clientsRes.json();
             setClients(clientsData.active_clients);
             setPendingRequests(clientsData.pending_requests);
+
+            // Keep payment notifications and auto-charge in sync, then load latest billing summary.
+            await fetch(`${API_BASE_URL}/payments/billing/poll`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            }).catch(() => null);
+
+            const billingRes = await fetch(`${API_BASE_URL}/payments/billing/summary`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (billingRes.ok) {
+                const billingData = await billingRes.json();
+                setMonthlyEarnings(Number(billingData.monthly_total || 0));
+            }
         } catch (err) {
             setError(err.message);
         } finally {
@@ -91,6 +106,18 @@ export const CoachDashboard = () => {
 
     useEffect(() => {
         loadDashboard();
+    }, [isAuthenticated, customAuth]);
+
+    useEffect(() => {
+        if (!isAuthenticated && !customAuth) {
+            return;
+        }
+
+        const intervalId = setInterval(() => {
+            loadDashboard();
+        }, 60000);
+
+        return () => clearInterval(intervalId);
     }, [isAuthenticated, customAuth]);
 
     const handleAccept = async (clientId) => {
@@ -243,7 +270,7 @@ export const CoachDashboard = () => {
                                 </div>
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">This Month's Earnings</div>
-                                    <div className="stat">—</div>
+                                    <div className="stat">{loading ? '...' : `$${monthlyEarnings.toFixed(2)}`}</div>
                                 </div>
                             </div>
 

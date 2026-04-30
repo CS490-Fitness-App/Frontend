@@ -105,6 +105,14 @@ export const NotificationBell = () => {
         try {
             const token = await getToken()
             if (!token) return
+
+            // Run billing reminder/auto-charge poll first so payment notifications
+            // appear in the unread count for both clients and coaches.
+            await fetch(`${API_BASE_URL}/payments/billing/poll`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            }).catch(() => null)
+
             const res = await fetch(`${API_BASE_URL}/notifications/${userId}/count`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
