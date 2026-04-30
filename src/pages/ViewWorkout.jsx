@@ -1,7 +1,11 @@
 import "./Pages.css"
 import "./ViewWorkout.css"
 import React, { useEffect, useState } from 'react'
+<<<<<<< Updated upstream
 import { Link, useParams } from 'react-router-dom'
+=======
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+>>>>>>> Stashed changes
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { ViewExercise } from '../components/ViewExercise'
@@ -12,6 +16,11 @@ import { FaStar } from "react-icons/fa6";
 
 export const ViewWorkout = () => {
     const { workoutId } = useParams()
+<<<<<<< Updated upstream
+=======
+    const location = useLocation()
+    const navigate = useNavigate()
+>>>>>>> Stashed changes
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
     const { customAuth } = useCustomAuth()
     const [workout, setWorkout] = useState(null)
@@ -21,9 +30,37 @@ export const ViewWorkout = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [starToggled, setStarToggled] = useState(false)
 
+<<<<<<< Updated upstream
+=======
+    // Coach: schedule-for-client picker
+    const [showClientPicker, setShowClientPicker] = useState(false)
+    const [clients, setClients] = useState([])
+    const [loadingClients, setLoadingClients] = useState(false)
+
+    const isPublicSource = new URLSearchParams(location.search).get('source') === 'public'
+
+    const getToken = async () => {
+        if (isAuthenticated) {
+            return getAccessTokenSilently({ authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE } })
+        }
+        if (customAuth) return customAuth
+        throw new Error('Not authenticated')
+    }
+
+>>>>>>> Stashed changes
     useEffect(() => {
         const fetchWorkout = async () => {
             try {
+                if (isPublicSource) {
+                    const publicResponse = await fetch(`${API_BASE_URL}/workouts/public/${workoutId}`)
+                    if (!publicResponse.ok) {
+                        throw new Error(`Failed to load workout (${publicResponse.status})`)
+                    }
+                    const publicData = await publicResponse.json()
+                    setWorkout(publicData)
+                    return
+                }
+
                 let token
 
                 if (isAuthenticated) {
@@ -56,7 +93,7 @@ export const ViewWorkout = () => {
         }
 
         fetchWorkout()
-    }, [customAuth, getAccessTokenSilently, isAuthenticated, workoutId])
+    }, [customAuth, getAccessTokenSilently, isAuthenticated, workoutId, isPublicSource])
 
     const handleExerciseClick = async (exerciseId) => {
         try {
