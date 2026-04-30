@@ -144,6 +144,32 @@ def test_profile_page(driver):
     wait_for(driver, lambda d: "user profile" in visible_text(d), 20)
 
 
+def test_workouts_page(driver):
+    driver.get(f"{BASE_URL}/workouts")
+    wait_for(driver, lambda d: "workout" in visible_text(d), 20)
+
+
+def test_chat_page(driver):
+    driver.get(f"{BASE_URL}/chat")
+    wait_for(driver, lambda d: "message" in visible_text(d) or "conversation" in visible_text(d), 20)
+
+
+def test_calendar_page(driver):
+    driver.get(f"{BASE_URL}/calendar")
+    wait_for(driver, lambda d: "calendar" in visible_text(d) or "scheduled" in visible_text(d), 20)
+
+
+def test_payment_cards_page(driver):
+    driver.get(f"{BASE_URL}/payment-cards")
+    wait_for(driver, lambda d: "payment" in visible_text(d) or "card" in visible_text(d), 20)
+
+
+def test_view_progress_charts(driver):
+    driver.get(f"{BASE_URL}/view-progress")
+    wait_for(driver, lambda d: "progress" in visible_text(d), 20)
+    wait_for(driver, lambda d: "weight" in visible_text(d) or "overview" in visible_text(d), 20)
+
+
 def main():
     driver = create_driver()
     results = []
@@ -160,7 +186,12 @@ def main():
         run_test(driver, "Client Dashboard", test_client_dashboard, results)
         run_test(driver, "Activity Logger Page", test_activity_logger_page, results)
         run_test(driver, "View Progress Page", test_view_progress_page, results)
+        run_test(driver, "View Progress Charts", test_view_progress_charts, results)
         run_test(driver, "Profile Page", test_profile_page, results)
+        run_test(driver, "Workouts Page", test_workouts_page, results)
+        run_test(driver, "Chat Page", test_chat_page, results)
+        run_test(driver, "Calendar Page", test_calendar_page, results)
+        run_test(driver, "Payment Cards Page", test_payment_cards_page, results)
     except Exception as exc:
         print(f"FAIL: Client Login -> {exc}")
         take_screenshot(driver, "client_login")

@@ -1,14 +1,24 @@
+import os
 import sys
 
 import run_ui_tests
 import run_daily_user_flow
 import run_admin_flow
+import run_client_extra_flow
+import run_coach_flow
 
 SUITES = [
-    ("Smoke Tests",        run_ui_tests.main),
-    ("Daily Client Flow",  run_daily_user_flow.main),
-    ("Admin Flow",         run_admin_flow.main),
+    ("Smoke Tests",              run_ui_tests.main),
+    ("Daily Client Flow",        run_daily_user_flow.main),
+    ("Client Extra Pages Flow",  run_client_extra_flow.main),
+    ("Admin Flow",               run_admin_flow.main),
+    ("Coach Flow",               run_coach_flow.main),
 ]
+
+# Coach flow requires credentials — skip gracefully if not provided.
+_COACH_CREDS_SET = bool(
+    os.environ.get("UI_TEST_COACH_EMAIL") and os.environ.get("UI_TEST_COACH_PASSWORD")
+)
 
 
 def run_suite(name, fn):
@@ -29,7 +39,14 @@ def run_suite(name, fn):
 
 
 def main():
-    results = [(name, run_suite(name, fn)) for name, fn in SUITES]
+    suites_to_run = []
+    for name, fn in SUITES:
+        if name == "Coach Flow" and not _COACH_CREDS_SET:
+            print(f"\nSKIPPED: {name} (UI_TEST_COACH_EMAIL / UI_TEST_COACH_PASSWORD not set)")
+            continue
+        suites_to_run.append((name, fn))
+
+    results = [(name, run_suite(name, fn)) for name, fn in suites_to_run]
 
     print(f"\n{'=' * 60}")
     print("OVERALL SUMMARY")
