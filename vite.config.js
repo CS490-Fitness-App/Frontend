@@ -23,7 +23,6 @@ export default defineConfig(({ mode }) => {
         '/chats': proxyTarget,
         '/clients': proxyTarget,
         '/coaches': proxyTarget,
-        '/dashboard': proxyTarget,
         '/exercises': proxyTarget,
         '/notifications': proxyTarget,
         '/logs': proxyTarget,
