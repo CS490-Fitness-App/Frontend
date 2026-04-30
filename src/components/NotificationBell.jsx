@@ -20,7 +20,7 @@ const parseUTC = (str) => new Date(str ? str.replace(' ', 'T').replace(/(?<!\+\d
 
 export const NotificationBell = () => {
     const { isAuthenticated, getAccessTokenSilently } = useAuth0()
-    const { customAuth } = useCustomAuth()
+    const { customAuth, userRole } = useCustomAuth()
     const navigate = useNavigate()
 
     const loggedIn = isAuthenticated || !!customAuth
@@ -30,7 +30,6 @@ export const NotificationBell = () => {
     const [notifications, setNotifications] = useState([])
     const [open, setOpen] = useState(false)
     const [loadingNotifs, setLoadingNotifs] = useState(false)
-    const [showDailyCheckInReminder, setShowDailyCheckInReminder] = useState(false)
 
     const dropdownRef = useRef(null)
     const pollRef = useRef(null)
@@ -74,8 +73,7 @@ export const NotificationBell = () => {
 
     // Poll unread count every 60 seconds
     const fetchDailyCheckInStatus = useCallback(async () => {
-        if (!loggedIn) {
-            setShowDailyCheckInReminder(false)
+        if (!loggedIn || userRole !== 'client') {
             return false
         }
 
@@ -89,14 +87,12 @@ export const NotificationBell = () => {
             })
             if (!res.ok) return false
             const data = await res.json()
-            const shouldShow = !data.completed
-            setShowDailyCheckInReminder(shouldShow)
-            return shouldShow
+            return !data.completed
         } catch (err) {
             console.error('[NotificationBell] Failed to fetch daily check-in status:', err)
             return false
         }
-    }, [loggedIn, getToken])
+    }, [loggedIn, userRole, getToken])
 
     const fetchUnreadCount = useCallback(async () => {
         if (!userId) return

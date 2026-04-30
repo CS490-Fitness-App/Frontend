@@ -2,13 +2,21 @@ import { API_BASE_URL } from './apiBaseUrl'
 
 export const resolveMediaUrl = (value) => {
   if (!value) return ''
-  if (/^(?:https?:)?\/\//i.test(value) || value.startsWith('data:')) {
+
+  const normalized = String(value).trim()
+  if (!normalized) return ''
+
+  if (normalized.startsWith('data:') || normalized.startsWith('blob:')) {
+    return ''
+  }
+
+  if (/^(?:https?:)?\/\//i.test(normalized)) {
     return value
   }
 
-  if (value.startsWith('/')) {
-    return `${API_BASE_URL}${value}`
+  if (normalized.startsWith('/')) {
+    return `${API_BASE_URL}${normalized}`
   }
 
-  return `${API_BASE_URL}/${value}`
+  return `${API_BASE_URL}/${normalized}`
 }

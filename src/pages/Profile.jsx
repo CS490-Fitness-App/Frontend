@@ -98,8 +98,8 @@ export const Profile = () => {
 
                 if (isAuthenticated) {
                     const syncOk = await syncBackendUser(token)
-                    if (!syncOk) {
-                        throw new Error('Failed to sync account with backend.')
+                    if (!syncOk.ok) {
+                        throw new Error(syncOk.detail || 'Failed to sync account with backend.')
                     }
                 }
 

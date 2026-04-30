@@ -41,11 +41,31 @@ const readErrorDetail = async (response, fallbackMessage) => {
     const rawBody = await response.text().catch(() => '')
     if (!rawBody) return fallbackMessage
 
+    if (rawBody.trimStart().toLowerCase().startsWith('<!doctype')) {
+        return `${fallbackMessage} The API request returned the frontend HTML page instead of backend JSON.`
+    }
+
     try {
         const parsed = JSON.parse(rawBody)
         return parsed.detail || parsed.message || fallbackMessage
     } catch {
         return rawBody
+    }
+}
+
+const readJsonPayload = async (response, fallbackMessage) => {
+    const rawBody = await response.text().catch(() => '')
+    if (!rawBody) {
+        throw new Error(fallbackMessage)
+    }
+
+    try {
+        return JSON.parse(rawBody)
+    } catch {
+        if (rawBody.trimStart().toLowerCase().startsWith('<!doctype')) {
+            throw new Error(`${fallbackMessage} The API request returned the frontend HTML page instead of backend JSON.`)
+        }
+        throw new Error(fallbackMessage)
     }
 }
 
@@ -211,7 +231,7 @@ export const ActivityLogger = () => {
                     throw new Error(await readErrorDetail(response, 'Unable to load activity logger.'))
                 }
 
-                const payload = await response.json()
+                const payload = await readJsonPayload(response, 'Unable to load activity logger.')
                 setActivityDay(payload)
                 setSurveyForm({
                     step_count: payload.daily_survey?.step_count ?? '',
@@ -346,7 +366,7 @@ export const ActivityLogger = () => {
                 throw new Error(await readErrorDetail(response, 'Unable to save activity logger.'))
             }
 
-            const updated = await response.json()
+            const updated = await readJsonPayload(response, 'Unable to save activity logger.')
             setActivityDay(updated)
             setSurveyForm({
                 step_count: updated.daily_survey?.step_count ?? '',
@@ -384,7 +404,7 @@ export const ActivityLogger = () => {
                 throw new Error(await readErrorDetail(response, 'Unable to delete today\'s activity log.'))
             }
 
-            const updated = await response.json()
+            const updated = await readJsonPayload(response, 'Unable to delete today\'s activity log.')
             setActivityDay(updated)
             setSurveyForm({
                 step_count: updated.daily_survey?.step_count ?? '',

@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
+import { useCustomAuth } from '../context/AuthContext'
 
 import { WorkoutCard } from '../components/WorkoutCard'
 import { WorkoutFilters } from '../components/WorkoutFilters'
@@ -8,6 +11,10 @@ import './Workout.css'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 export const PublicWorkouts = () => {
+    const navigate = useNavigate()
+    const { isAuthenticated } = useAuth0()
+    const { customAuth } = useCustomAuth()
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -51,6 +58,14 @@ export const PublicWorkouts = () => {
             })
     }, [filters])
 
+    const handleWorkoutClick = (workoutId) => {
+        if (isAuthenticated || customAuth) {
+            navigate(`/view-workout/${workoutId}?source=public`)
+            return
+        }
+        openModal()
+    }
+
     return (
         <div>
             <div className="page-heading">
@@ -70,7 +85,7 @@ export const PublicWorkouts = () => {
                     <WorkoutCard
                         key={workout.workout_id}
                         workout={workout}
-                        onClick={openModal}
+                        onClick={() => handleWorkoutClick(workout.workout_id)}
                     />
                 ))}
             </div>

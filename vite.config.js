@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import process from 'node:process'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -20,6 +21,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/auth': proxyTarget,
         '/admin': proxyTarget,
+        '/chat': proxyTarget,
         '/chats': proxyTarget,
         '/clients': proxyTarget,
         '/coaches': proxyTarget,
@@ -28,10 +30,10 @@ export default defineConfig(({ mode }) => {
         '/notifications': proxyTarget,
         '/logs': proxyTarget,
         '/payments': proxyTarget,
+        '/reviews': proxyTarget,
         '/uploads': proxyTarget,
         '/users': proxyTarget,
         '/workouts': proxyTarget,
-        '/reviews': proxyTarget
       },
     },
   }
