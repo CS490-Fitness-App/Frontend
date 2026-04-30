@@ -349,7 +349,7 @@ export const ClientDashboard = () => {
                                     </div>
                                 </div>
                                 <div className="btn-container">
-                                    <Link to="/workouts" className="panel-btn-purple">View Plan</Link>
+                                    <Link to="/my-workouts" className="panel-btn-purple">View Plan</Link>
                                 </div>
                             </div>
                             <div className="coach-panel">
