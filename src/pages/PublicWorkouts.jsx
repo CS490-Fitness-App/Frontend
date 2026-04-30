@@ -34,7 +34,7 @@ export const PublicWorkouts = () => {
     useEffect(() => {
         setLoading(true)
         const queryString = buildQuery(filters)
-        const workoutsUrl = queryString ? `${API_BASE_URL}/workouts?${queryString}` : `${API_BASE_URL}/workouts`
+        const workoutsUrl = queryString ? `${API_BASE_URL}/workouts/public?${queryString}` : `${API_BASE_URL}/workouts/public`
 
         fetch(workoutsUrl)
             .then(res => {
