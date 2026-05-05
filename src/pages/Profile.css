@@ -198,3 +198,141 @@
 .profile-inline-btn.ghost {
     background: white;
 }
+
+.profile-account-actions {
+    width: 100%;
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.profile-deactivate-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-deactivate-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 40px;
+    width: fit-content;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 2px solid #92400e;
+    padding: 0.5rem 1.5rem;
+    background: white;
+    color: #92400e;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.profile-deactivate-btn:hover {
+    background-color: #92400e;
+    color: white;
+}
+
+.profile-deactivate-confirm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 40px;
+    text-align: center;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: #92400e;
+    color: white;
+    font-family: "Anek Latin", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.profile-deactivate-confirm-btn:hover {
+    background-color: #78350f;
+}
+
+.profile-deactivate-confirm-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.profile-danger-zone {
+    border-top: 2px solid #fecaca;
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-danger-heading {
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #b91c1c;
+}
+
+.profile-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 40px;
+    width: fit-content;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 2px solid #b91c1c;
+    padding: 0.5rem 1.5rem;
+    background: white;
+    color: #b91c1c;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+}
+
+.profile-delete-btn:hover {
+    background-color: #b91c1c;
+    color: white;
+}
+
+.profile-delete-confirm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 40px;
+    text-align: center;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: #b91c1c;
+    color: white;
+    font-family: "Anek Latin", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.profile-delete-confirm-btn:hover {
+    background-color: #991b1b;
+}
+
+.profile-delete-confirm-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
