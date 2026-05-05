@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStar as faSolidStar, faStarHalfStroke, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { faStar as faRegularStar } from '@fortawesome/free-regular-svg-icons'
 import './TopCoaches.css'
-import { API_BASE_URL } from '../utils/apiBaseUrl'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 const renderStars = (rating = 0) => {
     const stars = []
@@ -44,8 +44,7 @@ export const TopCoaches = () => {
         if (windowWidth <= 768) return { width: 12, gap: 1 }
         if (windowWidth <= 900) return { width: 14, gap: 1.2 }
         if (windowWidth <= 1024) return { width: 15, gap: 1.5 }
-        return { width: 14.5, gap: 1.25 }
-
+        return { width: 17, gap: 1.5 }
     }
 
     const { width: cardWidth, gap: cardGap } = getCardDimensions()
@@ -66,7 +65,7 @@ export const TopCoaches = () => {
                 // Fetch one review per coach in parallel
                 Promise.all(
                     top.map(coach =>
-                        fetch(`${API_BASE_URL}/reviews/${coach.coach_id}?limit=1`)
+                        fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews?limit=1`)
                             .then(res => res.json())
                             .then(data => ({ coach_id: coach.coach_id, review: data[0] || null }))
                             .catch(() => ({ coach_id: coach.coach_id, review: null }))
