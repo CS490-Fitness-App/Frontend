@@ -6,7 +6,6 @@ import { API_BASE_URL } from '../utils/apiBaseUrl'
 
 import { MdCancel } from "react-icons/md"
 import { MdFitnessCenter } from "react-icons/md"
-
 const renderStars = (rating = 0) => {
     const safeRating = Math.max(0, Math.min(5, Number(rating) || 0))
     return (
@@ -338,3 +337,4 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
         </div>
     )
 }
+

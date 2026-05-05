@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FaRegUser, FaChartPie } from "react-icons/fa"
 import { BsBarChartFill } from "react-icons/bs"
 import { FaClipboardCheck } from "react-icons/fa6"
-
+import { CoachActions } from '../components/CoachActions'
 import { useCustomAuth } from '../context/AuthContext'
 import { Sidebar } from "../components/Sidebar"
 import './Pages.css'
@@ -421,25 +421,42 @@ export const ClientDashboard = () => {
                                             {loading ? "Loading..." : data?.coach_status || "No active coach"}
                                         </div>
                                     </div>
-                                    <div className="dashboard-list-contents">
+                                     <div className="dashboard-list-contents">
                                         <div className="stat-heading">RECENT ACTIVITY</div>
                                         <div className="dashboard-list">
                                             {loading ? "Loading..." : data?.recent_activity || "No recent activity."}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="btn-container">
-                                    <button type="button" className="panel-btn-purple" onClick={openCoachChat} disabled={loading || !data?.active_coach?.user_id}>
+                                {data?.active_coach ? (
+                                  <>
+                                    <div className="btn-container">
+                                      <button
+                                        type="button"
+                                        className="panel-btn-purple"
+                                        onClick={openCoachChat}
+                                        disabled={loading || !data?.active_coach?.user_id}
+                                      >
                                         Message
-                                    </button>
-                                    <Link className="panel-btn-white">View Profile</Link>
-                                    {data?.active_coach?.coach_id && (
-                                        <button type="button" className="panel-btn-red" onClick={handleTerminateContract}>
-                                            Terminate
-                                        </button>
-                                    )}
-                                </div>
-                                {terminateError && <div className="error-text">{terminateError}</div>}
+                                      </button>
+                                      <Link className="panel-btn-white">View Profile</Link>
+                                    </div>
+                                    <CoachActions
+                                      coachId={data?.active_coach?.coach_id}
+                                      coachName={
+                                        data?.coach_name
+                                        || `${data?.active_coach?.first_name || ''} ${data?.active_coach?.last_name || ''}`.trim()
+                                        || 'your coach'
+                                      }
+                                      onCoachFired={() => window.location.reload()}
+                                    />
+                                  </>
+                                ) : (
+                                  <div className="btn-container">
+                                    <Link to="/coaches" className="panel-btn-purple">Hire a Coach</Link>
+                                  </div>
+                                )}
+
                             </div>
                         </div>
 
