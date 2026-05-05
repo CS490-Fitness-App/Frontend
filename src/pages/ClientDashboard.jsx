@@ -445,7 +445,7 @@ export const ClientDashboard = () => {
                                       coachId={data?.active_coach?.coach_id}
                                       coachName={
                                         data?.coach_name
-                                        || ${data?.active_coach?.first_name || ''} ${data?.active_coach?.last_name || ''}.trim()
+                                        || `${data?.active_coach?.first_name || ''} ${data?.active_coach?.last_name || ''}`.trim()
                                         || 'your coach'
                                       }
                                       onCoachFired={() => window.location.reload()}
