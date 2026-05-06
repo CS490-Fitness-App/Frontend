@@ -191,9 +191,8 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
     }
 
     return (
-        <div>
-            <div className={`coach-view-container ${isOpen ? 'open' : ''}`}>
-                <div className={`coach-view-content ${isOpen ? 'open' : ''}`}>
+        <div className={`coach-view-container ${isOpen ? 'open' : ''}`}>
+            <div className={`coach-view-content ${isOpen ? 'open' : ''}`}>
 
                     <MdCancel className="cancel" onClick={onClose} />
 
@@ -332,7 +331,6 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                         )}
                     </div>
 
-                </div>
             </div>
         </div>
     )

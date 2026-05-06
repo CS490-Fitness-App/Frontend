@@ -22,7 +22,7 @@
 .coach-view-content {
     position: relative;
     max-height: 88vh;
-    width: min(860px, 94vw);
+    width: min(780px, 88vw);
     background: var(--white);
     border: 1.5px solid var(--black);
     border-radius: 4px;
@@ -80,6 +80,7 @@
     color: var(--black);
     text-align: center;
     line-height: 1.1;
+    width: 100%;
     padding-right: 0;
     margin: 8px 0 0;
 }
