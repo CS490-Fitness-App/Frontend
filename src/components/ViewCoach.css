@@ -131,6 +131,7 @@
     padding: 8px;
     background: var(--periwinkle-light);
     border-radius: 2px;
+    margin-top: auto;
 }
 
 .coach-stat {
