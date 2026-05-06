@@ -17,3 +17,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.state-message {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--slate-purple);
+  padding: 12px 0;
+  display: block;
+}
+
+.state-message.loading {
+  color: var(--periwinkle);
+}
