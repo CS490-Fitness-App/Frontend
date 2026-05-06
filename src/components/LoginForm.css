@@ -23,11 +23,10 @@
 .modal-content {
     border-radius: 5px;
     position: relative;
-    height: 470px;
+    height: auto;
     width: 650px;
     max-width: 90%;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     background: white;
     display: flex;
     flex-direction: column;
@@ -69,11 +68,20 @@ h1 {
     position: absolute;
 }
 
+.login,
+.registration {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
 .signup-form-section {
     background: var(--periwinkle);
     padding: 50px 40px 60px;
     display: flex;
     justify-content: center;
+    flex: 1;
+    width: 100%;
 }
 
 .signup-form-container {
@@ -228,5 +236,6 @@ h1 {
 
 .modal-content.view-signup {
     height: 620px;
+    overflow-y: auto;
 }
 
