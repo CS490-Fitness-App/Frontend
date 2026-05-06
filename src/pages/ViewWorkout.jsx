@@ -196,7 +196,7 @@ export const ViewWorkout = () => {
                         <tbody>
                             {!loading && workout?.exercises?.length === 0 && (
                                 <tr>
-                                    <td colSpan="4">No exercises in this workout yet.</td>
+                                    <td colSpan="4"><span className="state-message">No exercises in this workout yet.</span></td>
                                 </tr>
                             )}
                             {workout?.exercises?.map((exercise) => (
@@ -232,9 +232,9 @@ export const ViewWorkout = () => {
                             <div className="calendar-popup-container">
                                 <div className="calendar-popup-contents">
                                     <label className="calendar-form-label">Select a client:</label>
-                                    {loadingClients && <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>Loading clients...</p>}
+                                    {loadingClients && <p className="state-message loading">Loading clients...</p>}
                                     {!loadingClients && clients.length === 0 && (
-                                        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>No active clients found.</p>
+                                        <p className="state-message">No active clients found.</p>
                                     )}
                                     {!loadingClients && clients.length > 0 && (
                                         <select
