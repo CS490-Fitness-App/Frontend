@@ -1,100 +1,49 @@
-.calendar-popup-background {
+/* ── Popup form layout ───────────────────────────────────────────── */
+
+.calendar-client-for {
+    margin: -8px 0 16px;
+    color: rgba(128, 141, 253, 1);
+}
+
+.calendar-popup-form {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0,0,0,0.4);
+    flex-direction: column;
+    gap: 16px;
 }
 
-.calendar-popup-container {
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    background-color: white;
-}
-
-.calendar-popup-contents {
-    padding: 10px;
-}
-
-.calendar-form-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 14px;
-    text-transform: uppercase;
-    color: black;
-    font-weight: 700;
+.calendar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .calendar-form-input {
-    background: var(--periwinkle-light);
-    border: 1.5px solid transparent;
-    padding: 7px 10px;
-    font-family: 'Space Mono', monospace;
+    border: 1px solid black;
+    padding: 10px;
+    font-family: "Roboto Mono", sans-serif;
     font-size: 14px;
-    color: var(--black);
+    background: white;
     width: 100%;
-    outline: none;
-    border-radius: 2px;
-    transition: border-color 0.2s;
+    box-sizing: border-box;
 }
 
 .calendar-form-input:focus {
-    border-color: var(--periwinkle);
+    outline: none;
+    border-color: rgba(128, 141, 253, 1);
 }
 
-.calendar-form-input::placeholder {
-    color: var(--slate-purple);
-    text-transform: uppercase;
+.calendar-popup-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
 }
 
-.calendar-btn {
-    text-align: center;
-    border-radius: 5px;
-    padding: 0.5rem 1rem;
-    background-color: #808CFD;
-    color: white;
-    text-decoration: none;
-    margin: 0.5rem;
-    border: 1.5px solid var(--periwinkle);
+.calendar-delete-btn {
+    width: 100%;
+    margin-top: 4px;
 }
 
-.calendar-btn:hover {
-    background-color: #4E548F;
-}
-
-.calendar-btn-outline {
-    text-align: center;
-    border-radius: 5px;
-    padding: 0.5rem 1rem;
-    background-color: white;
-    text-decoration: none;
-    margin: 0.5rem;
-    border: 1.5px solid black;
-}
-
-.calendar-btn-outline:hover {
-    background-color: var(--periwinkle-light);
-}
-
-.calendar-btn-delete {
-    color: var(--red);
-    text-align: center;
-    border-radius: 5px;
-    padding: 0.5rem 1rem;
-    background-color: white;
-    text-decoration: none;
-    margin: 0.5rem;
-    border: 1.5px solid var(--red);
-}
-
-.calendar-btn-delete:hover {
-    background-color: var(--periwinkle-light);
-}
+/* ── Calendar shell ──────────────────────────────────────────────── */
 
 .calendar-shell {
     width: 100%;
@@ -102,15 +51,124 @@
 
 .calendar-feedback {
     padding: 0 0 16px;
-    font-family: 'Space Mono', monospace;
+    font-family: "Roboto Mono", sans-serif;
     font-size: 12px;
 }
+
+.calendar-client-banner {
+    padding: 8px 14px;
+    background: rgba(221, 224, 255, 1);
+    border-left: 3px solid rgba(128, 141, 253, 1);
+    margin-bottom: 16px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    color: black;
+}
+
+/* ── react-big-calendar overrides ────────────────────────────────── */
 
 .calendar-shell .rbc-calendar {
     min-height: 77vh;
     background: white;
-    border: 1px solid #d8ddee;
+    border: 2px solid black;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 13px;
 }
+
+.calendar-shell .rbc-toolbar {
+    padding: 12px 16px;
+    border-bottom: 2px solid black;
+    margin-bottom: 0;
+    gap: 8px;
+}
+
+.calendar-shell .rbc-toolbar .rbc-toolbar-label {
+    font-family: "Oswald", sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: black;
+}
+
+.calendar-shell .rbc-toolbar button {
+    border: 2px solid black;
+    border-radius: 0;
+    background: white;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: black;
+}
+
+.calendar-shell .rbc-toolbar button:hover {
+    background: rgba(221, 224, 255, 1);
+}
+
+.calendar-shell .rbc-toolbar button.rbc-active {
+    background: #4E548F;
+    color: white;
+    border-color: #4E548F;
+    box-shadow: none;
+}
+
+.calendar-shell .rbc-toolbar button.rbc-active:hover {
+    background: rgba(78, 84, 143, 1);
+    border-color: rgba(78, 84, 143, 1);
+}
+
+.calendar-shell .rbc-header {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 4px;
+    border-bottom: 2px solid black;
+}
+
+.calendar-shell .rbc-month-view {
+    border: none;
+}
+
+.calendar-shell .rbc-month-row {
+    border-top: 1px solid rgba(209, 213, 219, 1);
+}
+
+.calendar-shell .rbc-day-bg + .rbc-day-bg {
+    border-left: 1px solid rgba(209, 213, 219, 1);
+}
+
+.calendar-shell .rbc-off-range-bg {
+    background: rgba(249, 250, 251, 1);
+}
+
+.calendar-shell .rbc-today {
+    background: rgba(221, 224, 255, 0.4);
+}
+
+.calendar-shell .rbc-date-cell {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    padding: 4px 6px;
+}
+
+.calendar-shell .rbc-event {
+    border-radius: 0;
+    border: none;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+}
+
+.calendar-shell .rbc-show-more {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    color: rgba(128, 141, 253, 1);
+}
+
+/* ── Week view ───────────────────────────────────────────────────── */
 
 .rbc-time-content {
     display: none;
@@ -134,13 +192,4 @@
 
 .rbc-calendar .rbc-time-view .rbc-time-header-content {
     border-bottom: none;
-}
-
-.calendar-client-banner {
-    padding: 8px 14px;
-    background: #ededff;
-    border-left: 3px solid #8B8BF5;
-    border-radius: 4px;
-    margin-bottom: 12px;
-    color: #3730a3;
 }

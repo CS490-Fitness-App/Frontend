@@ -34,7 +34,7 @@ export const ClientCalendar = () => {
 
                     </div>
 
-                    <div className="calendar-container">
+                    <div className="dashboard-homepage-container">
                         <CalendarComponent
                             preselectedWorkoutId={preselectedWorkoutId}
                             clientId={clientId}
