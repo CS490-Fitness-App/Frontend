@@ -241,7 +241,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
 
     return (
         <div className={`modal-container ${isOpen ? 'open' : ''}`}>
-            <div className={`modal-content ${isOpen ? 'open' : ''}`}>
+            <div className={`modal-content ${isOpen ? 'open' : ''} view-${view}`}>
 
                 {/* ── Login view ── */}
                 <div className="login" style={loginStyle}>

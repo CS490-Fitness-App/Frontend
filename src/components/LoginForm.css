@@ -23,7 +23,7 @@
 .modal-content {
     border-radius: 5px;
     position: relative;
-    height: 600px;
+    height: 470px;
     width: 650px;
     max-width: 90%;
     overflow-y: auto;
@@ -224,5 +224,9 @@ h1 {
     justify-content: space-between;
     align-items: center;
     font-size: 14px;
+}
+
+.modal-content.view-signup {
+    height: 620px;
 }
 

@@ -21,12 +21,12 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/auth': proxyTarget,
         '/admin': proxyTarget,
-        '/chat': proxyTarget,
         '/chats': proxyTarget,
         '/clients': proxyTarget,
         '/coaches': proxyTarget,
         '/dashboard': proxyTarget,
         '/exercises': proxyTarget,
+        '/dashboard': proxyTarget,
         '/notifications': proxyTarget,
         '/logs': proxyTarget,
         '/payments': proxyTarget,
