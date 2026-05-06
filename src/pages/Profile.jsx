@@ -573,7 +573,13 @@ export const Profile = () => {
 
                     {profile && (
                         <div className="profile-account-actions">
-                            <div className="profile-deactivate-section">
+                            <section className="profile-panel profile-deactivate-section">
+                                <div className="dashboard-heading">Account Status</div>
+                                <p className="stat-descriptor">
+                                    {isAccountActive
+                                        ? 'Deactivating your account will suspend access. You can reactivate anytime.'
+                                        : 'Your account is currently deactivated. Reactivate to regain access.'}
+                                </p>
                                 <button
                                     type="button"
                                     className="profile-deactivate-btn"
@@ -581,15 +587,10 @@ export const Profile = () => {
                                 >
                                     {isAccountActive ? 'Deactivate Account' : 'Reactivate Account'}
                                 </button>
-                                <p className="stat-descriptor">
-                                    {isAccountActive
-                                        ? 'Deactivating your account will suspend access. You can reactivate anytime.'
-                                        : 'Your account is currently deactivated. Reactivate to regain access.'}
-                                </p>
-                            </div>
+                            </section>
 
-                            <div className="profile-danger-zone">
-                                <div className="profile-danger-heading">⚠ DANGER ZONE</div>
+                            <section className="profile-panel profile-danger-zone">
+                                <div className="dashboard-heading profile-danger-heading">Danger Zone</div>
                                 <p className="stat-descriptor">
                                     Deleting your account is permanent. All your data, workout plans, progress history, and coach connections will be removed and cannot be recovered.
                                 </p>
@@ -600,7 +601,7 @@ export const Profile = () => {
                                 >
                                     Delete Account
                                 </button>
-                            </div>
+                            </section>
                         </div>
                     )}
                 </div>
@@ -628,6 +629,7 @@ export const Profile = () => {
                                 className={isAccountActive ? 'profile-deactivate-confirm-btn' : 'panel-btn-purple'}
                                 onClick={handleDeactivateAccount}
                                 disabled={deactivateSubmitting}
+                                style={deactivateSubmitting ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
                             >
                                 {deactivateSubmitting
                                     ? (isAccountActive ? 'Deactivating...' : 'Reactivating...')
