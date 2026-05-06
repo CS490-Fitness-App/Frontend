@@ -19,6 +19,21 @@
     background-color: white;
 }
 
+.profile-panel .dashboard-list-contents {
+    gap: 12px;
+}
+
+.profile-panel .stat-heading {
+    flex-shrink: 0;
+}
+
+.profile-panel .dashboard-list {
+    text-align: right;
+    min-width: 0;
+    word-break: break-word;
+    margin-left: auto;
+}
+
 .profile-summary-row {
     display: flex;
     align-items: center;
