@@ -36,7 +36,7 @@ export const EditWorkout = () => {
     const { workoutId } = useParams()
     const navigate = useNavigate()
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
-    const { customAuth } = useCustomAuth()
+    const { customAuth, userRole } = useCustomAuth()
     const [workoutMeta, setWorkoutMeta] = useState(null)
     const [availableExercises, setAvailableExercises] = useState([])
     const [loading, setLoading] = useState(true)
@@ -44,6 +44,10 @@ export const EditWorkout = () => {
     const [saving, setSaving] = useState(false)
 
     const [workoutName, setWorkoutName] = useState('');
+    const [imageUrl, setImageUrl] = useState('');
+    const [imageUploading, setImageUploading] = useState(false);
+    const [imageError, setImageError] = useState('');
+    const [imageDragOver, setImageDragOver] = useState(false);
     const [experienceLevel, setExperienceLevel] = useState(null);
     const [fitnessGoal, setFitnessGoal] = useState(null);
     const [equipmentRequired, setEquipmentRequired] = useState('');
@@ -89,6 +93,7 @@ export const EditWorkout = () => {
                 setWorkoutMeta(workoutData)
                 setAvailableExercises(exerciseOptions)
                 setWorkoutName(workoutData.name || '')
+                setImageUrl(workoutData.image_url || '')
                 setExperienceLevel(workoutData.experience_level_id ?? null)
                 setFitnessGoal(workoutData.goal_type_id ?? null)
                 setEquipmentRequired(workoutData.equipment_required || '')
@@ -114,6 +119,47 @@ export const EditWorkout = () => {
 
         fetchEditData()
     }, [customAuth, getAccessTokenSilently, isAuthenticated, workoutId])
+
+    const uploadImageFile = async (file) => {
+        if (!file) return
+        setImageError('')
+        setImageUploading(true)
+        try {
+            let token
+            if (isAuthenticated) {
+                token = await getAccessTokenSilently({
+                    authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+                })
+            } else if (customAuth) {
+                token = customAuth
+            } else {
+                throw new Error('Log in to upload images.')
+            }
+            const formData = new FormData()
+            formData.append('image', file)
+            const res = await fetch(`${API_BASE_URL}/workouts/${workoutId}/image`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData,
+            })
+            const data = await res.json().catch(() => ({}))
+            if (!res.ok) throw new Error(data.detail || 'Upload failed')
+            setImageUrl(data.image_url)
+        } catch (err) {
+            setImageError(err.message || 'Image upload failed.')
+        } finally {
+            setImageUploading(false)
+        }
+    }
+
+    const handleImageUpload = (e) => uploadImageFile(e.target.files?.[0])
+
+    const handleImageDrop = (e) => {
+        e.preventDefault()
+        setImageDragOver(false)
+        const file = e.dataTransfer.files?.[0]
+        if (file) uploadImageFile(file)
+    }
 
     const handleDragStart = (index) => {
         setDragIndex(index)
@@ -198,7 +244,7 @@ export const EditWorkout = () => {
                 equipment_required: equipmentRequired || null,
                 workout_time_mins: workoutTime ? Number(workoutTime) : null,
                 intended_duration_weeks: workoutDuration ? Number(workoutDuration) : null,
-                image_url: workoutMeta?.image_url || null,
+                image_url: imageUrl || null,
                 assigned_to: workoutMeta?.assigned_to || null,
                 exercises: exercises.map((exercise, index) => ({
                     exercise_id: Number(exercise.exercise_id),
@@ -224,7 +270,7 @@ export const EditWorkout = () => {
                 throw new Error(responseBody.detail || `Failed to save workout (${response.status})`)
             }
 
-            navigate(`/view-workout/${workoutId}`)
+            navigate(userRole === 'admin' ? '/dashboard/admin' : `/view-workout/${workoutId}`)
         } catch (err) {
             setError(err.message || 'Unable to save workout plan.')
         } finally {
@@ -246,7 +292,7 @@ export const EditWorkout = () => {
                     </div>
 
                     <div className="edit-exercises-container">
-                        {loading && <p>Loading workout plan...</p>}
+                        {loading && <p className="state-message loading">Loading workout plan...</p>}
                         {error && <p style={{ color: '#b91c1c' }}>{error}</p>}
 
                         <div className="workout-textbox-container">
@@ -258,6 +304,31 @@ export const EditWorkout = () => {
                                     value={workoutName}
                                     onChange={(e) => setWorkoutName(e.target.value)}
                                 />
+                            </div>
+                            <div className="form-group full-width">
+                                <label className="h3">Workout Image:</label>
+                                <label
+                                    className={`image-drop-zone ${imageDragOver ? 'drag-over' : ''} ${imageUploading ? 'uploading' : ''}`}
+                                    onDragOver={(e) => { e.preventDefault(); setImageDragOver(true) }}
+                                    onDragLeave={() => setImageDragOver(false)}
+                                    onDrop={handleImageDrop}
+                                >
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp,image/gif"
+                                        style={{ display: 'none' }}
+                                        onChange={handleImageUpload}
+                                        disabled={imageUploading}
+                                    />
+                                    {imageUploading ? (
+                                        <span className="drop-zone-text">Uploading...</span>
+                                    ) : imageUrl ? (
+                                        <img src={imageUrl} alt="Workout preview" className="drop-zone-preview" />
+                                    ) : (
+                                        <span className="drop-zone-text">Drag & drop an image or click to browse</span>
+                                    )}
+                                </label>
+                                {imageError && <p style={{ fontSize: '13px', color: '#b91c1c', marginTop: '4px' }}>{imageError}</p>}
                             </div>
                         </div>
 
@@ -420,7 +491,7 @@ export const EditWorkout = () => {
                             </div>
 
                             <div className="workout-action-row">
-                                <Link to={`/view-workout/${workoutId}`} className="edit-workout-plan-btn">
+                                <Link to={userRole === 'admin' ? '/dashboard/admin' : `/view-workout/${workoutId}`} className="edit-workout-plan-btn">
                                     <div className="btn">Cancel</div>
                                 </Link>
                                 <button

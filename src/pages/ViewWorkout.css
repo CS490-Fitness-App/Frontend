@@ -103,6 +103,44 @@
     gap: 40px;
 }
 
+/* ── Workout image drop zone ─────────────────────────────── */
+.image-drop-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 140px;
+    border: 2px dashed #c4b5fd;
+    background-color: #f5f3ff;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    overflow: hidden;
+}
+
+.image-drop-zone.drag-over {
+    background-color: #ede9fe;
+    border-color: #7c3aed;
+}
+
+.image-drop-zone.uploading {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.drop-zone-text {
+    font-family: "Roboto Mono", monospace;
+    font-size: 13px;
+    color: #6b7280;
+    text-align: center;
+    padding: 16px;
+}
+
+.drop-zone-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+}
+
 /* ── Schedule buttons & client picker ───────────────────── */
 .workout-action-row {
     display: flex;
