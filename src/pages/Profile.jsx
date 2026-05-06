@@ -468,7 +468,7 @@ export const Profile = () => {
                                 <div className="dashboard-list-container">
                                     <div className="dashboard-list-contents">
                                         <div className="stat-heading">Role</div>
-                                        <div className="dashboard-list">{profile.role}</div>
+                                        <div className="dashboard-list">{profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}</div>
                                     </div>
                                     <div className="dashboard-list-contents">
                                         <div className="stat-heading">Joined</div>
