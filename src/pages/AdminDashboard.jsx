@@ -71,6 +71,12 @@ export const AdminDashboard = () => {
         muscle_group_ids: [],
     });
 
+    const [workouts, setWorkouts] = useState([]);
+    const [workoutLoading, setWorkoutLoading] = useState(false);
+    const [workoutError, setWorkoutError] = useState('');
+    const [workoutActionId, setWorkoutActionId] = useState(null);
+    const [workoutSearch, setWorkoutSearch] = useState('');
+
     const [coachSearch, setCoachSearch] = useState('');
     const [exerciseSearch, setExerciseSearch] = useState('');
     const [financialPeriod, setFinancialPeriod] = useState('all');
@@ -256,6 +262,58 @@ export const AdminDashboard = () => {
             fetchEngagementSummary();
         }
     }, [activeTab, engagementPeriod, isAuthenticated, customAuth]);
+
+    const fetchWorkouts = async () => {
+        setWorkoutLoading(true);
+        setWorkoutError('');
+        try {
+            const token = await getToken();
+            if (!token) {
+                setWorkoutError('Log in as an admin to view workouts.');
+                setWorkoutLoading(false);
+                return;
+            }
+            const res = await fetch(`${API_BASE_URL}/workouts`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => []);
+            if (!res.ok) throw new Error(data.detail || 'Failed to load workouts');
+            setWorkouts(data);
+        } catch (err) {
+            setWorkoutError(err.message || 'Failed to load workouts');
+        } finally {
+            setWorkoutLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 4) {
+            fetchWorkouts();
+        }
+    }, [activeTab, isAuthenticated, customAuth]);
+
+    const handleDeleteWorkout = async (workoutId) => {
+        if (!window.confirm('Delete this workout plan? This cannot be undone.')) return;
+        setWorkoutActionId(workoutId);
+        setWorkoutError('');
+        try {
+            const token = await getToken();
+            if (!token) throw new Error('Log in as an admin to manage workouts.');
+            const res = await fetch(`${API_BASE_URL}/workouts/${workoutId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.detail || 'Failed to delete workout');
+            }
+            setWorkouts((current) => current.filter((w) => w.workout_id !== workoutId));
+        } catch (err) {
+            setWorkoutError(err.message || 'Failed to delete workout');
+        } finally {
+            setWorkoutActionId(null);
+        }
+    };
 
     const updateCoachStatus = async (coachId, action) => {
         setCoachActionId(coachId);
@@ -458,6 +516,10 @@ export const AdminDashboard = () => {
         (exercise.muscle_groups || []).join(' / ').toLowerCase().includes(exerciseSearch.toLowerCase())
     );
 
+    const filteredWorkouts = workouts.filter((w) =>
+        (w.name || '').toLowerCase().includes(workoutSearch.toLowerCase())
+    );
+
     const getStatusClass = (status) => {
         if (status === 'Active' || status === 'Approved') return 'status-approved';
         if (status === 'Pending') return 'status-pending';
@@ -501,7 +563,7 @@ export const AdminDashboard = () => {
                             </div>
                             {adminOverviewError && <p className="feedback-msg error">{adminOverviewError}</p>}
                             <div className="tabs">
-                                {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT'].map((tab, i) => (
+                                {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT', 'WORKOUT INVENTORY'].map((tab, i) => (
                                     <div key={i} className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{tab}</div>
                                 ))}
                             </div>
@@ -524,9 +586,9 @@ export const AdminDashboard = () => {
                                         </thead>
                                         <tbody>
                                             {coachLoading ? (
-                                                <tr><td colSpan="6">Loading coach applications...</td></tr>
+                                                <tr><td colSpan="6"><span className="state-message loading">Loading coach applications...</span></td></tr>
                                             ) : filteredCoaches.length === 0 ? (
-                                                <tr><td colSpan="6">No coach applications found.</td></tr>
+                                                <tr><td colSpan="6"><span className="state-message">No coach applications found.</span></td></tr>
                                             ) : filteredCoaches.map((coach) => (
                                                 <tr key={coach.coach_id}>
                                                     <td><strong>{coach.first_name} {coach.last_name}</strong></td>
@@ -556,7 +618,7 @@ export const AdminDashboard = () => {
                             )}
                             {activeTab === 1 && (
                                 <div className="tab-content">
-                                    {exerciseLoading && <p>Loading exercises...</p>}
+                                    {exerciseLoading && <p className="state-message loading">Loading exercises...</p>}
                                     {exerciseError && <p className="feedback-msg error">{exerciseError}</p>}
                                     <div className="section-header">
                                         <div className="admin-search-bar">
@@ -577,7 +639,7 @@ export const AdminDashboard = () => {
                                             {exerciseLoading ? (
                                                 <tr><td colSpan="4">Loading exercise inventory...</td></tr>
                                             ) : filteredExercises.length === 0 ? (
-                                                <tr><td colSpan="4">No exercises found.</td></tr>
+                                                <tr><td colSpan="4"><span className="state-message">No exercises found.</span></td></tr>
                                             ) : filteredExercises.map((exercise) => (
                                                 <tr key={exercise.exercise_id}>
                                                     <td><strong>{exercise.name}</strong></td>
@@ -958,6 +1020,46 @@ export const AdminDashboard = () => {
                                             No engagement data is available yet. Once clients log in and submit daily surveys, trends will appear here.
                                         </div>
                                     )}
+                                </div>
+                            )}
+                            {activeTab === 4 && (
+                                <div className="tab-content">
+                                    <div className="section-header">
+                                        <div className="admin-section-title">Workout Plan Inventory</div>
+                                        <div className="admin-search-bar">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
+                                                <circle cx="11" cy="11" r="8" />
+                                                <path d="m21 21-4.35-4.35" />
+                                            </svg>
+                                            <input type="text" placeholder="SEARCH WORKOUTS..." value={workoutSearch} onChange={(e) => setWorkoutSearch(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    {workoutError && <p className="feedback-msg error">{workoutError}</p>}
+                                    <table className="admin-table">
+                                        <thead>
+                                            <tr><th>Workout Name</th><th>Goal</th><th>Experience</th><th>Duration (wks)</th><th>Actions</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            {workoutLoading ? (
+                                                <tr><td colSpan="5"><span className="state-message loading">Loading workout plans...</span></td></tr>
+                                            ) : filteredWorkouts.length === 0 ? (
+                                                <tr><td colSpan="5"><span className="state-message">No workout plans found.</span></td></tr>
+                                            ) : filteredWorkouts.map((w) => (
+                                                <tr key={w.workout_id}>
+                                                    <td><strong>{w.name}</strong></td>
+                                                    <td>{w.goal_type || '—'}</td>
+                                                    <td>{w.experience_level || '—'}</td>
+                                                    <td>{w.intended_duration_weeks ?? '—'}</td>
+                                                    <td>
+                                                        <div className="actions-cell">
+                                                            <Link className="btn-sm btn-outline-sm" to={`/edit-workout/${w.workout_id}`}>EDIT</Link>
+                                                            <button className="btn-sm btn-red-outline" disabled={workoutActionId === w.workout_id} onClick={() => handleDeleteWorkout(w.workout_id)}>{workoutActionId === w.workout_id ? 'WORKING...' : 'DELETE'}</button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             )}
                         </div>
