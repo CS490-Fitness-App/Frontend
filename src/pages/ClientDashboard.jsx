@@ -5,6 +5,7 @@ import { FaRegUser, FaChartPie } from "react-icons/fa"
 import { BsBarChartFill } from "react-icons/bs"
 import { FaClipboardCheck } from "react-icons/fa6"
 import { CoachActions } from '../components/CoachActions'
+import { ViewCoach } from '../components/ViewCoach'
 import { useCustomAuth } from '../context/AuthContext'
 import { Sidebar } from "../components/Sidebar"
 import './Pages.css'
@@ -70,6 +71,8 @@ export const ClientDashboard = () => {
     const [checkInLocked, setCheckInLocked] = useState(false)
     const [checkInCountdown, setCheckInCountdown] = useState('00:00:00')
     const [terminateError, setTerminateError] = useState('')
+    const [coachModalOpen, setCoachModalOpen] = useState(false)
+    const [coachModalData, setCoachModalData] = useState(null)
 
     const displayFirstName = data?.full_name?.split(' ')[0] || data?.name?.split(' ')[0] || ''
 
@@ -258,6 +261,19 @@ export const ClientDashboard = () => {
         }
     }
 
+    const openCoachProfile = async () => {
+        const coachId = data?.active_coach?.coach_id
+        if (!coachId) return
+        try {
+            const res = await fetch(`${API_BASE_URL}/coaches/${coachId}`)
+            if (res.ok) setCoachModalData(await res.json())
+            else setCoachModalData(data.active_coach)
+        } catch {
+            setCoachModalData(data.active_coach)
+        }
+        setCoachModalOpen(true)
+    }
+
     const submitDailyCheckIn = async (event) => {
         event.preventDefault()
         setCheckInSubmitting(true)
@@ -439,7 +455,7 @@ export const ClientDashboard = () => {
                                       >
                                         Message
                                       </button>
-                                      <Link className="panel-btn-white">View Profile</Link>
+                                      <button type="button" className="panel-btn-white" onClick={openCoachProfile}>View Profile</button>
                                     </div>
                                     <CoachActions
                                       coachId={data?.active_coach?.coach_id}
@@ -503,6 +519,8 @@ export const ClientDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            <ViewCoach isOpen={coachModalOpen} onClose={() => setCoachModalOpen(false)} coach={coachModalData} />
 
             {isCheckInOpen && (
                 <div className="daily-checkin-overlay" onClick={closeCheckIn}>

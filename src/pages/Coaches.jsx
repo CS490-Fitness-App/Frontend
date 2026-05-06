@@ -86,7 +86,7 @@ export const Coaches = () => {
                 </div>
             </div>
 
-            {loading && <p>Loading coachs...</p>}
+            {loading && <p>Loading coaches...</p>}
             {error && <p className="feedback-msg error" style={{ padding: '1rem 2rem' }}>{error}</p>}
             <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
 
