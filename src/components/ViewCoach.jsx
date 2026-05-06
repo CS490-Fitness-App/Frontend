@@ -234,7 +234,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                         </div>
                     </div>
 
-                    {coach.bio && <p style={{ margin: '1rem 0' }}>{coach.bio}</p>}
+                    {coach.bio && <p>{coach.bio}</p>}
 
                     {coach.availability && coach.availability.length > 0 && (
                         <div className="coach-availability">
@@ -254,7 +254,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                     )}
 
                     {(isAuthenticated || customAuth) && (
-                        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <p className="feedback-msg error" style={{ visibility: requestStatus === 'error' ? 'visible' : 'hidden' }}>{requestError || ' '}</p>
                             {requestStatus === 'success' ? (
                                 <p className="feedback-msg success">Request sent successfully!</p>
