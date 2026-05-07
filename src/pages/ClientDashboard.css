@@ -243,6 +243,7 @@
     justify-content: flex-start;
     align-items: flex-start;
     gap: 16px;
+    width: 100%;
 }
 
 .dashboard-list-contents {
@@ -264,6 +265,11 @@
     line-height: 20px;
     text-decoration: none;
     color: black;
+}
+
+.dashboard-list-contents .dashboard-list {
+    align-items: flex-end;
+    text-align: right;
 }
 
 .btn-container {
@@ -399,13 +405,15 @@
     justify-content: flex-start;
     align-items: center;
     gap: 10px;
+    width: 100%;
+    text-align: center;
 }
 
 .header-others {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: center;
     padding: 0px 0px 8px 0px;
     font-family: "Roboto Mono", sans-serif;
     font-weight: 500;
@@ -414,6 +422,11 @@
     text-decoration: none;
     text-transform: uppercase;
     color: black;
+    text-align: center;
+}
+
+.container-others .stat-descriptor {
+    text-align: center;
 }
 
 .client-dashboard-container .dashboard-homepage-container {
