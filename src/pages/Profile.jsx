@@ -698,7 +698,7 @@ export const Profile = () => {
                                 value={deleteConfirmText}
                                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                                 placeholder="DELETE"
-                                style={{ border: '1px solid black', padding: '10px', fontFamily: '"Roboto Mono", sans-serif', fontSize: '14px' }}
+                                style={{ border: '1px solid black', padding: '10px', fontFamily: "'Space Mono', monospace", fontSize: '14px' }}
                             />
                         </label>
                         {deleteError && <p className="daily-checkin-error" style={{ marginTop: '8px' }}>{deleteError}</p>}

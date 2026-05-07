@@ -353,7 +353,7 @@ export const EditWorkout = () => {
 
                     <div className="edit-exercises-container">
                         {loading && <p className="state-message loading">Loading workout plan...</p>}
-                        {error && <p style={{ color: '#b91c1c' }}>{error}</p>}
+                        {error && <p className="feedback-msg error">{error}</p>}
 
                         <div className="workout-textbox-container">
                             <div className="form-group full-width">
@@ -388,7 +388,7 @@ export const EditWorkout = () => {
                                         <span className="drop-zone-text">Drag & drop an image or click to browse</span>
                                     )}
                                 </label>
-                                {imageError && <p style={{ fontSize: '13px', color: '#b91c1c', marginTop: '4px' }}>{imageError}</p>}
+                                {imageError && <p className="feedback-msg error">{imageError}</p>}
                             </div>
                         </div>
 

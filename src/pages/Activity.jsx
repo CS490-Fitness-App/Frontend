@@ -1,5 +1,6 @@
 import React from 'react'
 import { ActivityBarGraph } from '../components/ActivityBarGraph'
+import './Activity.css'
 
 const data = [
     { label: "Monday", value: 0.5 },
