@@ -16,7 +16,6 @@ const links = [
     { name: 'View Progress', path: '/view-progress', allowedRoles: ['client', 'coach'] },
     { name: 'Chat', path: '/chat', allowedRoles: ['client', 'coach'] },
     { name: 'Payment Methods', path: '/payment-cards', allowedRoles: ['client', 'coach'] },
-    { name: 'My Clients', path: '/', allowedRoles: ['coach'] } 
 ];
 
 export const Sidebar = () => {
