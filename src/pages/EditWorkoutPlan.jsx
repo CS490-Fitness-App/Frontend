@@ -34,6 +34,7 @@ const UNIT_OPTIONS = [
 
 export const EditWorkout = () => {
     const { workoutId } = useParams()
+    const isCreateMode = !workoutId
     const navigate = useNavigate()
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
     const { customAuth, userRole } = useCustomAuth()
@@ -45,6 +46,8 @@ export const EditWorkout = () => {
 
     const [workoutName, setWorkoutName] = useState('');
     const [imageUrl, setImageUrl] = useState('');
+    const [pendingImageFile, setPendingImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState('');
     const [imageUploading, setImageUploading] = useState(false);
     const [imageError, setImageError] = useState('');
     const [imageDragOver, setImageDragOver] = useState(false);
@@ -57,7 +60,7 @@ export const EditWorkout = () => {
     const [dragIndex, setDragIndex] = useState(null);
 
     useEffect(() => {
-        const fetchEditData = async () => {
+        const fetchData = async () => {
             try {
                 let token
 
@@ -73,43 +76,45 @@ export const EditWorkout = () => {
                     return
                 }
 
-                const [workoutResponse, exercisesResponse] = await Promise.all([
-                    fetch(`${API_BASE_URL}/workouts/${workoutId}`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }),
-                    fetch(`${API_BASE_URL}/exercises`),
-                ])
+                if (isCreateMode) {
+                    const exercisesResponse = await fetch(`${API_BASE_URL}/exercises`)
+                    if (!exercisesResponse.ok) throw new Error(`Failed to load exercises (${exercisesResponse.status})`)
+                    setAvailableExercises(await exercisesResponse.json())
+                } else {
+                    const [workoutResponse, exercisesResponse] = await Promise.all([
+                        fetch(`${API_BASE_URL}/workouts/${workoutId}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+                        }),
+                        fetch(`${API_BASE_URL}/exercises`),
+                    ])
 
-                if (!workoutResponse.ok) {
-                    throw new Error(`Failed to load workout (${workoutResponse.status})`)
+                    if (!workoutResponse.ok) throw new Error(`Failed to load workout (${workoutResponse.status})`)
+                    if (!exercisesResponse.ok) throw new Error(`Failed to load exercises (${exercisesResponse.status})`)
+
+                    const workoutData = await workoutResponse.json()
+                    const exerciseOptions = await exercisesResponse.json()
+
+                    setWorkoutMeta(workoutData)
+                    setAvailableExercises(exerciseOptions)
+                    setWorkoutName(workoutData.name || '')
+                    setImageUrl(workoutData.image_url || '')
+                    setExperienceLevel(workoutData.experience_level_id ?? null)
+                    setFitnessGoal(workoutData.goal_type_id ?? null)
+                    setEquipmentRequired(workoutData.equipment_required || '')
+                    setWorkoutTime(workoutData.workout_time_mins?.toString() || '')
+                    setWorkoutDuration(workoutData.intended_duration_weeks?.toString() || '')
+                    setExercises(
+                        workoutData.exercises.map((exercise, index) => ({
+                            rowId: `${exercise.exercise_id}-${index}`,
+                            exercise_id: exercise.exercise_id,
+                            exercise_name: exercise.exercise_name,
+                            sets: exercise.sets?.toString() || '',
+                            target_value: exercise.target_value?.toString() || '',
+                            unit_id: exercise.unit_id,
+                            rest: exercise.rest?.toString() || '',
+                        }))
+                    )
                 }
-                if (!exercisesResponse.ok) {
-                    throw new Error(`Failed to load exercises (${exercisesResponse.status})`)
-                }
-
-                const workoutData = await workoutResponse.json()
-                const exerciseOptions = await exercisesResponse.json()
-
-                setWorkoutMeta(workoutData)
-                setAvailableExercises(exerciseOptions)
-                setWorkoutName(workoutData.name || '')
-                setImageUrl(workoutData.image_url || '')
-                setExperienceLevel(workoutData.experience_level_id ?? null)
-                setFitnessGoal(workoutData.goal_type_id ?? null)
-                setEquipmentRequired(workoutData.equipment_required || '')
-                setWorkoutTime(workoutData.workout_time_mins?.toString() || '')
-                setWorkoutDuration(workoutData.intended_duration_weeks?.toString() || '')
-                setExercises(
-                    workoutData.exercises.map((exercise, index) => ({
-                        rowId: `${exercise.exercise_id}-${index}`,
-                        exercise_id: exercise.exercise_id,
-                        exercise_name: exercise.exercise_name,
-                        sets: exercise.sets?.toString() || '',
-                        target_value: exercise.target_value?.toString() || '',
-                        unit_id: exercise.unit_id,
-                        rest: exercise.rest?.toString() || '',
-                    }))
-                )
             } catch (err) {
                 setError(err.message || 'Unable to load workout plan.')
             } finally {
@@ -117,57 +122,68 @@ export const EditWorkout = () => {
             }
         }
 
-        fetchEditData()
-    }, [customAuth, getAccessTokenSilently, isAuthenticated, workoutId])
+        fetchData()
+    }, [customAuth, getAccessTokenSilently, isAuthenticated, workoutId, isCreateMode])
 
-    const uploadImageFile = async (file) => {
+    const getToken = async () => {
+        if (isAuthenticated) {
+            return getAccessTokenSilently({
+                authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+            })
+        } else if (customAuth) {
+            return customAuth
+        }
+        throw new Error('Log in to continue.')
+    }
+
+    const uploadImageFile = async (file, targetWorkoutId) => {
+        if (!file) return null
+        const token = await getToken()
+        const formData = new FormData()
+        formData.append('image', file)
+        const res = await fetch(`${API_BASE_URL}/workouts/${targetWorkoutId}/image`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) throw new Error(data.detail || 'Image upload failed')
+        return data.image_url
+    }
+
+    const handleImageSelect = async (file) => {
         if (!file) return
         setImageError('')
-        setImageUploading(true)
-        try {
-            let token
-            if (isAuthenticated) {
-                token = await getAccessTokenSilently({
-                    authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
-                })
-            } else if (customAuth) {
-                token = customAuth
-            } else {
-                throw new Error('Log in to upload images.')
+
+        if (isCreateMode) {
+            setPendingImageFile(file)
+            setImagePreview(URL.createObjectURL(file))
+        } else {
+            setImageUploading(true)
+            try {
+                const url = await uploadImageFile(file, workoutId)
+                setImageUrl(url)
+                setImagePreview('')
+            } catch (err) {
+                setImageError(err.message || 'Image upload failed.')
+            } finally {
+                setImageUploading(false)
             }
-            const formData = new FormData()
-            formData.append('image', file)
-            const res = await fetch(`${API_BASE_URL}/workouts/${workoutId}/image`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-                body: formData,
-            })
-            const data = await res.json().catch(() => ({}))
-            if (!res.ok) throw new Error(data.detail || 'Upload failed')
-            setImageUrl(data.image_url)
-        } catch (err) {
-            setImageError(err.message || 'Image upload failed.')
-        } finally {
-            setImageUploading(false)
         }
     }
 
-    const handleImageUpload = (e) => uploadImageFile(e.target.files?.[0])
+    const handleImageUpload = (e) => handleImageSelect(e.target.files?.[0])
 
     const handleImageDrop = (e) => {
         e.preventDefault()
         setImageDragOver(false)
         const file = e.dataTransfer.files?.[0]
-        if (file) uploadImageFile(file)
+        if (file) handleImageSelect(file)
     }
 
-    const handleDragStart = (index) => {
-        setDragIndex(index)
-    }
+    const handleDragStart = (index) => setDragIndex(index)
 
-    const handleDragOver = (e) => {
-        e.preventDefault();
-    }
+    const handleDragOver = (e) => e.preventDefault()
 
     const handleDrop = (index) => {
         const newItems = [...exercises];
@@ -181,9 +197,7 @@ export const EditWorkout = () => {
     const updateExerciseField = (index, field, value) => {
         setExercises((prev) =>
             prev.map((exercise, exerciseIndex) => {
-                if (exerciseIndex !== index) {
-                    return exercise
-                }
+                if (exerciseIndex !== index) return exercise
 
                 if (field === 'exercise_id') {
                     const selectedExercise = availableExercises.find(
@@ -196,9 +210,7 @@ export const EditWorkout = () => {
                     }
                 }
 
-                if (field === 'unit_id') {
-                    return { ...exercise, unit_id: Number(value) }
-                }
+                if (field === 'unit_id') return { ...exercise, unit_id: Number(value) }
 
                 return { ...exercise, [field]: value }
             })
@@ -222,61 +234,109 @@ export const EditWorkout = () => {
     }
 
     const handleSaveWorkout = async () => {
+        if (!workoutName.trim()) {
+            setError('Workout name is required.')
+            return
+        }
         try {
             setSaving(true)
             setError('')
 
-            let token
-            if (isAuthenticated) {
-                token = await getAccessTokenSilently({
-                    authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+            const token = await getToken()
+
+            const exercisePayload = exercises.map((exercise, index) => ({
+                exercise_id: Number(exercise.exercise_id),
+                sets: exercise.sets ? Number(exercise.sets) : null,
+                target_value: exercise.target_value ? Number(exercise.target_value) : null,
+                unit_id: Number(exercise.unit_id),
+                order_in_workout: index + 1,
+                rest: exercise.rest ? Number(exercise.rest) : null,
+            }))
+
+            if (isCreateMode) {
+                const createPayload = {
+                    name: workoutName,
+                    goal_type_id: fitnessGoal || null,
+                    experience_level_id: experienceLevel || null,
+                    equipment_required: equipmentRequired || null,
+                    workout_time_mins: workoutTime ? Number(workoutTime) : null,
+                    intended_duration_weeks: workoutDuration ? Number(workoutDuration) : null,
+                    image_url: null,
+                    assigned_to: null,
+                    exercises: exercisePayload,
+                }
+
+                const createResponse = await fetch(`${API_BASE_URL}/workouts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(createPayload),
                 })
-            } else if (customAuth) {
-                token = customAuth
+
+                if (!createResponse.ok) {
+                    const body = await createResponse.json().catch(() => ({}))
+                    throw new Error(body.detail || `Failed to create workout (${createResponse.status})`)
+                }
+
+                const created = await createResponse.json()
+                const newId = created.workout_id
+
+                if (pendingImageFile) {
+                    try {
+                        await uploadImageFile(pendingImageFile, newId)
+                    } catch (imgErr) {
+                        // Workout created; image failed — still navigate but warn
+                        setError(`Workout created, but image upload failed: ${imgErr.message}`)
+                        setSaving(false)
+                        navigate(`/view-workout/${newId}`)
+                        return
+                    }
+                }
+
+                navigate(`/view-workout/${newId}`)
             } else {
-                throw new Error('Log in to save workout plans.')
+                const payload = {
+                    name: workoutName,
+                    goal_type_id: fitnessGoal || null,
+                    experience_level_id: experienceLevel || null,
+                    equipment_required: equipmentRequired || null,
+                    workout_time_mins: workoutTime ? Number(workoutTime) : null,
+                    intended_duration_weeks: workoutDuration ? Number(workoutDuration) : null,
+                    image_url: imageUrl || null,
+                    assigned_to: workoutMeta?.assigned_to || null,
+                    exercises: exercisePayload,
+                }
+
+                const response = await fetch(`${API_BASE_URL}/workouts/${workoutId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payload),
+                })
+
+                if (!response.ok) {
+                    const responseBody = await response.json().catch(() => ({}))
+                    throw new Error(responseBody.detail || `Failed to save workout (${response.status})`)
+                }
+
+                navigate(userRole === 'admin' ? '/dashboard/admin' : `/view-workout/${workoutId}`)
             }
-
-            const payload = {
-                name: workoutName,
-                goal_type_id: fitnessGoal || null,
-                experience_level_id: experienceLevel || null,
-                equipment_required: equipmentRequired || null,
-                workout_time_mins: workoutTime ? Number(workoutTime) : null,
-                intended_duration_weeks: workoutDuration ? Number(workoutDuration) : null,
-                image_url: imageUrl || null,
-                assigned_to: workoutMeta?.assigned_to || null,
-                exercises: exercises.map((exercise, index) => ({
-                    exercise_id: Number(exercise.exercise_id),
-                    sets: exercise.sets ? Number(exercise.sets) : null,
-                    target_value: exercise.target_value ? Number(exercise.target_value) : null,
-                    unit_id: Number(exercise.unit_id),
-                    order_in_workout: index + 1,
-                    rest: exercise.rest ? Number(exercise.rest) : null,
-                })),
-            }
-
-            const response = await fetch(`${API_BASE_URL}/workouts/${workoutId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
-            })
-
-            if (!response.ok) {
-                const responseBody = await response.json().catch(() => ({}))
-                throw new Error(responseBody.detail || `Failed to save workout (${response.status})`)
-            }
-
-            navigate(userRole === 'admin' ? '/dashboard/admin' : `/view-workout/${workoutId}`)
         } catch (err) {
             setError(err.message || 'Unable to save workout plan.')
         } finally {
             setSaving(false)
         }
     }
+
+    const displayImage = imagePreview || imageUrl
+
+    const cancelDestination = isCreateMode
+        ? '/my-workouts'
+        : userRole === 'admin' ? '/dashboard/admin' : `/view-workout/${workoutId}`
 
     return (
         <div>
@@ -286,7 +346,7 @@ export const EditWorkout = () => {
                 <div className="workouts-content">
                     <div className="page-heading">
                         <div className="h2">
-                            <span className="text-black">Create / Edit </span>
+                            <span className="text-black">{isCreateMode ? 'Create' : 'Edit'} </span>
                             <span className="text-purple">Workout Plan</span>
                         </div>
                     </div>
@@ -322,8 +382,8 @@ export const EditWorkout = () => {
                                     />
                                     {imageUploading ? (
                                         <span className="drop-zone-text">Uploading...</span>
-                                    ) : imageUrl ? (
-                                        <img src={imageUrl} alt="Workout preview" className="drop-zone-preview" />
+                                    ) : displayImage ? (
+                                        <img src={displayImage} alt="Workout preview" className="drop-zone-preview" />
                                     ) : (
                                         <span className="drop-zone-text">Drag & drop an image or click to browse</span>
                                     )}
@@ -412,8 +472,6 @@ export const EditWorkout = () => {
                             </button>
                         </table>
 
-                        
-
                         <div className="workout-textbox-container">
                             <div className="edit-workout-group">
                                 <label className="h3">Experience Level</label>
@@ -443,21 +501,6 @@ export const EditWorkout = () => {
                                     ))}
                                 </div>
                             </div>
-                            <div className="edit-workout-group">
-                                <label className="h3">Equipment Required</label>
-                                <div className="pill-selector">
-                                    {['Dumbbells', 'Body Weight', 'Cable', 'Machine', 'Other'].map((equipment) => (
-                                        <div
-                                            key={equipment}
-                                            className={`pill-option ${equipmentRequired === equipment ? 'selected' : ''}`}
-                                            onClick={() => setEquipmentRequired(equipment)}
-                                        >
-                                            {equipment}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
                             <div className="edit-workout-group">
                                 <div className="edit-workout-dropdown-boxes">
                                     <div className="form-group">
@@ -491,7 +534,7 @@ export const EditWorkout = () => {
                             </div>
 
                             <div className="workout-action-row">
-                                <Link to={userRole === 'admin' ? '/dashboard/admin' : `/view-workout/${workoutId}`} className="edit-workout-plan-btn">
+                                <Link to={cancelDestination} className="edit-workout-plan-btn">
                                     <div className="btn">Cancel</div>
                                 </Link>
                                 <button
@@ -500,16 +543,13 @@ export const EditWorkout = () => {
                                     onClick={handleSaveWorkout}
                                     disabled={saving || loading}
                                 >
-                                    {saving ? 'Saving...' : 'Save Workout Plan'}
+                                    {saving ? 'Saving...' : isCreateMode ? 'Create Workout Plan' : 'Save Workout Plan'}
                                 </button>
                             </div>
-
-                            
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     )
 }
