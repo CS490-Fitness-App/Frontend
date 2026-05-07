@@ -1,7 +1,14 @@
 import React from 'react'
 import './Filters.css'
 
-export const ExerciseFilters = ({ filters, setFilters }) => {
+export const ExerciseFilters = ({
+    filters,
+    setFilters,
+    equipmentOptions = [],
+    muscleGroups = [],
+    categories = [],
+    experienceLevels = [],
+}) => {
     const update = (field, value) => {
         setFilters((prev) => ({
             ...prev,
@@ -25,10 +32,34 @@ export const ExerciseFilters = ({ filters, setFilters }) => {
                 onChange={(e) => update('category_id', e.target.value)}
             >
                 <option value="">All Categories</option>
-                <option value="1">Strength</option>
-                <option value="2">Cardio</option>
-                <option value="3">Flexibility</option>
+                {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
             </select>
+
+            <select
+                className="filters-select"
+                value={filters.equipment}
+                onChange={(e) => update('equipment', e.target.value)}
+            >
+                <option value="">All Equipment</option>
+                {equipmentOptions.map(eq => (
+                    <option key={eq} value={eq}>{eq}</option>
+                ))}
+            </select>
+
+            {muscleGroups.length > 0 && (
+                <select
+                    className="filters-select"
+                    value={filters.muscle_group_id}
+                    onChange={(e) => update('muscle_group_id', e.target.value)}
+                >
+                    <option value="">All Muscle Groups</option>
+                    {muscleGroups.map(mg => (
+                        <option key={mg.id} value={mg.id}>{mg.name}</option>
+                    ))}
+                </select>
+            )}
 
             <select
                 className="filters-select"
@@ -36,9 +67,9 @@ export const ExerciseFilters = ({ filters, setFilters }) => {
                 onChange={(e) => update('experience_level_id', e.target.value)}
             >
                 <option value="">All Levels</option>
-                <option value="1">Beginner</option>
-                <option value="2">Intermediate</option>
-                <option value="3">Advanced</option>
+                {experienceLevels.map(level => (
+                    <option key={level.id} value={level.id}>{level.name}</option>
+                ))}
             </select>
         </div>
     )
