@@ -40,6 +40,7 @@ export const Profile = () => {
     const [nameDraft, setNameDraft] = useState('')
     const [goalWeightDraft, setGoalWeightDraft] = useState('')
     const [bioDraft, setBioDraft] = useState('')
+    const [hourlyRateDraft, setHourlyRateDraft] = useState('')
     const [isUpdating, setIsUpdating] = useState(false)
     const [updateError, setUpdateError] = useState('')
 
@@ -172,7 +173,10 @@ export const Profile = () => {
                 : ''
         )
         setBioDraft(coachProfile?.bio || '')
-    }, [profile, clientProfile?.goal_weight, coachProfile?.bio])
+        setHourlyRateDraft(
+            coachProfile?.hourly_rate != null ? String(coachProfile.hourly_rate) : ''
+        )
+    }, [profile, clientProfile?.goal_weight, coachProfile?.bio, coachProfile?.hourly_rate])
 
     const getAuthToken = async () => {
         if (isAuthenticated) {
@@ -208,6 +212,13 @@ export const Profile = () => {
             }
             if (field === 'bio') {
                 payload.bio = bioDraft
+            }
+            if (field === 'hourly_rate') {
+                const parsed = Number(hourlyRateDraft)
+                if (!Number.isFinite(parsed) || parsed < 0) {
+                    throw new Error('Hourly rate must be a positive number.')
+                }
+                payload.hourly_rate = parsed
             }
 
             const response = await fetch(`${API_BASE_URL}/users/me`, {
@@ -536,7 +547,35 @@ export const Profile = () => {
                                     <div className="dashboard-list-container">
                                         <div className="dashboard-list-contents"><div className="stat-heading">Status</div><div className="dashboard-list">{coachProfile.status || 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Gender</div><div className="dashboard-list">{coachProfile.gender || 'Not set'}</div></div>
-                                        <div className="dashboard-list-contents"><div className="stat-heading">Hourly Rate</div><div className="dashboard-list">${coachProfile.hourly_rate.toFixed(2)}</div></div>
+                                        <div className="dashboard-list-contents">
+                                            <div className="stat-heading">Hourly Rate</div>
+                                            <div className="profile-editable-row profile-editable-row-inline">
+                                                {editingField === 'hourly_rate' ? (
+                                                    <div className="profile-edit-inline">
+                                                        <input
+                                                            className="profile-edit-input"
+                                                            value={hourlyRateDraft}
+                                                            onChange={(event) => setHourlyRateDraft(event.target.value)}
+                                                            placeholder="Rate ($/hr)"
+                                                            type="number"
+                                                            min="0"
+                                                            step="0.01"
+                                                        />
+                                                        <div className="profile-edit-actions">
+                                                            <button type="button" className="profile-inline-btn" onClick={() => saveField('hourly_rate')} disabled={isUpdating}>Save</button>
+                                                            <button type="button" className="profile-inline-btn ghost" onClick={() => setEditingField(null)} disabled={isUpdating}>Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <button type="button" className="profile-edit-trigger" onClick={() => { setUpdateError(''); setEditingField('hourly_rate') }} aria-label="Edit hourly rate">
+                                                            <EditIcon />
+                                                        </button>
+                                                        <div className="dashboard-list">${coachProfile.hourly_rate.toFixed(2)}</div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Experience</div><div className="dashboard-list">{coachProfile.years_of_experience ?? 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Max Clients</div><div className="dashboard-list">{coachProfile.max_clients ?? 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Accepting Clients</div><div className="dashboard-list">{coachProfile.accepting_clients ? 'Yes' : 'No'}</div></div>
