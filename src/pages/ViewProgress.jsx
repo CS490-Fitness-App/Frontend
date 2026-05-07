@@ -61,6 +61,7 @@ const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChan
 
             currentSegment.push({
                 date: point.date,
+                label: point.label,
                 x: xForIndex(index),
                 y: yForValue(value),
                 value,
@@ -161,9 +162,11 @@ const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChan
                                     r="6"
                                     fill={line.color}
                                     opacity="0.28"
-                                    className="progress-chart-hit"
-                                    onClick={() => onDateSelect?.(point.date)}
-                                />
+                                    className={line.clickable ? 'progress-chart-hit' : undefined}
+                                    onClick={line.clickable ? () => onDateSelect?.(point.date) : undefined}
+                                >
+                                    <title>{line.tooltip?.(point) || `${line.label}: ${point.value}`}</title>
+                                </circle>
                             ))
                         )}
                         {segmentsForSeries(line).map((segment, segmentIndex) =>
@@ -175,9 +178,11 @@ const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChan
                                     r="3"
                                     fill={line.color}
                                     opacity="0.9"
-                                    className="progress-chart-point progress-chart-point-clickable"
-                                    onClick={() => onDateSelect?.(point.date)}
-                                />
+                                    className={line.clickable ? 'progress-chart-point progress-chart-point-clickable' : 'progress-chart-point'}
+                                    onClick={line.clickable ? () => onDateSelect?.(point.date) : undefined}
+                                >
+                                    <title>{line.tooltip?.(point) || `${line.label}: ${point.value}`}</title>
+                                </circle>
                             ))
                         )}
                     </g>
@@ -200,7 +205,7 @@ const LineChart = ({ title, subtitle, points, series, timeRange, onTimeRangeChan
                 })}
             </svg>
 
-            <div className="progress-chart-hint">Click a data point to open that day&apos;s activity log.</div>
+            <div className="progress-chart-hint">Hover over points for details. Click an orange logged-weight point to open that day&apos;s activity log.</div>
 
             <div className="progress-legend">
                 {series.map((line) => (
@@ -519,17 +524,28 @@ export const ViewProgress = () => {
             label: 'Goal Weight',
             color: '#6fbf73',
             getValue: (point) => point.goal_weight_lb,
+            clickable: false,
+            tooltip: (point) => `Goal Weight: ${point.value} lb`,
         },
         {
             key: 'survey',
             label: 'Daily Survey Weight',
             color: '#ef8354',
             getValue: (point) => point.survey_weight_lb,
+            clickable: true,
+            tooltip: (point) => `Logged Weight: ${point.value} lb on ${point.label}`,
         },
     ]), [])
 
     const openActivityDay = (date) => {
-        navigate(`/activity-logger?date=${date}`)
+        const params = new URLSearchParams({ date })
+        if (clientUserId) {
+            params.set('client_id', clientUserId)
+            if (progressData?.client_name) {
+                params.set('client_name', progressData.client_name)
+            }
+        }
+        navigate(`/activity-logger?${params.toString()}`)
     }
 
     return (
