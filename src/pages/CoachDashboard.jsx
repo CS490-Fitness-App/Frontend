@@ -36,6 +36,7 @@ export const CoachDashboard = () => {
     const [pendingRequests, setPendingRequests] = useState([]);
     const [notifications] = useState([]);
     const [coachId, setCoachId] = useState(null);
+    const [coachStatus, setCoachStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [monthlyEarnings, setMonthlyEarnings] = useState(0);
@@ -70,6 +71,7 @@ export const CoachDashboard = () => {
             const meData = await meRes.json();
             const myCoachId = meData.coach_id;
             setCoachId(myCoachId);
+            setCoachStatus(meData.status || null);
 
             const { days, start, end } = parseAvailability(meData.availability);
             setAvailDays(days);
@@ -253,6 +255,12 @@ export const CoachDashboard = () => {
                     <div className="dashboard-homepage-container">
 
                         <div className="dashboard">
+                            {coachStatus === 'Pending' && (
+                                <div className="coach-pending-banner">
+                                    <strong>Application Under Review</strong>
+                                    <p>Your coach application is pending admin approval. You'll have full access once approved.</p>
+                                </div>
+                            )}
                             {error && <p className="feedback-msg error" style={{ padding: '1rem 0' }}>{error}</p>}
 
                             <div className="section-quick-stats">

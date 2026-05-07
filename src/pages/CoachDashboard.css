@@ -1,3 +1,29 @@
+.coach-pending-banner {
+    background: #FFF8E1;
+    border: 1.5px solid #F5A623;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.coach-pending-banner strong {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #b07800;
+}
+
+.coach-pending-banner p {
+    font-family: 'Anek Latin', sans-serif;
+    font-size: 14px;
+    color: #7a5500;
+    margin: 0;
+}
+
 .card {
     display: flex;
     flex-direction: column;
