@@ -33,6 +33,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
     const [formError, setFormError] = useState('')
     const [formSubmitting, setFormSubmitting] = useState(false)
     const [contractAllowed, setContractAllowed] = useState(false)
+    const [adminDeletingId, setAdminDeletingId] = useState(null)
 
     const isLoggedIn = isAuthenticated || !!customAuth
     const isClient = userRole === 'client'
@@ -66,12 +67,20 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
         if (isLoggedIn && isClient) {
             getToken().then(token => {
                 if (!token) return
-                fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews/can-review`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                })
-                    .then(r => r.ok ? r.json() : { allowed: false })
-                    .then(data => setContractAllowed(data.allowed))
-                    .catch(() => {})
+                const headers = { Authorization: `Bearer ${token}` }
+                Promise.all([
+                    fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews/can-review`, { headers })
+                        .then(r => r.ok ? r.json() : { allowed: false }),
+                    fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews/mine`, { headers })
+                        .then(r => r.ok ? r.json() : null),
+                ]).then(([canReview, mine]) => {
+                    setContractAllowed(canReview.allowed)
+                    if (mine) {
+                        setMyReview(mine)
+                        setFormRating(mine.rating)
+                        setFormDescription(mine.description || '')
+                    }
+                }).catch(() => {})
             })
         }
     }, [coach?.coach_id])
@@ -170,6 +179,22 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
             }
         } catch {}
         finally { setFormSubmitting(false) }
+    }
+
+    const handleAdminDeleteReview = async (reviewId) => {
+        if (!window.confirm('Delete this review? This cannot be undone.')) return
+        setAdminDeletingId(reviewId)
+        try {
+            const token = await getToken()
+            const res = await fetch(`${API_BASE_URL}/admin/reviews/${reviewId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            if (res.ok) {
+                setReviews(prev => prev.filter(r => r.review_id !== reviewId))
+            }
+        } catch {}
+        finally { setAdminDeletingId(null) }
     }
 
     const specializationLabel = () => {
@@ -288,6 +313,15 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                                                 disabled={formSubmitting}
                                             >
                                                 Delete
+                                            </button>
+                                        )}
+                                        {userRole === 'admin' && (
+                                            <button
+                                                className="review-delete-btn"
+                                                onClick={() => handleAdminDeleteReview(r.review_id)}
+                                                disabled={adminDeletingId === r.review_id}
+                                            >
+                                                {adminDeletingId === r.review_id ? 'Deleting...' : 'Delete'}
                                             </button>
                                         )}
                                     </div>
