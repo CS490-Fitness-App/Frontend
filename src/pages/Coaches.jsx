@@ -92,7 +92,7 @@ export const Coaches = () => {
 
                 <CoachFilters filters={filters} setFilters={setFilters} />
 
-                <div style={{ display: 'flex', marginTop:'2rem', justifyContent: 'space-around', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', marginTop:'2rem', justifyContent: 'space-around', flexWrap: 'wrap', width: 'min(1200px, calc(100% - 3rem))' }}>
                     {coaches.map(coach => (
                         <CoachCard
                             key={coach.coach_id}
