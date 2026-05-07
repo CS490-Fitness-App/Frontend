@@ -218,43 +218,40 @@ export const ViewWorkout = () => {
                     <div className="workout-action-row">
                         {userRole === 'coach' ? (
                             <>
-                                <button className="btn" onClick={handleScheduleForMe}>Schedule for Me</button>
-                                <button className="btn" onClick={handleOpenClientPicker}>Schedule for Client</button>
+                                <button className="vw-schedule-btn btn-periwinkle" onClick={handleScheduleForMe}>Schedule for Me</button>
+                                <button className="vw-schedule-btn btn-outline" onClick={handleOpenClientPicker}>Schedule for Client</button>
                             </>
                         ) : (
-                            <button className="btn" onClick={handleScheduleForMe}>Schedule Workout</button>
+                            <button className="vw-schedule-btn btn-periwinkle" onClick={handleScheduleForMe}>Schedule Workout</button>
                         )}
                     </div>
 
-
                     {showClientPicker && (
-                        <div className="calendar-popup-background">
-                            <div className="calendar-popup-container">
-                                <div className="calendar-popup-contents">
-                                    <label className="calendar-form-label">Select a client:</label>
-                                    {loadingClients && <p className="state-message loading">Loading clients...</p>}
-                                    {!loadingClients && clients.length === 0 && (
-                                        <p className="state-message">No active clients found.</p>
-                                    )}
-                                    {!loadingClients && clients.length > 0 && (
-                                        <select
-                                            className="calendar-form-input"
-                                            defaultValue=""
-                                            onChange={(e) => {
-                                                const client = clients.find((c) => String(c.user_id) === e.target.value)
-                                                if (client) handleSelectClient(client)
-                                            }}
-                                        >
-                                            <option value="" disabled>— pick a client —</option>
-                                            {clients.map((c) => (
-                                                <option key={c.user_id} value={c.user_id}>
-                                                    {c.first_name} {c.last_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    )}
-                                </div>
-                                <button className="calendar-btn-outline" onClick={() => setShowClientPicker(false)}>Cancel</button>
+                        <div className="vw-client-picker">
+                            <p className="vw-client-picker-label">Select a client</p>
+                            {loadingClients && <p className="state-message loading">Loading clients...</p>}
+                            {!loadingClients && clients.length === 0 && (
+                                <p className="state-message">No active clients found.</p>
+                            )}
+                            {!loadingClients && clients.length > 0 && (
+                                <select
+                                    className="calendar-form-input"
+                                    defaultValue=""
+                                    onChange={(e) => {
+                                        const client = clients.find((c) => String(c.user_id) === e.target.value)
+                                        if (client) handleSelectClient(client)
+                                    }}
+                                >
+                                    <option value="" disabled>— pick a client —</option>
+                                    {clients.map((c) => (
+                                        <option key={c.user_id} value={c.user_id}>
+                                            {c.first_name} {c.last_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+                            <div className="vw-client-picker-actions">
+                                <button className="vw-schedule-btn btn-outline" onClick={() => setShowClientPicker(false)}>Cancel</button>
                             </div>
                         </div>
                     )}
