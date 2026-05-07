@@ -59,7 +59,7 @@ export const Home = () => {
                     <div className="home-card">
                         <RiUserVoiceLine />
                         <h2>Coaches</h2>
-                        <p>Connect with our wide range of speialized coaches for workout and meal planning assiatance. Match with whoever works best for you! Available 24/7 </p>
+                        <p>Connect with our wide range of specialized coaches for workout and meal planning assiatance. Match with whoever works best for you! Available 24/7 </p>
                         <Link to="/coaches" className="btn">Browse Coaches</Link>
                     </div>
                 </div>
