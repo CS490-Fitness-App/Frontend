@@ -331,37 +331,32 @@ export const CoachDashboard = () => {
                                 </div>
 
                                 <div className="card">
-                                        <div>
-                                            <div className="dashboard-heading">Pending Requests</div>
-                                            {loading ? (
-                                                <p className="state-message loading">Loading...</p>
-                                            ) : pendingRequests.length === 0 ? (
-                                                <p className="state-message">No pending requests.</p>
-                                            ) : pendingRequests.map((request) => {
-                                                const initials = `${request.first_name?.[0] || ''}${request.last_name?.[0] || ''}`;
-                                                const fullName = `${request.first_name} ${request.last_name}`;
-                                                return (
-                                                    <div key={request.client_id} className="request-item">
-                                                        <div className="request-info">
-                                                            <div className="client-avatar">{initials}</div>
-                                                            <div>
-                                                                <div className="request-name">{fullName}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="request-actions">
-                                                            <button className="btn-sm btn-green" onClick={() => handleAccept(request.client_id)}>ACCEPT</button>
-                                                            <button className="btn-sm btn-red" onClick={() => handleDecline(request.client_id)}>DECLINE</button>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
+                                    <div className="dashboard-heading">Pending Requests</div>
+                                    {loading ? (
+                                        <p className="state-message loading">Loading...</p>
+                                    ) : pendingRequests.length === 0 ? (
+                                        <p className="state-message">No pending requests.</p>
+                                    ) : pendingRequests.map((request) => {
+                                        const initials = `${request.first_name?.[0] || ''}${request.last_name?.[0] || ''}`;
+                                        const fullName = `${request.first_name} ${request.last_name}`;
+                                        return (
+                                            <div key={request.client_id} className="request-item">
+                                                <div className="request-info">
+                                                    <div className="client-avatar">{initials}</div>
+                                                    <div className="request-name">{fullName}</div>
+                                                </div>
+                                                <div className="request-actions">
+                                                    <button className="btn-sm btn-green" onClick={() => handleAccept(request.client_id)}>Accept</button>
+                                                    <button className="btn-sm btn-red" onClick={() => handleDecline(request.client_id)}>Decline</button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
                             <div className="bottom-actions">
                                 <button className="btn-periwinkle" onClick={() => setShowAvailModal(true)}>SET AVAILABILITY</button>
-                                <button className="btn-outline">UPDATE QUALIFICATIONS</button>
                             </div>
                         </div>
 

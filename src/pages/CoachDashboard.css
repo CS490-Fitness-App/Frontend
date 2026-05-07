@@ -27,9 +27,25 @@
 .card {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     border: 2px solid black;
-    padding: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: white;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dashboard-heading {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: black;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0;
+    width: 100%;
 }
 
 .pending-dot {
@@ -81,8 +97,8 @@
 }
 
 .client-avatar {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: var(--periwinkle-light);
   display: flex;
@@ -93,6 +109,7 @@
   font-weight: 700;
   color: var(--slate-purple);
   flex-shrink: 0;
+  border: 1.5px solid rgba(128, 140, 253, 0.25);
 }
 
 .client-name {
@@ -191,20 +208,34 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 10px;
-  border-bottom: 1px solid #eee;
+  padding: 14px 0;
+  border-bottom: 1px solid #f3f4f6;
+  gap: 12px;
+}
+
+.request-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.request-item:first-of-type {
+  padding-top: 12px;
 }
 
 .request-info {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .request-name {
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  font-family: 'Anek Latin', sans-serif;
+  font-size: 15px;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .request-goal {
@@ -218,6 +249,7 @@
 .request-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .notif-item {
@@ -281,31 +313,36 @@
   background: var(--white);
   border: 2px solid black;
   padding: 2rem;
-  width: 420px;
-  max-width: 95vw;
+  width: 480px;
+  max-width: calc(100vw - 2rem);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .avail-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(209, 213, 219, 1);
 }
 
 .avail-modal-title {
   font-family: 'Space Mono', monospace;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
+  color: var(--black);
 }
 
 .avail-modal-close {
   background: none;
   border: none;
-  font-size: 16px;
+  font-size: 14px;
+  line-height: 1;
   cursor: pointer;
   color: var(--slate-purple);
   padding: 4px 8px;
@@ -317,27 +354,33 @@
 
 .avail-modal-label {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 9px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   color: var(--slate-purple);
-  margin: 0;
+  margin: 0 0 8px;
 }
 
 .avail-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .avail-toggle {
-  height: 44px;
+  height: 48px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
   border: 1.5px solid black;
   background: var(--white);
   font-family: 'Space Mono', monospace;
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
@@ -362,14 +405,14 @@
 .avail-time-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .avail-time-input {
   padding: 10px 12px;
   border: 1.5px solid black;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
   width: 100%;
   box-sizing: border-box;
   outline: none;
@@ -381,8 +424,10 @@
 
 .avail-error {
   color: #EA4335;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   margin: 0;
 }
 

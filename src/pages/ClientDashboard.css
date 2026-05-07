@@ -4,28 +4,34 @@
     display: flex;
     flex-direction: row;
     align-items: stretch;
+    width: 100%;
+    min-height: 100vh;
 }
 
 .client-dashboard-container {
     display: flex;
     flex-direction: row;
     align-items: stretch;
+    width: 100%;
+    min-height: 100vh;
 }
 
 .client-dashboard-container > div:last-child,
 .dashboard-container > div:last-child {
     flex: 1;
     min-width: 0;
+    overflow-x: hidden;
 }
 
 .dashboard-homepage-container {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 32px;
     padding: 32px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .dashboard-page-heading {
@@ -78,6 +84,114 @@
     text-decoration: none;
     text-transform: none;
     color: rgb(75, 85, 99);
+}
+
+.week-glance-panel {
+    width: 100%;
+    border: 2px solid black;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.week-glance-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.week-glance-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 6px;
+    border: 1.5px solid #e0e0e0;
+    min-height: 90px;
+}
+
+.week-glance-day.today {
+    border-color: rgba(128, 141, 253, 1);
+    background: rgba(233, 236, 255, 0.5);
+}
+
+.week-glance-day.has-workout {
+    border-color: black;
+}
+
+.week-glance-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgb(107, 114, 128);
+}
+
+.week-glance-date {
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+    line-height: 1;
+    color: black;
+}
+
+.week-glance-day.today .week-glance-date {
+    color: rgba(128, 141, 253, 1);
+}
+
+.week-glance-workouts {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.week-glance-item {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    line-height: 1.3;
+    text-align: center;
+    background: rgba(128, 141, 253, 1);
+    color: white;
+    padding: 2px 4px;
+    border-radius: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.week-glance-rest {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ccc;
+    margin-top: auto;
+}
+
+@media (max-width: 700px) {
+    .week-glance-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+    }
+
+    .week-glance-day {
+        padding: 6px 2px;
+        min-height: 70px;
+    }
+
+    .week-glance-label {
+        font-size: 7px;
+    }
+
+    .week-glance-date {
+        font-size: 15px;
+    }
+
+    .week-glance-item {
+        font-size: 8px;
+    }
 }
 
 .section-2 {
@@ -136,7 +250,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    gap: 275px;
+    gap: 16px;
     width: 100%;
 }
 
