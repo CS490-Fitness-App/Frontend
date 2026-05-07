@@ -1,11 +1,20 @@
 import "./WorkoutCard.css"
 import React from 'react'
 
+const levelClass = (level) => {
+    switch ((level || '').toLowerCase()) {
+        case 'beginner':     return 'workout-card-tag workout-card-tag-beginner'
+        case 'intermediate': return 'workout-card-tag workout-card-tag-intermediate'
+        case 'advanced':     return 'workout-card-tag workout-card-tag-advanced'
+        default:             return 'workout-card-tag workout-card-tag-beginner'
+    }
+}
+
 export const WorkoutCard = ({ workout, onClick }) => {
     return (
         <div className="workout-card-container" onClick={onClick} style={{ cursor: 'pointer' }}>
             <img className="workout-card-img" src={workout.image_url || "https://picsum.photos/300/200"} alt={workout.name} />
-            <div className="workout-card-tag">{workout.experience_level || "All Levels"}</div>
+            <div className={levelClass(workout.experience_level)}>{workout.experience_level || "All Levels"}</div>
             <h2 className="workout-card-title">{workout.name}</h2>
             <div className="workout-card-meta">
                 {workout.goal_type && <span>{workout.goal_type}</span>}
