@@ -33,6 +33,7 @@ export const Profile = () => {
     const [error, setError] = useState('')
     const [selectedFile, setSelectedFile] = useState(null)
     const [previewUrl, setPreviewUrl] = useState('')
+    const [isDragging, setIsDragging] = useState(false)
     const [saveError, setSaveError] = useState('')
     const [isSaving, setIsSaving] = useState(false)
     const [editingField, setEditingField] = useState(null)
@@ -232,27 +233,22 @@ export const Profile = () => {
         }
     }
 
-    const handleFileChange = (event) => {
-        const file = event.target.files?.[0]
-        if (!file) {
-            return
-        }
-
+    const applyFile = (file, inputEl = null) => {
+        if (!file) return
         if (!file.type.startsWith('image/')) {
             setSaveError('Please choose an image file.')
-            event.target.value = ''
+            if (inputEl) inputEl.value = ''
             return
         }
-
-        if (previewUrl) {
-            URL.revokeObjectURL(previewUrl)
-        }
-
+        if (previewUrl) URL.revokeObjectURL(previewUrl)
         setSelectedFile(file)
         setPreviewUrl(URL.createObjectURL(file))
         setSaveError('')
-        event.target.value = ''
+        if (inputEl) inputEl.value = ''
     }
+
+    const handleFileChange = (event) => applyFile(event.target.files?.[0], event.target)
+
 
     const handleSaveProfilePicture = async () => {
         if (!selectedFile) {
@@ -415,15 +411,21 @@ export const Profile = () => {
                             <section className="profile-panel">
                                 <div className="dashboard-heading">Account Details</div>
                                 <div className="profile-summary-row">
-                                    <label className="profile-avatar-upload">
+                                    <label
+                                        className="profile-avatar-upload"
+                                        onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+                                        onDragEnter={(e) => { e.preventDefault(); setIsDragging(true) }}
+                                        onDragLeave={() => setIsDragging(false)}
+                                        onDrop={(e) => { e.preventDefault(); setIsDragging(false); applyFile(e.dataTransfer.files?.[0]) }}
+                                    >
                                         <input type="file" accept="image/*" className="profile-avatar-input" onChange={handleFileChange} />
-                                        <div className="profile-avatar-large">
+                                        <div className={`profile-avatar-large${isDragging ? ' dragging' : ''}`}>
                                             {profileImageUrl ? (
                                                 <img src={profileImageUrl} alt="Profile" className="profile-avatar-image" />
                                             ) : (
                                                 <span>{(profile.first_name?.[0] || profile.email?.[0] || 'U').toUpperCase()}</span>
                                             )}
-                                            <div className="profile-avatar-overlay">Change photo</div>
+                                            <div className="profile-avatar-overlay">{isDragging ? 'Drop to upload' : 'Change photo'}</div>
                                         </div>
                                     </label>
                                     <div className="profile-summary-copy">
