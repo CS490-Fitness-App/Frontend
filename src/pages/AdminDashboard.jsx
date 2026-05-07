@@ -77,6 +77,12 @@ export const AdminDashboard = () => {
     const [workoutActionId, setWorkoutActionId] = useState(null);
     const [workoutSearch, setWorkoutSearch] = useState('');
 
+    const [clients, setClients] = useState([]);
+    const [clientLoading, setClientLoading] = useState(false);
+    const [clientError, setClientError] = useState('');
+    const [clientSearch, setClientSearch] = useState('');
+    const [clientActionId, setClientActionId] = useState(null);
+
     const [coachSearch, setCoachSearch] = useState('');
     const [exerciseSearch, setExerciseSearch] = useState('');
     const [financialPeriod, setFinancialPeriod] = useState('all');
@@ -291,6 +297,58 @@ export const AdminDashboard = () => {
             fetchWorkouts();
         }
     }, [activeTab, isAuthenticated, customAuth]);
+
+    const fetchClients = async () => {
+        setClientLoading(true);
+        setClientError('');
+        try {
+            const token = await getToken();
+            if (!token) {
+                setClientError('Log in as an admin to view clients.');
+                setClientLoading(false);
+                return;
+            }
+            const res = await fetch(`${API_BASE_URL}/admin/clients`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => []);
+            if (!res.ok) throw new Error(data.detail || 'Failed to load clients');
+            setClients(data);
+        } catch (err) {
+            setClientError(err.message || 'Failed to load clients');
+        } finally {
+            setClientLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 5) {
+            fetchClients();
+        }
+    }, [activeTab, isAuthenticated, customAuth]);
+
+    const handleDeleteClient = async (clientId) => {
+        if (!window.confirm('Permanently delete this client account? This cannot be undone.')) return;
+        setClientActionId(clientId);
+        setClientError('');
+        try {
+            const token = await getToken();
+            if (!token) throw new Error('Log in as an admin to manage clients.');
+            const res = await fetch(`${API_BASE_URL}/admin/clients/${clientId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.detail || 'Failed to delete client');
+            }
+            setClients((current) => current.filter((c) => c.client_id !== clientId));
+        } catch (err) {
+            setClientError(err.message || 'Failed to delete client');
+        } finally {
+            setClientActionId(null);
+        }
+    };
 
     const handleDeleteWorkout = async (workoutId) => {
         if (!window.confirm('Delete this workout plan? This cannot be undone.')) return;
@@ -520,6 +578,14 @@ export const AdminDashboard = () => {
         (w.name || '').toLowerCase().includes(workoutSearch.toLowerCase())
     );
 
+    const filteredClients = clients.filter((c) => {
+        const q = clientSearch.toLowerCase();
+        return (
+            `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase().includes(q) ||
+            (c.email || '').toLowerCase().includes(q)
+        );
+    });
+
     const getStatusClass = (status) => {
         if (status === 'Active' || status === 'Approved') return 'status-approved';
         if (status === 'Pending') return 'status-pending';
@@ -563,7 +629,7 @@ export const AdminDashboard = () => {
                             </div>
                             {adminOverviewError && <p className="feedback-msg error">{adminOverviewError}</p>}
                             <div className="tabs">
-                                {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT', 'WORKOUT INVENTORY'].map((tab, i) => (
+                                {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT', 'WORKOUT INVENTORY', 'CLIENT MANAGEMENT'].map((tab, i) => (
                                     <div key={i} className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{tab}</div>
                                 ))}
                             </div>
@@ -1055,6 +1121,46 @@ export const AdminDashboard = () => {
                                                             <Link className="btn-sm btn-outline-sm" to={`/edit-workout/${w.workout_id}`}>EDIT</Link>
                                                             <button className="btn-sm btn-red-outline" disabled={workoutActionId === w.workout_id} onClick={() => handleDeleteWorkout(w.workout_id)}>{workoutActionId === w.workout_id ? 'WORKING...' : 'DELETE'}</button>
                                                         </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                            {activeTab === 5 && (
+                                <div className="tab-content">
+                                    <div className="section-header">
+                                        <div className="admin-section-title">All Clients</div>
+                                        <div className="admin-search-bar">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
+                                                <circle cx="11" cy="11" r="8" />
+                                                <path d="m21 21-4.35-4.35" />
+                                            </svg>
+                                            <input type="text" placeholder="SEARCH CLIENTS..." value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    {clientError && <p className="feedback-msg error">{clientError}</p>}
+                                    <table className="admin-table">
+                                        <thead>
+                                            <tr><th>Client</th><th>Email</th><th>Weekly Streak</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            {clientLoading ? (
+                                                <tr><td colSpan="6"><span className="state-message loading">Loading clients...</span></td></tr>
+                                            ) : filteredClients.length === 0 ? (
+                                                <tr><td colSpan="6"><span className="state-message">No clients found.</span></td></tr>
+                                            ) : filteredClients.map((client) => (
+                                                <tr key={client.client_id}>
+                                                    <td><strong>{client.first_name} {client.last_name}</strong></td>
+                                                    <td>{client.email}</td>
+                                                    <td>{client.weekly_streak}</td>
+                                                    <td><span className={`status-badge ${getStatusClass(client.is_active ? 'Active' : 'Rejected')}`}>{client.is_active ? 'Active' : 'Inactive'}</span></td>
+                                                    <td>{new Date(client.joined_at).toLocaleDateString()}</td>
+                                                    <td>
+                                                        <button className="btn-sm btn-red-outline" disabled={clientActionId === client.client_id} onClick={() => handleDeleteClient(client.client_id)}>
+                                                            {clientActionId === client.client_id ? 'WORKING...' : 'DELETE'}
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))}
