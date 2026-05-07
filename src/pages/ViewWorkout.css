@@ -15,10 +15,11 @@
 }
 
 .workout-table {
-    padding: 2rem;
+    padding: 1.5rem 20px;
     width: 100%;
     background-color: white;
     border-radius: 5px;
+    box-sizing: border-box;
 }
 
 .workout-table th {
@@ -83,13 +84,20 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    padding: 2rem;
+    padding: 1.5rem 20px;
     background-color: #E9ECFF;
 }
 
 .workout-textbox-container {
-    padding: 2rem;
+    padding: 1rem 0;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.workout-textbox-container .form-group .h3 {
+    margin-bottom: 0;
 }
 
 .edit-workout-group {
@@ -144,8 +152,48 @@
 /* ── Schedule buttons & client picker ───────────────────── */
 .workout-action-row {
     display: flex;
-    justify-content: center;
+    gap: 12px;
     width: 100%;
+    padding-top: 20px;
     border-top: 1px solid rgba(209, 213, 219, 1);
+}
+
+.vw-schedule-btn {
+    flex: 1;
+    padding: 12px 20px;
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+.vw-client-picker {
+    width: 100%;
+    border: 2px solid black;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.vw-client-picker-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--slate-purple);
+    margin: 0;
+}
+
+.vw-client-picker-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.vw-client-picker .calendar-form-input {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
