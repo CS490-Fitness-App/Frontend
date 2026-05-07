@@ -194,7 +194,7 @@ export const AdminDashboard = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 1) {
+        if (activeTab === 4) {
             fetchExercises();
         }
     }, [activeTab, isAuthenticated, customAuth]);
@@ -231,7 +231,7 @@ export const AdminDashboard = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 2) {
+        if (activeTab === 3) {
             fetchFinancialSummary();
         }
     }, [activeTab, financialPeriod, financialYear, financialSearch, isAuthenticated, customAuth]);
@@ -264,7 +264,7 @@ export const AdminDashboard = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 3) {
+        if (activeTab === 2) {
             fetchEngagementSummary();
         }
     }, [activeTab, engagementPeriod, isAuthenticated, customAuth]);
@@ -293,7 +293,7 @@ export const AdminDashboard = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 4) {
+        if (activeTab === 5) {
             fetchWorkouts();
         }
     }, [activeTab, isAuthenticated, customAuth]);
@@ -322,7 +322,7 @@ export const AdminDashboard = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 5) {
+        if (activeTab === 0) {
             fetchClients();
         }
     }, [activeTab, isAuthenticated, customAuth]);
@@ -625,15 +625,15 @@ export const AdminDashboard = () => {
                                 <div className="quick-stat-card"><div className="stat-heading">Total Users</div><div className="stat">{adminOverview?.total_users ?? '—'}</div></div>
                                 <div className="quick-stat-card"><div className="stat-heading">Active Coaches</div><div className="stat">{adminOverview?.active_coaches ?? coaches.filter((coach) => coach.status === 'Active').length}</div></div>
                                 <div className="quick-stat-card"><div className="stat-heading">Pending Approvals</div><div className="stat">{adminOverview?.pending_approvals ?? coaches.filter((coach) => coach.status === 'Pending').length} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div></div>
-                                <div className="quick-stat-card" onClick={() => setActiveTab(2)}><div className="stat-heading">Revenue This Month</div><div className="stat">{adminOverview ? formatCurrency(adminOverview.revenue_this_month) : '—'}</div></div>
+                                <div className="quick-stat-card" onClick={() => setActiveTab(3)}><div className="stat-heading">Revenue This Month</div><div className="stat">{adminOverview ? formatCurrency(adminOverview.revenue_this_month) : '—'}</div></div>
                             </div>
                             {adminOverviewError && <p className="feedback-msg error">{adminOverviewError}</p>}
                             <div className="tabs">
-                                {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT', 'WORKOUT INVENTORY', 'CLIENT MANAGEMENT'].map((tab, i) => (
+                                {['CLIENT MANAGEMENT', 'COACH MANAGEMENT', 'USER ENGAGEMENT', 'FINANCIAL TRACKING', 'EXERCISE INVENTORY', 'WORKOUT INVENTORY'].map((tab, i) => (
                                     <div key={i} className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{tab}</div>
                                 ))}
                             </div>
-                            {activeTab === 0 && (
+                            {activeTab === 1 && (
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">Coach Applications & Accounts</div>
@@ -682,7 +682,7 @@ export const AdminDashboard = () => {
                                     </table>
                                 </div>
                             )}
-                            {activeTab === 1 && (
+                            {activeTab === 4 && (
                                 <div className="tab-content">
                                     {exerciseLoading && <p className="state-message loading">Loading exercises...</p>}
                                     {exerciseError && <p className="feedback-msg error">{exerciseError}</p>}
@@ -792,7 +792,7 @@ export const AdminDashboard = () => {
                                     )}
                                 </div>
                             )}
-                            {activeTab === 2 && (
+                            {activeTab === 3 && (
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">Financial Tracking</div>
@@ -914,7 +914,7 @@ export const AdminDashboard = () => {
                                     )}
                                 </div>
                             )}
-                            {activeTab === 3 && (
+                            {activeTab === 2 && (
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">User Engagement</div>
@@ -1088,7 +1088,7 @@ export const AdminDashboard = () => {
                                     )}
                                 </div>
                             )}
-                            {activeTab === 4 && (
+                            {activeTab === 5 && (
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">Workout Plan Inventory</div>
@@ -1128,7 +1128,7 @@ export const AdminDashboard = () => {
                                     </table>
                                 </div>
                             )}
-                            {activeTab === 5 && (
+                            {activeTab === 0 && (
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">All Clients</div>
@@ -1152,7 +1152,17 @@ export const AdminDashboard = () => {
                                                 <tr><td colSpan="6"><span className="state-message">No clients found.</span></td></tr>
                                             ) : filteredClients.map((client) => (
                                                 <tr key={client.client_id}>
-                                                    <td><strong>{client.first_name} {client.last_name}</strong></td>
+                                                    <td>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            {client.profile_picture
+                                                                ? <img src={client.profile_picture} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                                                                : <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#6B6BA0', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                                                                    {(client.first_name?.[0] ?? '').toUpperCase()}{(client.last_name?.[0] ?? '').toUpperCase()}
+                                                                  </div>
+                                                            }
+                                                            <strong>{client.first_name} {client.last_name}</strong>
+                                                        </div>
+                                                    </td>
                                                     <td>{client.email}</td>
                                                     <td>{client.weekly_streak}</td>
                                                     <td><span className={`status-badge ${getStatusClass(client.is_active ? 'Active' : 'Rejected')}`}>{client.is_active ? 'Active' : 'Inactive'}</span></td>
