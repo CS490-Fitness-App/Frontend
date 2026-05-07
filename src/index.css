@@ -26,6 +26,8 @@ code {
   color: var(--slate-purple);
   padding: 12px 0;
   display: block;
+  text-align: center;
+  width: 100%;
 }
 
 .state-message.loading {
