@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import { Sidebar } from '../components/Sidebar';
 import './ChatPage.css';
 
 const POLL_INTERVAL_MS = 3000;
@@ -300,7 +301,9 @@ export const ChatPage = () => {
   }, {});
 
   return (
-    <div className="chat-page">
+    <div className="dashboard-container">
+      <Sidebar />
+      <div className="chat-page">
 
       <div className="chat-layout">
         <div className="chat-sidebar">
@@ -436,6 +439,7 @@ export const ChatPage = () => {
             </>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
