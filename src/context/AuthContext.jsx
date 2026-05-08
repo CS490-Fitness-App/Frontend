@@ -12,8 +12,9 @@ export const AuthProvider = ({ children }) => {
 
         return window.localStorage.getItem(CUSTOM_AUTH_STORAGE_KEY)
     })
-    const [backendAuthReady, setBackendAuthReady] = useState(() => !!customAuth)
+    const [backendAuthReady, setBackendAuthReady] = useState(false)
     const [backendAuthError, setBackendAuthError] = useState('')
+    const [backendAuthMeta, setBackendAuthMeta] = useState(null)
     const [profilePicture, setProfilePicture] = useState('')
     const [userRole, setUserRoleState] = useState(() => {
         if (typeof window === 'undefined') return null
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }) => {
         setCustomAuth(token)
         setBackendAuthReady(true)
         setBackendAuthError('')
+        setBackendAuthMeta(null)
         if (typeof window !== 'undefined') {
             window.localStorage.setItem(CUSTOM_AUTH_STORAGE_KEY, token)
         }
@@ -50,6 +52,7 @@ export const AuthProvider = ({ children }) => {
         setCustomAuth(null)
         setBackendAuthReady(false)
         setBackendAuthError('')
+        setBackendAuthMeta(null)
         setProfilePicture('')
         setUserRoleState(null)
         if (typeof window !== 'undefined') {
@@ -67,6 +70,8 @@ export const AuthProvider = ({ children }) => {
             setBackendAuthReady,
             backendAuthError,
             setBackendAuthError,
+            backendAuthMeta,
+            setBackendAuthMeta,
             profilePicture,
             setProfilePicture,
             userRole,

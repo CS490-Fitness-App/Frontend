@@ -42,24 +42,28 @@ const GoogleIcon = () => (
     </svg>
 )
 
-const readErrorDetail = async (response, fallbackMessage) => {
+const readErrorPayload = async (response, fallbackMessage) => {
     const rawBody = await response.text().catch(() => '')
 
     if (!rawBody) {
-        return fallbackMessage
+        return { message: fallbackMessage, detail: fallbackMessage }
     }
 
     try {
         const parsedBody = JSON.parse(rawBody)
-        return parsedBody.detail || parsedBody.message || rawBody || fallbackMessage
+        const detail = parsedBody.detail || parsedBody.message || fallbackMessage
+        return {
+            message: typeof detail === 'string' ? detail : detail?.message || fallbackMessage,
+            detail,
+        }
     } catch {
-        return rawBody
+        return { message: rawBody, detail: rawBody }
     }
 }
 
 export const LoginForm = ({ isOpen, onClose }) => {
     const { loginWithRedirect } = useAuth0()
-    const { setAuth } = useCustomAuth()
+    const { setAuth, setBackendAuthReady, setBackendAuthError, setBackendAuthMeta, setUserRole } = useCustomAuth()
     const navigate = useNavigate()
 
     const [view, setView] = useState('login')
@@ -146,8 +150,17 @@ export const LoginForm = ({ isOpen, onClose }) => {
         })
 
         if (!syncRes.ok) {
-            const detail = await readErrorDetail(syncRes, 'Failed to sync account with backend')
-            throw new Error(detail)
+            const payload = await readErrorPayload(syncRes, 'Failed to sync account with backend')
+            if (syncRes.status === 403 && typeof payload.detail === 'object' && payload.detail.code) {
+                return {
+                    access_token: tokenData.access_token,
+                    role: payload.detail.role || payload.role || 'client',
+                    inactiveSession: true,
+                    inactiveMessage: payload.message,
+                    inactiveMeta: payload.detail,
+                }
+            }
+            throw new Error(payload.message)
         }
 
         const syncData = await syncRes.json().catch(() => ({}))
@@ -173,6 +186,15 @@ export const LoginForm = ({ isOpen, onClose }) => {
                 role: 'client',
             })
             setAuth(result.access_token, result.role)
+            if (result.inactiveSession) {
+                setBackendAuthReady(false)
+                setBackendAuthError(result.inactiveMessage)
+                setBackendAuthMeta(result.inactiveMeta || null)
+                setUserRole(result.role)
+                onClose()
+                navigate(getDashboardRoute(result.role))
+                return
+            }
             onClose()
             navigate(getDashboardRoute(result.role))
         } catch (err) {

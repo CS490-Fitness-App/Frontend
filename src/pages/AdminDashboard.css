@@ -117,13 +117,18 @@
         border-bottom: 2px solid var(--periwinkle-light);
     }
 
-    .admin-table td {
+.admin-table td {
         padding: 14px 12px;
         border-bottom: 1px solid #eee;
         font-family: 'Inter', sans-serif;
         font-size: 14px;
         vertical-align: middle;
     }
+
+.muted-cell-value {
+    color: var(--slate-purple);
+    opacity: 0.7;
+}
 
 .status-badge {
     font-family: 'Space Mono', monospace;
@@ -205,6 +210,67 @@
     gap: 6px;
 }
 
+.admin-profile-trigger {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+    text-align: left;
+}
+
+.admin-profile-trigger:hover strong {
+    color: var(--periwinkle);
+}
+
+.admin-profile-trigger-inline {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+}
+
+.admin-click-card {
+    cursor: pointer;
+}
+
+.admin-click-card:hover {
+    filter: brightness(0.98);
+}
+
+.report-actions-cell {
+    flex-wrap: wrap;
+}
+
+.report-name-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.report-name-stack span {
+    color: var(--slate-purple);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.report-reason-cell {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.45;
+    max-width: 360px;
+}
+
+.reports-table th:nth-child(3),
+.reports-table td:nth-child(3) {
+    width: 28%;
+}
+
 .admin-feedback {
     margin: 0 0 16px;
     font-family: 'Space Mono', monospace;
@@ -253,6 +319,10 @@
     border: 1.5px solid var(--black);
     color: var(--black);
     padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     font-weight: 700;
@@ -267,6 +337,9 @@
     border: 1.5px solid #EA4335;
     color: #EA4335;
     padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     font-weight: 700;
@@ -286,6 +359,9 @@
     border: 1.5px solid #7C3AED;
     color: #7C3AED;
     padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     font-weight: 700;
@@ -339,6 +415,14 @@
     background: var(--white);
     border: 2px solid var(--black);
     padding: 24px;
+}
+
+.admin-confirm-modal {
+    width: min(520px, 100%);
+}
+
+.admin-profile-modal {
+    width: min(880px, 100%);
 }
 
 .admin-modal-header {
@@ -423,6 +507,96 @@
     justify-content: flex-end;
     gap: 10px;
     margin-top: 8px;
+}
+
+.admin-confirm-copy {
+    color: var(--black);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 12px;
+}
+
+.admin-profile-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.admin-profile-hero {
+    align-items: center;
+    border: 1.5px solid var(--black);
+    display: flex;
+    gap: 18px;
+    padding: 18px;
+}
+
+.admin-profile-avatar {
+    border: 1.5px solid var(--black);
+    border-radius: 50%;
+    height: 88px;
+    object-fit: cover;
+    width: 88px;
+}
+
+.admin-profile-avatar-fallback {
+    align-items: center;
+    background: var(--periwinkle);
+    color: var(--white);
+    display: flex;
+    font-family: 'Anton', sans-serif;
+    font-size: 28px;
+    justify-content: center;
+}
+
+.admin-profile-hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-profile-name {
+    font-family: 'Anton', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.admin-profile-email {
+    color: var(--slate-purple);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+}
+
+.admin-profile-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.admin-profile-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-profile-card {
+    border: 1.5px solid var(--black);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 180px;
+    padding: 18px;
+}
+
+.admin-profile-detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .finance-grid {
@@ -854,6 +1028,15 @@
 
     .admin-form-row {
         grid-template-columns: 1fr;
+    }
+
+    .admin-profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-profile-hero {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
     .finance-grid {
