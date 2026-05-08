@@ -180,6 +180,7 @@ const buildWorkoutForms = (scheduledWorkouts, loggedWorkouts) => {
 const ActivityPhotoPanel = ({
     photos,
     isLocked,
+    isCoachViewingClient,
     uploadType,
     setUploadType,
     uploadNote,
@@ -194,7 +195,9 @@ const ActivityPhotoPanel = ({
 }) => (
     <section className="section-card activity-section-card">
         <div className="section-title">Progress Photos For This Day</div>
-        <p className="stat-descriptor">Upload before or after check-in photos for this log. When you reopen this day later, they will show up here.</p>
+        {!isCoachViewingClient && (
+            <p className="stat-descriptor">Upload before or after check-in photos for this log. When you reopen this day later, they will show up here.</p>
+        )}
 
         {!isLocked && (
             <div className="activity-photo-form">
@@ -276,10 +279,12 @@ const ActivityPhotoPanel = ({
 
 export const ActivityLogger = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
-    const { customAuth } = useCustomAuth()
+    const { customAuth, userRole } = useCustomAuth()
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
     const selectedDate = searchParams.get('date') || getLocalDateString()
+    const clientUserId = searchParams.get('client_id')
+    const clientName = searchParams.get('client_name') || ''
 
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -304,7 +309,8 @@ export const ActivityLogger = () => {
     const [workoutForms, setWorkoutForms] = useState([])
     const isPastDate = selectedDate < getLocalDateString()
     const isHistoryView = isPastDate && activityDay?.has_logged_data
-    const isLocked = isPastDate
+    const isCoachViewingClient = userRole === 'coach' && Boolean(clientUserId)
+    const isLocked = isPastDate || isCoachViewingClient
 
     const getAuthToken = async () => {
         if (isAuthenticated) {
@@ -325,8 +331,17 @@ export const ActivityLogger = () => {
             setSuccess('')
 
             try {
+                if (userRole === 'coach' && !clientUserId) {
+                    throw new Error('Open a client from View Progress to review their daily log.')
+                }
+
                 const token = await getAuthToken()
-                const response = await fetch(`${API_BASE_URL}/logs/activity-day?date=${selectedDate}`, {
+                const activityParams = new URLSearchParams({ date: selectedDate })
+                if (isCoachViewingClient && clientUserId) {
+                    activityParams.set('client_user_id', clientUserId)
+                }
+
+                const response = await fetch(`${API_BASE_URL}/logs/activity-day?${activityParams.toString()}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
 
@@ -357,7 +372,7 @@ export const ActivityLogger = () => {
         }
 
         fetchActivityDay()
-    }, [selectedDate, isAuthenticated, customAuth, getAccessTokenSilently])
+    }, [selectedDate, isAuthenticated, customAuth, getAccessTokenSilently, isCoachViewingClient, clientUserId, userRole])
 
     const moodOptions = useMemo(() => {
         const backendOptions = activityDay?.mood_options?.map((option) => option.mood_label) || []
@@ -654,8 +669,17 @@ export const ActivityLogger = () => {
             <div className="activity-logger-page">
                 <div className="page-heading">
                     <div className="h2">
-                        <span className="text-black">Activity </span>
-                        <span className="text-purple">Logger</span>
+                        {isCoachViewingClient ? (
+                            <>
+                                <span className="text-black">{clientName || 'Client'} Activity </span>
+                                <span className="text-purple">Log</span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="text-black">Activity </span>
+                                <span className="text-purple">Logger</span>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -684,9 +708,14 @@ export const ActivityLogger = () => {
                             <div className="activity-top-grid">
                                 <section className="section-card activity-section-card">
                                     <div className="section-title">Daily Stats</div>
-                                    {isHistoryView && (
+                                    {isHistoryView && !isCoachViewingClient && (
                                         <div className="activity-history-banner">
                                             This is a saved past-day log. You can review it here, but historical entries stay locked.
+                                        </div>
+                                    )}
+                                    {isCoachViewingClient && (
+                                        <div className="activity-history-banner">
+                                            Read-only coach view.
                                         </div>
                                     )}
                                     {!activityDay.has_logged_data && isPastDate && (
@@ -733,6 +762,7 @@ export const ActivityLogger = () => {
                             <ActivityPhotoPanel
                                 photos={activityDay.progress_photos || []}
                                 isLocked={isLocked}
+                                isCoachViewingClient={isCoachViewingClient}
                                 uploadType={progressPhotoType}
                                 setUploadType={setProgressPhotoType}
                                 uploadNote={progressPhotoNote}
@@ -770,7 +800,7 @@ export const ActivityLogger = () => {
                                 {workoutForms.length === 0 ? (
                                     <div className="activity-empty-state">
                                         <p>No workouts are scheduled for this day yet.</p>
-                                        <Link to="/calendar" className="panel-btn-purple">Open Calendar</Link>
+                                        {!isCoachViewingClient && <Link to="/calendar" className="panel-btn-purple">Open Calendar</Link>}
                                     </div>
                                 ) : (
                                     <div className="activity-workout-list">
@@ -823,14 +853,16 @@ export const ActivityLogger = () => {
                                                                 <div className={`activity-status-pill ${deriveExerciseStatus(exercise) === 'Completed' ? 'completed' : deriveExerciseStatus(exercise) === 'Skipped' ? 'skipped' : 'scheduled'}`}>
                                                                     {deriveExerciseStatus(exercise)}
                                                                 </div>
-                                                                <button
-                                                                    type="button"
-                                                                    className={`activity-skip-btn ${exercise.skipped ? 'active' : ''}`}
-                                                                    onClick={() => toggleExerciseSkipped(workout.workout_id, exercise.exercise_id)}
-                                                                    disabled={isLocked}
-                                                                >
-                                                                    {exercise.skipped ? 'Undo Skip' : 'Skip'}
-                                                                </button>
+                                                                {!isCoachViewingClient && (
+                                                                    <button
+                                                                        type="button"
+                                                                        className={`activity-skip-btn ${exercise.skipped ? 'active' : ''}`}
+                                                                        onClick={() => toggleExerciseSkipped(workout.workout_id, exercise.exercise_id)}
+                                                                        disabled={isLocked}
+                                                                    >
+                                                                        {exercise.skipped ? 'Undo Skip' : 'Skip'}
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                             {exercise.allow_weight_input ? (
                                                                 <input
@@ -866,7 +898,7 @@ export const ActivityLogger = () => {
                             </section>
 
                             <div className="activity-actions">
-                                {activityDay.can_delete && (
+                                {activityDay.can_delete && !isCoachViewingClient && (
                                     <button
                                         type="button"
                                         className="panel-btn-white"
@@ -877,9 +909,11 @@ export const ActivityLogger = () => {
                                     </button>
                                 )}
                                 <button type="button" className="panel-btn-white" onClick={() => setDate(getLocalDateString())}>Jump To Today</button>
-                                <button type="button" className="panel-btn-purple" onClick={saveActivityDay} disabled={saving || isLocked}>
-                                    {saving ? 'Saving...' : 'Save Activity Log'}
-                                </button>
+                                {!isCoachViewingClient && (
+                                    <button type="button" className="panel-btn-purple" onClick={saveActivityDay} disabled={saving || isLocked}>
+                                        {saving ? 'Saving...' : 'Save Activity Log'}
+                                    </button>
+                                )}
                             </div>
                         </>
                     )}

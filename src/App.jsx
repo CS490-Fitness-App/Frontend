@@ -37,7 +37,7 @@ function App() {
                     <Route path="/edit-workout/:workoutId" element={<ProtectedRoute allowedRoles={['client', 'coach', 'admin']}><EditWorkout /></ProtectedRoute>} />
                     <Route path="/create-workout" element={<ProtectedRoute allowedRoles={['client', 'coach', 'admin']}><EditWorkout /></ProtectedRoute>} />
                     <Route path="/calendar" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ClientCalendar /></ProtectedRoute>} />
-                    <Route path="/activity-logger" element={<ProtectedRoute allowedRoles={['client']}><ActivityLogger /></ProtectedRoute>} />
+                    <Route path="/activity-logger" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ActivityLogger /></ProtectedRoute>} />
                     <Route path="/chat" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ChatPage /></ProtectedRoute>} />
                     <Route path="/view-progress" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ViewProgress /></ProtectedRoute>} />
                     <Route path="*" element={<NotFound />} />
