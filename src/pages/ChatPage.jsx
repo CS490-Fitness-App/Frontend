@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useCustomAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import { Sidebar } from '../components/Sidebar';
 import './ChatPage.css';
 
 const POLL_INTERVAL_MS = 3000;
@@ -300,7 +301,9 @@ export const ChatPage = () => {
   }, {});
 
   return (
-    <div className="chat-page">
+    <div className="dashboard-container">
+      <Sidebar />
+      <div className="chat-page">
 
       <div className="chat-layout">
         <div className="chat-sidebar">
@@ -339,7 +342,11 @@ export const ChatPage = () => {
                   className={`conversation-item ${selectedConvoId === convo.id ? 'active' : ''}`}
                   onClick={() => handleSelectConversation(convo.id)}
                 >
-                  <div className={`convo-avatar ${convo.type}`}>{convo.initials}</div>
+                  <div className={`convo-avatar ${convo.type}`}>
+                    {convo.otherProfilePicture
+                      ? <img src={convo.otherProfilePicture} alt={convo.initials} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                      : convo.initials}
+                  </div>
                   <div className="convo-info">
                     <div className="convo-name">{convo.name}</div>
                     <div className="convo-preview">{convo.preview}</div>
@@ -432,6 +439,7 @@ export const ChatPage = () => {
             </>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { WorkoutCard } from '../components/WorkoutCard'
@@ -121,9 +121,12 @@ export const Workouts = () => {
                             <span className="text-black">My </span>
                             <span className="text-purple">Workout Plans</span>
                         </div>
+                        <Link to="/create-workout">
+                            <button className="btn">+ Create Workout</button>
+                        </Link>
                     </div>
 
-                    {loading && <p style={{ padding: '1rem 2rem' }}>Loading workouts...</p>}
+                    {loading && <p className="state-message loading" style={{ padding: '0 2rem' }}>Loading workouts...</p>}
                     {error && <p className="feedback-msg error" style={{ padding: '1rem 2rem' }}>{error}</p>}
 
                     <WorkoutFilters filters={filters} setFilters={setFilters} />

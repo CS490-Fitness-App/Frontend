@@ -2,58 +2,47 @@
     flex: 1;
     min-width: 0;
 }
-.progress-month-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 0 16px;
-    font-family: "Oswald", sans-serif;
-    font-size: 38px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    line-height: 1;
-    color: #1f2937;
-}
-
-.month-select {
-    appearance: none;
-    min-width: 220px;
-    padding: 8px 38px 8px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background-color: #ffffff;
-    background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%), linear-gradient(135deg, #6b7280 50%, transparent 50%);
-    background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
-    background-size: 6px 6px, 6px 6px;
-    background-repeat: no-repeat;
-    color: #111827;
-    font-family: "Oswald", sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    text-align: center;
-    cursor: pointer;
-}
-
-.month-select:focus {
-    outline: none;
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15);
-}
 
 .view-progress-content {
     display: flex;
     flex-direction: column;
-    gap: 28px;
-    padding: 32px 40px 40px;
+    gap: 24px;
+    padding: 32px;
+}
+
+/* ── Panel base ─────────────────────────────────────────────── */
+
+.progress-panel {
+    border: 2px solid black;
+    background: white;
+    padding: 24px;
 }
 
 .progress-panel-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(209, 213, 219, 1);
     margin-bottom: 20px;
 }
+
+.progress-panel-header h3 {
+    margin: 0 0 8px;
+    font-family: "Oswald", sans-serif;
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: normal;
+    text-transform: uppercase;
+    color: black;
+}
+
+.progress-panel-header p {
+    margin: 0;
+    color: rgb(75, 85, 99);
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+/* ── Panel header with controls (LineChart) ─────────────────── */
 
 .progress-header-top {
     display: grid;
@@ -66,90 +55,94 @@
     min-width: 0;
 }
 
+.progress-header-info h3 {
+    margin-bottom: 4px;
+}
+
 .progress-header-controls {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     flex-shrink: 0;
     justify-self: end;
-    width: 220px;
+    width: 140px;
 }
 
-.progress-panel-header h3 {
-    margin: 0 0 8px 0;
+/* ── Month display ──────────────────────────────────────────── */
+
+.progress-month-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 16px;
     font-family: "Oswald", sans-serif;
-    font-size: 22px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #1f2937;
-}
-
-.progress-panel-header p {
-    margin: 0;
-    color: #6b7280;
-    font-family: "Roboto Mono", sans-serif;
-    font-size: 12px;
-    letter-spacing: 0.3px;
-}
-
-.time-range-btn {
-    width: 220px;
-    min-height: 48px;
-    padding: 8px 14px;
-    border: 1px solid #cdbde7;
-    background: #f6efff;
-    color: #5f4b82;
-    font-family: "Anek Latin", sans-serif;
-    font-size: 22px;
+    font-size: 38px;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 1.2px;
+    line-height: 1;
+    color: black;
+}
+
+.month-select {
+    appearance: none;
+    min-width: 220px;
+    padding: 8px 38px 8px 14px;
+    border: 2px solid black;
+    background-color: white;
+    background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%), linear-gradient(135deg, #6b7280 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    color: black;
+    font-family: "Oswald", sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    text-align: center;
     cursor: pointer;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.12);
-    transition: all 0.2s ease;
+}
+
+.month-select:focus {
+    outline: none;
+    border-color: rgba(128, 141, 253, 1);
+}
+
+/* ── Time range buttons ─────────────────────────────────────── */
+
+.time-range-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 40px;
+    padding: 0.5rem 1rem;
+    border: 2px solid black;
+    background: white;
+    color: black;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
     white-space: nowrap;
 }
 
 .time-range-btn:hover {
-    border-color: #b79add;
-    background: #efe3ff;
-    color: #4f3e6f;
-    transform: translateY(-1px);
+    background: rgba(221, 224, 255, 1);
 }
 
 .time-range-btn.active {
-    background: #e3d2fb;
-    color: #422f62;
-    border-color: #a986d7;
-    box-shadow: 0 3px 10px rgba(124, 58, 237, 0.2);
+    background: rgba(128, 141, 253, 1);
+    color: white;
+    border-color: rgba(128, 141, 253, 1);
 }
 
-.progress-panel {
-    border: 1px solid #e5e7eb;
-    background: white;
-    padding: 28px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.progress-panel-header h3 {
-    margin: 0 0 8px 0;
-    font-family: "Oswald", sans-serif;
-    font-size: 22px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #1f2937;
-}
-
-.progress-panel-header p {
-    margin: 0;
-    color: #6b7280;
-    font-family: "Roboto Mono", sans-serif;
-    font-size: 12px;
-    letter-spacing: 0.3px;
-}
+/* ── Progress badge ─────────────────────────────────────────── */
 
 .progress-metric {
     margin-top: 10px;
@@ -157,13 +150,12 @@
 
 .progress-badge {
     display: inline-block;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-family: "Anek Latin", sans-serif;
-    font-size: 12px;
+    padding: 4px 10px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
 }
 
 .progress-badge.positive {
@@ -179,10 +171,12 @@
 }
 
 .progress-badge.neutral {
-    background-color: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background-color: rgba(221, 224, 255, 1);
+    color: black;
+    border: 1px solid black;
 }
+
+/* ── SVG line chart ─────────────────────────────────────────── */
 
 .progress-line-chart {
     width: 100%;
@@ -210,25 +204,23 @@
 }
 
 .progress-chart-hint {
-    color: #6b7280;
+    color: rgb(107, 114, 128);
     font-family: "Roboto Mono", sans-serif;
     font-size: 12px;
-    letter-spacing: 0.2px;
     margin-top: -4px;
 }
 
 .chart-grid-line {
-    stroke: #e5e7eb;
+    stroke: rgba(209, 213, 219, 1);
     stroke-width: 0.75;
-    opacity: 0.6;
+    opacity: 0.8;
 }
 
 .chart-axis-label {
     font-family: "Roboto Mono", sans-serif;
     font-size: 11px;
-    fill: #6b7280;
+    fill: rgb(107, 114, 128);
     font-weight: 500;
-    letter-spacing: 0.2px;
 }
 
 .chart-axis-label-monthly {
@@ -241,25 +233,25 @@
     gap: 16px 24px;
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid rgba(209, 213, 219, 1);
 }
 
 .legend-item {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    font-family: "Anek Latin", sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: #374151;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    color: black;
 }
 
 .legend-swatch {
     width: 12px;
     height: 12px;
-    border-radius: 2px;
     flex-shrink: 0;
 }
+
+/* ── Steps bar chart ────────────────────────────────────────── */
 
 .steps-chart {
     display: grid;
@@ -281,43 +273,33 @@
     cursor: pointer;
     padding: 0;
     text-align: center;
+    width: 100%;
 }
 
 .steps-chart-day-btn:hover .steps-chart-column-wrap {
-    border-color: #c4b5fd;
-    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.12);
+    border-color: rgba(128, 141, 253, 1);
 }
 
 .steps-chart-column-wrap {
     position: relative;
     width: 100%;
     height: 270px;
-    border: 1px solid #e5e7eb;
-    background: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%);
+    border: 2px solid black;
+    background: rgba(249, 250, 251, 1);
     display: flex;
     align-items: flex-end;
     justify-content: center;
     overflow: hidden;
-    border-radius: 8px;
 }
 
 .steps-chart-column {
     width: 70%;
-    border-radius: 6px 6px 0 0;
     transition: height 0.25s ease;
 }
 
-.steps-chart-column.up {
-    background: linear-gradient(180deg, #8ddab0 0%, #6fcf97 100%);
-}
-
-.steps-chart-column.down {
-    background: linear-gradient(180deg, #f6b7b7 0%, #ee8f8f 100%);
-}
-
-.steps-chart-column.flat {
-    background: linear-gradient(180deg, #b5cdfd 0%, #8fb2f8 100%);
-}
+.steps-chart-column.up   { background: #6fcf97; }
+.steps-chart-column.down { background: #ee8f8f; }
+.steps-chart-column.flat { background: rgba(139, 139, 245, 1); }
 
 .steps-avg-line {
     position: absolute;
@@ -331,46 +313,37 @@
     font-family: "Roboto Mono", sans-serif;
     font-size: 11px;
     text-transform: uppercase;
-    color: #6b7280;
+    color: rgb(107, 114, 128);
     font-weight: 500;
-    letter-spacing: 0.2px;
 }
 
 .steps-value-label {
-    font-family: "Anek Latin", sans-serif;
+    font-family: "Oswald", sans-serif;
     font-size: 14px;
-    font-weight: 700;
-    color: #1f2937;
+    color: black;
+    text-transform: uppercase;
 }
 
 .steps-trend-label {
     font-family: "Roboto Mono", sans-serif;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.2px;
 }
 
-.steps-trend-label.up {
-    color: #1f7a4a;
-}
-
-.steps-trend-label.down {
-    color: #b54747;
-}
-
-.steps-trend-label.flat {
-    color: #5c6b82;
-}
+.steps-trend-label.up   { color: #1f7a4a; }
+.steps-trend-label.down { color: #b54747; }
+.steps-trend-label.flat { color: rgb(107, 114, 128); }
 
 .progress-summary {
     margin-top: 12px;
     padding-top: 12px;
     font-family: "Roboto Mono", sans-serif;
     font-size: 12px;
-    color: #6b7280;
-    letter-spacing: 0.2px;
-    border-top: 1px solid #e5e7eb;
+    color: rgb(107, 114, 128);
+    border-top: 1px solid rgba(209, 213, 219, 1);
 }
+
+/* ── Weekly averages ────────────────────────────────────────── */
 
 .weekly-averages-chart {
     display: flex;
@@ -394,36 +367,163 @@
 
 .weekly-averages-label {
     font-family: "Roboto Mono", sans-serif;
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
-    color: #6b7280;
+    color: rgb(107, 114, 128);
     font-weight: 500;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.5px;
 }
 
 .weekly-averages-value {
-    font-family: "Anek Latin", sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: #1f2937;
+    font-family: "Oswald", sans-serif;
+    font-size: 16px;
+    color: black;
+    text-transform: uppercase;
 }
 
 .weekly-averages-track {
     width: 100%;
     height: 20px;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
-    border-radius: 4px;
+    border: 1px solid black;
+    background: rgba(249, 250, 251, 1);
     overflow: hidden;
 }
 
 .weekly-averages-fill {
     height: 100%;
-    border-radius: 3px;
     transition: width 0.3s ease;
 }
 
-/* ── Assign workout ─────────────────────────────────────── */
+/* ── Summary cards ──────────────────────────────────────────── */
+
+.cp-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+}
+
+.cp-summary-card {
+    background: rgba(221, 224, 255, 1);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cp-summary-label {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgb(107, 114, 128);
+    font-weight: 500;
+}
+
+.cp-summary-value {
+    font-family: "Oswald", sans-serif;
+    font-size: 18px;
+    color: black;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Goals ──────────────────────────────────────────────────── */
+
+.cp-goals-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.cp-goal-tag {
+    background: rgba(221, 224, 255, 1);
+    color: black;
+    padding: 6px 10px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+/* ── Workout calendar panel (override global min-height) ───── */
+
+.progress-panel .calendar-shell .rbc-calendar {
+    min-height: 0;
+    height: 100%;
+}
+
+/* ── Calendar legend ────────────────────────────────────────── */
+
+.cp-cal-legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(209, 213, 219, 1);
+    flex-wrap: wrap;
+}
+
+.cp-cal-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    color: black;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cp-cal-dot {
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+}
+
+.cp-empty {
+    color: rgb(107, 114, 128);
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 14px;
+    margin: 4px 0 0 0;
+}
+
+/* ── Weight table ───────────────────────────────────────────── */
+
+.cp-weight-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 13px;
+}
+
+.cp-weight-table th {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid black;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgb(107, 114, 128);
+    font-weight: 600;
+}
+
+.cp-weight-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(209, 213, 219, 1);
+    color: black;
+}
+
+.cp-weight-table tbody tr:hover td {
+    background: rgba(221, 224, 255, 0.3);
+}
+
+.cp-delta-down { color: #1f7a4a; font-weight: 600; }
+.cp-delta-up   { color: #b54747; font-weight: 600; }
+
+/* ── Assign workout ─────────────────────────────────────────── */
+
 .cp-assign-row {
     display: flex;
     gap: 12px;
@@ -431,77 +531,48 @@
     flex-wrap: wrap;
 }
 
-.cp-assign-search {
-    flex: 0 0 200px;
-    padding: 9px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-family: "Roboto Mono", sans-serif;
-    font-size: 13px;
-    color: #374151;
-    background: #fff;
-}
-
-.cp-assign-search:focus {
-    outline: none;
-    border-color: #8B8BF5;
-    box-shadow: 0 0 0 2px rgba(139, 139, 245, 0.18);
-}
-
-.cp-assign-select {
-    flex: 1;
-    min-width: 220px;
-    padding: 9px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-family: "Anek Latin", sans-serif;
-    font-size: 14px;
-    color: #374151;
-    background: #fff;
-    cursor: pointer;
-}
-
-.cp-assign-select:focus {
-    outline: none;
-    border-color: #8B8BF5;
-}
-
+.cp-assign-search,
+.cp-assign-select,
 .cp-assign-date {
-    flex: 0 0 150px;
     padding: 9px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border: 1px solid black;
     font-family: "Roboto Mono", sans-serif;
     font-size: 13px;
-    color: #374151;
-    background: #fff;
-    cursor: pointer;
+    color: black;
+    background: white;
 }
 
+.cp-assign-search { flex: 0 0 200px; }
+.cp-assign-select { flex: 1; min-width: 220px; font-family: "Oswald", sans-serif; font-size: 14px; cursor: pointer; }
+.cp-assign-date   { flex: 0 0 150px; cursor: pointer; }
+
+.cp-assign-search:focus,
+.cp-assign-select:focus,
 .cp-assign-date:focus {
     outline: none;
-    border-color: #8B8BF5;
-    box-shadow: 0 0 0 2px rgba(139, 139, 245, 0.18);
+    border-color: rgba(128, 141, 253, 1);
 }
 
 .cp-assign-btn {
-    padding: 9px 22px;
-    background: #8B8BF5;
-    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0.5rem 22px;
+    background: rgba(128, 141, 253, 1);
+    color: white;
     border: none;
-    border-radius: 6px;
     font-family: "Anek Latin", sans-serif;
     font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
-    transition: background 0.15s;
     white-space: nowrap;
 }
 
 .cp-assign-btn:hover:not(:disabled) {
-    background: #7070e8;
+    background: #4E548F;
 }
 
 .cp-assign-btn:disabled {
@@ -518,126 +589,7 @@
 .cp-assign-msg.success { color: #1f7a4a; }
 .cp-assign-msg.error   { color: #b54747; }
 
-/* ── Summary cards ──────────────────────────────────────── */
-.cp-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 16px;
-}
-
-.cp-summary-card {
-    background: #f8f7ff;
-    border: 1px solid #e0d9f7;
-    border-radius: 8px;
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.cp-summary-label {
-    font-family: "Roboto Mono", sans-serif;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-.cp-summary-value {
-    font-family: "Anek Latin", sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #1f2937;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* ── Goals ──────────────────────────────────────────────── */
-.cp-goals-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 4px;
-}
-
-.cp-goal-tag {
-    background: #ede9fe;
-    color: #5b21b6;
-    border: 1px solid #c4b5fd;
-    border-radius: 20px;
-    padding: 5px 14px;
-    font-family: "Anek Latin", sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* ── Weight table ───────────────────────────────────────── */
-.cp-weight-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: "Roboto Mono", sans-serif;
-    font-size: 13px;
-}
-
-.cp-weight-table th {
-    text-align: left;
-    padding: 8px 12px;
-    border-bottom: 2px solid #e5e7eb;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #6b7280;
-    font-weight: 600;
-}
-
-.cp-weight-table td {
-    padding: 9px 12px;
-    border-bottom: 1px solid #f3f4f6;
-    color: #374151;
-}
-
-.cp-weight-table tbody tr:hover td {
-    background: #faf9ff;
-}
-
-.cp-delta-down { color: #1f7a4a; font-weight: 600; }
-.cp-delta-up   { color: #b54747; font-weight: 600; }
-
-/* ── Calendar ───────────────────────────────────────────── */
-.cp-cal-legend {
-    display: flex;
-    gap: 20px;
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid #e5e7eb;
-}
-
-.cp-cal-legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-family: "Anek Latin", sans-serif;
-    font-size: 13px;
-    color: #374151;
-}
-
-.cp-cal-dot {
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.cp-empty {
-    color: #9ca3af;
-    font-family: "Roboto Mono", sans-serif;
-    font-size: 13px;
-    margin: 4px 0 0 0;
-}
+/* ── Responsive ─────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
     .view-progress-content {
@@ -666,7 +618,6 @@
 
     .time-range-btn {
         width: 190px;
-        font-size: 18px;
     }
 
     .steps-chart {
@@ -675,12 +626,11 @@
     }
 
     .steps-chart-column-wrap {
-        max-width: none;
         height: 210px;
     }
 
     .progress-panel {
-        padding: 14px;
+        padding: 16px;
     }
 
     .cp-summary-grid {

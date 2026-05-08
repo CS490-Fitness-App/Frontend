@@ -19,6 +19,21 @@
     background-color: white;
 }
 
+.profile-panel .dashboard-list-contents {
+    gap: 12px;
+}
+
+.profile-panel .stat-heading {
+    flex-shrink: 0;
+}
+
+.profile-panel .dashboard-list {
+    text-align: right;
+    min-width: 0;
+    word-break: break-word;
+    margin-left: auto;
+}
+
 .profile-summary-row {
     display: flex;
     align-items: center;
@@ -200,17 +215,14 @@
 }
 
 .profile-account-actions {
-    width: 100%;
-    margin-top: 32px;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 24px;
+    width: 100%;
 }
 
 .profile-deactivate-section {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    gap: 16px;
 }
 
 .profile-deactivate-btn {
@@ -221,7 +233,6 @@
     min-height: 40px;
     width: fit-content;
     cursor: pointer;
-    border-radius: 5px;
     border: 2px solid #92400e;
     padding: 0.5rem 1.5rem;
     background: white;
@@ -248,7 +259,6 @@
     width: 100%;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
     padding: 0.5rem 1rem;
     background-color: #92400e;
     color: white;
@@ -261,26 +271,14 @@
     background-color: #78350f;
 }
 
-.profile-deactivate-confirm-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
 .profile-danger-zone {
-    border-top: 2px solid #fecaca;
-    padding-top: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    gap: 16px;
+    border-color: #b91c1c;
 }
 
 .profile-danger-heading {
-    font-family: "Roboto Mono", sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
     color: #b91c1c;
+    border-bottom-color: #fecaca;
 }
 
 .profile-delete-btn {
@@ -291,7 +289,6 @@
     min-height: 40px;
     width: fit-content;
     cursor: pointer;
-    border-radius: 5px;
     border: 2px solid #b91c1c;
     padding: 0.5rem 1.5rem;
     background: white;
@@ -301,7 +298,6 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-top: 4px;
 }
 
 .profile-delete-btn:hover {
@@ -319,7 +315,6 @@
     width: 100%;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
     padding: 0.5rem 1rem;
     background-color: #b91c1c;
     color: white;

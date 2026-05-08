@@ -1,5 +1,5 @@
 import "./Pages.css"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { LoginForm } from "../components/LoginForm"
@@ -8,13 +8,22 @@ import { TopCoaches } from "../components/TopCoaches"
 import { GiBiceps } from "react-icons/gi";
 import { IoIosFitness } from "react-icons/io";
 import { RiUserVoiceLine } from "react-icons/ri";
+import { API_BASE_URL } from '../utils/apiBaseUrl';
 
 export const Home = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [testimonials, setTestimonials] = useState([]);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
+
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/coaches/reviews/featured`)
+            .then(r => r.ok ? r.json() : [])
+            .then(data => setTestimonials(Array.isArray(data) ? data : []))
+            .catch(() => {});
+    }, []);
 
     return (
         <div>
@@ -50,13 +59,35 @@ export const Home = () => {
                     <div className="home-card">
                         <RiUserVoiceLine />
                         <h2>Coaches</h2>
-                        <p>Connect with our wide range of speialized coaches for workout and meal planning assiatance. Match with whoever works best for you! Available 24/7 </p>
+                        <p>Connect with our wide range of specialized coaches for workout and meal planning assiatance. Match with whoever works best for you! Available 24/7 </p>
                         <Link to="/coaches" className="btn">Browse Coaches</Link>
                     </div>
                 </div>
             </div>
 
             <TopCoaches />
+
+            {testimonials.length > 0 && (
+                <div className="testimonials-section">
+                    <div className="testimonials-heading">
+                        <span className="text-black">What Our </span>
+                        <span className="text-purple">Clients Say</span>
+                    </div>
+                    <div className="testimonials-grid">
+                        {testimonials.map(r => (
+                            <div key={r.review_id} className="testimonial-card">
+                                <div className="testimonial-stars">
+                                    {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                                </div>
+                                <p className="testimonial-text">"{r.description}"</p>
+                                {r.client_name && (
+                                    <div className="testimonial-author">— {r.client_name}</div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <LoginForm isOpen={isModalOpen} onClose={closeModal} />
         </div>

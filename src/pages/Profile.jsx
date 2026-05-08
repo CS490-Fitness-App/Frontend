@@ -33,12 +33,14 @@ export const Profile = () => {
     const [error, setError] = useState('')
     const [selectedFile, setSelectedFile] = useState(null)
     const [previewUrl, setPreviewUrl] = useState('')
+    const [isDragging, setIsDragging] = useState(false)
     const [saveError, setSaveError] = useState('')
     const [isSaving, setIsSaving] = useState(false)
     const [editingField, setEditingField] = useState(null)
     const [nameDraft, setNameDraft] = useState('')
     const [goalWeightDraft, setGoalWeightDraft] = useState('')
     const [bioDraft, setBioDraft] = useState('')
+    const [hourlyRateDraft, setHourlyRateDraft] = useState('')
     const [isUpdating, setIsUpdating] = useState(false)
     const [updateError, setUpdateError] = useState('')
 
@@ -171,7 +173,10 @@ export const Profile = () => {
                 : ''
         )
         setBioDraft(coachProfile?.bio || '')
-    }, [profile, clientProfile?.goal_weight, coachProfile?.bio])
+        setHourlyRateDraft(
+            coachProfile?.hourly_rate != null ? String(coachProfile.hourly_rate) : ''
+        )
+    }, [profile, clientProfile?.goal_weight, coachProfile?.bio, coachProfile?.hourly_rate])
 
     const getAuthToken = async () => {
         if (isAuthenticated) {
@@ -208,6 +213,13 @@ export const Profile = () => {
             if (field === 'bio') {
                 payload.bio = bioDraft
             }
+            if (field === 'hourly_rate') {
+                const parsed = Number(hourlyRateDraft)
+                if (!Number.isFinite(parsed) || parsed < 0) {
+                    throw new Error('Hourly rate must be a positive number.')
+                }
+                payload.hourly_rate = parsed
+            }
 
             const response = await fetch(`${API_BASE_URL}/users/me`, {
                 method: 'PATCH',
@@ -232,27 +244,22 @@ export const Profile = () => {
         }
     }
 
-    const handleFileChange = (event) => {
-        const file = event.target.files?.[0]
-        if (!file) {
-            return
-        }
-
+    const applyFile = (file, inputEl = null) => {
+        if (!file) return
         if (!file.type.startsWith('image/')) {
             setSaveError('Please choose an image file.')
-            event.target.value = ''
+            if (inputEl) inputEl.value = ''
             return
         }
-
-        if (previewUrl) {
-            URL.revokeObjectURL(previewUrl)
-        }
-
+        if (previewUrl) URL.revokeObjectURL(previewUrl)
         setSelectedFile(file)
         setPreviewUrl(URL.createObjectURL(file))
         setSaveError('')
-        event.target.value = ''
+        if (inputEl) inputEl.value = ''
     }
+
+    const handleFileChange = (event) => applyFile(event.target.files?.[0], event.target)
+
 
     const handleSaveProfilePicture = async () => {
         if (!selectedFile) {
@@ -415,15 +422,21 @@ export const Profile = () => {
                             <section className="profile-panel">
                                 <div className="dashboard-heading">Account Details</div>
                                 <div className="profile-summary-row">
-                                    <label className="profile-avatar-upload">
+                                    <label
+                                        className="profile-avatar-upload"
+                                        onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+                                        onDragEnter={(e) => { e.preventDefault(); setIsDragging(true) }}
+                                        onDragLeave={() => setIsDragging(false)}
+                                        onDrop={(e) => { e.preventDefault(); setIsDragging(false); applyFile(e.dataTransfer.files?.[0]) }}
+                                    >
                                         <input type="file" accept="image/*" className="profile-avatar-input" onChange={handleFileChange} />
-                                        <div className="profile-avatar-large">
+                                        <div className={`profile-avatar-large${isDragging ? ' dragging' : ''}`}>
                                             {profileImageUrl ? (
                                                 <img src={profileImageUrl} alt="Profile" className="profile-avatar-image" />
                                             ) : (
                                                 <span>{(profile.first_name?.[0] || profile.email?.[0] || 'U').toUpperCase()}</span>
                                             )}
-                                            <div className="profile-avatar-overlay">Change photo</div>
+                                            <div className="profile-avatar-overlay">{isDragging ? 'Drop to upload' : 'Change photo'}</div>
                                         </div>
                                     </label>
                                     <div className="profile-summary-copy">
@@ -468,7 +481,7 @@ export const Profile = () => {
                                 <div className="dashboard-list-container">
                                     <div className="dashboard-list-contents">
                                         <div className="stat-heading">Role</div>
-                                        <div className="dashboard-list">{profile.role}</div>
+                                        <div className="dashboard-list">{profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}</div>
                                     </div>
                                     <div className="dashboard-list-contents">
                                         <div className="stat-heading">Joined</div>
@@ -534,7 +547,35 @@ export const Profile = () => {
                                     <div className="dashboard-list-container">
                                         <div className="dashboard-list-contents"><div className="stat-heading">Status</div><div className="dashboard-list">{coachProfile.status || 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Gender</div><div className="dashboard-list">{coachProfile.gender || 'Not set'}</div></div>
-                                        <div className="dashboard-list-contents"><div className="stat-heading">Hourly Rate</div><div className="dashboard-list">${coachProfile.hourly_rate.toFixed(2)}</div></div>
+                                        <div className="dashboard-list-contents">
+                                            <div className="stat-heading">Hourly Rate</div>
+                                            <div className="profile-editable-row profile-editable-row-inline">
+                                                {editingField === 'hourly_rate' ? (
+                                                    <div className="profile-edit-inline">
+                                                        <input
+                                                            className="profile-edit-input"
+                                                            value={hourlyRateDraft}
+                                                            onChange={(event) => setHourlyRateDraft(event.target.value)}
+                                                            placeholder="Rate ($/hr)"
+                                                            type="number"
+                                                            min="0"
+                                                            step="0.01"
+                                                        />
+                                                        <div className="profile-edit-actions">
+                                                            <button type="button" className="profile-inline-btn" onClick={() => saveField('hourly_rate')} disabled={isUpdating}>Save</button>
+                                                            <button type="button" className="profile-inline-btn ghost" onClick={() => setEditingField(null)} disabled={isUpdating}>Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <button type="button" className="profile-edit-trigger" onClick={() => { setUpdateError(''); setEditingField('hourly_rate') }} aria-label="Edit hourly rate">
+                                                            <EditIcon />
+                                                        </button>
+                                                        <div className="dashboard-list">${coachProfile.hourly_rate.toFixed(2)}</div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Experience</div><div className="dashboard-list">{coachProfile.years_of_experience ?? 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Max Clients</div><div className="dashboard-list">{coachProfile.max_clients ?? 'Not set'}</div></div>
                                         <div className="dashboard-list-contents"><div className="stat-heading">Accepting Clients</div><div className="dashboard-list">{coachProfile.accepting_clients ? 'Yes' : 'No'}</div></div>
@@ -573,7 +614,13 @@ export const Profile = () => {
 
                     {profile && (
                         <div className="profile-account-actions">
-                            <div className="profile-deactivate-section">
+                            <section className="profile-panel profile-deactivate-section">
+                                <div className="dashboard-heading">Account Status</div>
+                                <p className="stat-descriptor">
+                                    {isAccountActive
+                                        ? 'Deactivating your account will suspend access. You can reactivate anytime.'
+                                        : 'Your account is currently deactivated. Reactivate to regain access.'}
+                                </p>
                                 <button
                                     type="button"
                                     className="profile-deactivate-btn"
@@ -581,15 +628,10 @@ export const Profile = () => {
                                 >
                                     {isAccountActive ? 'Deactivate Account' : 'Reactivate Account'}
                                 </button>
-                                <p className="stat-descriptor">
-                                    {isAccountActive
-                                        ? 'Deactivating your account will suspend access. You can reactivate anytime.'
-                                        : 'Your account is currently deactivated. Reactivate to regain access.'}
-                                </p>
-                            </div>
+                            </section>
 
-                            <div className="profile-danger-zone">
-                                <div className="profile-danger-heading">⚠ DANGER ZONE</div>
+                            <section className="profile-panel profile-danger-zone">
+                                <div className="dashboard-heading profile-danger-heading">Danger Zone</div>
                                 <p className="stat-descriptor">
                                     Deleting your account is permanent. All your data, workout plans, progress history, and coach connections will be removed and cannot be recovered.
                                 </p>
@@ -600,7 +642,7 @@ export const Profile = () => {
                                 >
                                     Delete Account
                                 </button>
-                            </div>
+                            </section>
                         </div>
                     )}
                 </div>
@@ -628,6 +670,7 @@ export const Profile = () => {
                                 className={isAccountActive ? 'profile-deactivate-confirm-btn' : 'panel-btn-purple'}
                                 onClick={handleDeactivateAccount}
                                 disabled={deactivateSubmitting}
+                                style={deactivateSubmitting ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
                             >
                                 {deactivateSubmitting
                                     ? (isAccountActive ? 'Deactivating...' : 'Reactivating...')
@@ -655,7 +698,7 @@ export const Profile = () => {
                                 value={deleteConfirmText}
                                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                                 placeholder="DELETE"
-                                style={{ border: '1px solid black', padding: '10px', fontFamily: '"Roboto Mono", sans-serif', fontSize: '14px' }}
+                                style={{ border: '1px solid black', padding: '10px', fontFamily: "'Space Mono', monospace", fontSize: '14px' }}
                             />
                         </label>
                         {deleteError && <p className="daily-checkin-error" style={{ marginTop: '8px' }}>{deleteError}</p>}

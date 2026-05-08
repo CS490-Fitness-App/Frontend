@@ -36,6 +36,7 @@ export const CoachDashboard = () => {
     const [pendingRequests, setPendingRequests] = useState([]);
     const [notifications] = useState([]);
     const [coachId, setCoachId] = useState(null);
+    const [coachStatus, setCoachStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [monthlyEarnings, setMonthlyEarnings] = useState(0);
@@ -70,6 +71,7 @@ export const CoachDashboard = () => {
             const meData = await meRes.json();
             const myCoachId = meData.coach_id;
             setCoachId(myCoachId);
+            setCoachStatus(meData.status || null);
 
             const { days, start, end } = parseAvailability(meData.availability);
             setAvailDays(days);
@@ -253,6 +255,12 @@ export const CoachDashboard = () => {
                     <div className="dashboard-homepage-container">
 
                         <div className="dashboard">
+                            {coachStatus === 'Pending' && (
+                                <div className="coach-pending-banner">
+                                    <strong>Application Under Review</strong>
+                                    <p>Your coach application is pending admin approval. You'll have full access once approved.</p>
+                                </div>
+                            )}
                             {error && <p className="feedback-msg error" style={{ padding: '1rem 0' }}>{error}</p>}
 
                             <div className="section-quick-stats">
@@ -287,9 +295,9 @@ export const CoachDashboard = () => {
                                         </thead>
                                         <tbody>
                                             {loading ? (
-                                                <tr><td colSpan="3">Loading...</td></tr>
+                                                <tr><td colSpan="3"><span className="state-message loading">Loading...</span></td></tr>
                                             ) : clients.length === 0 ? (
-                                                <tr><td colSpan="3">No active clients yet.</td></tr>
+                                                <tr><td colSpan="3"><span className="state-message">No active clients yet.</span></td></tr>
                                             ) : clients.map((client) => {
                                                 const initials = `${client.first_name?.[0] || ''}${client.last_name?.[0] || ''}`;
                                                 const fullName = `${client.first_name} ${client.last_name}`;
@@ -322,55 +330,33 @@ export const CoachDashboard = () => {
                                     </table>
                                 </div>
 
-                                <div>
-                                    <div className="card">
-                                        <div>
-                                            <div className="dashboard-heading">Pending Requests</div>
-                                            {loading ? (
-                                                <p>Loading...</p>
-                                            ) : pendingRequests.length === 0 ? (
-                                                <p>No pending requests.</p>
-                                            ) : pendingRequests.map((request) => {
-                                                const initials = `${request.first_name?.[0] || ''}${request.last_name?.[0] || ''}`;
-                                                const fullName = `${request.first_name} ${request.last_name}`;
-                                                return (
-                                                    <div key={request.client_id} className="request-item">
-                                                        <div className="request-info">
-                                                            <div className="client-avatar">{initials}</div>
-                                                            <div>
-                                                                <div className="request-name">{fullName}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="request-actions">
-                                                            <button className="btn-sm btn-green" onClick={() => handleAccept(request.client_id)}>ACCEPT</button>
-                                                            <button className="btn-sm btn-red" onClick={() => handleDecline(request.client_id)}>DECLINE</button>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-
-                                    <div className="card" style={{ marginTop: '20px' }}>
-                                        <div className="dashboard-heading">Notifications</div>
-                                        {notifications.length === 0 ? (
-                                            <p style={{ color: '#888', fontSize: '0.9rem' }}>No notifications.</p>
-                                        ) : notifications.map((notif) => (
-                                            <div key={notif.id} className="notif-item">
-                                                <div className="notif-dot"></div>
-                                                <div>
-                                                    <div className="notif-text">{notif.text}</div>
-                                                    <div className="notif-time">{notif.time}</div>
+                                <div className="card">
+                                    <div className="dashboard-heading">Pending Requests</div>
+                                    {loading ? (
+                                        <p className="state-message loading">Loading...</p>
+                                    ) : pendingRequests.length === 0 ? (
+                                        <p className="state-message">No pending requests.</p>
+                                    ) : pendingRequests.map((request) => {
+                                        const initials = `${request.first_name?.[0] || ''}${request.last_name?.[0] || ''}`;
+                                        const fullName = `${request.first_name} ${request.last_name}`;
+                                        return (
+                                            <div key={request.client_id} className="request-item">
+                                                <div className="request-info">
+                                                    <div className="client-avatar">{initials}</div>
+                                                    <div className="request-name">{fullName}</div>
+                                                </div>
+                                                <div className="request-actions">
+                                                    <button className="btn-sm btn-green" onClick={() => handleAccept(request.client_id)}>Accept</button>
+                                                    <button className="btn-sm btn-red" onClick={() => handleDecline(request.client_id)}>Decline</button>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
                             <div className="bottom-actions">
                                 <button className="btn-periwinkle" onClick={() => setShowAvailModal(true)}>SET AVAILABILITY</button>
-                                <button className="btn-outline">UPDATE QUALIFICATIONS</button>
                             </div>
                         </div>
 

@@ -33,8 +33,9 @@ function App() {
                     <Route path="/survey" element={<ProtectedRoute allowedRoles={['client', 'coach']}><Survey /></ProtectedRoute>} />
                     <Route path="/payment-cards" element={<ProtectedRoute allowedRoles={['client', 'coach']}><PaymentCards /></ProtectedRoute>} />
                     <Route path="/profile" element={<ProtectedRoute allowedRoles={['client', 'coach', 'admin']}><Profile /></ProtectedRoute>} />
-                    <Route path="/view-workout/:workoutId" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ViewWorkout /></ProtectedRoute>} />
-                    <Route path="/edit-workout/:workoutId" element={<ProtectedRoute allowedRoles={['coach']}><EditWorkout /></ProtectedRoute>} />
+                    <Route path="/view-workout/:workoutId" element={<ProtectedRoute allowedRoles={['client', 'coach', 'admin']}><ViewWorkout /></ProtectedRoute>} />
+                    <Route path="/edit-workout/:workoutId" element={<ProtectedRoute allowedRoles={['client', 'coach', 'admin']}><EditWorkout /></ProtectedRoute>} />
+                    <Route path="/create-workout" element={<ProtectedRoute allowedRoles={['client', 'coach', 'admin']}><EditWorkout /></ProtectedRoute>} />
                     <Route path="/calendar" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ClientCalendar /></ProtectedRoute>} />
                     <Route path="/activity-logger" element={<ProtectedRoute allowedRoles={['client']}><ActivityLogger /></ProtectedRoute>} />
                     <Route path="/chat" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ChatPage /></ProtectedRoute>} />

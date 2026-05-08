@@ -71,6 +71,18 @@ export const AdminDashboard = () => {
         muscle_group_ids: [],
     });
 
+    const [workouts, setWorkouts] = useState([]);
+    const [workoutLoading, setWorkoutLoading] = useState(false);
+    const [workoutError, setWorkoutError] = useState('');
+    const [workoutActionId, setWorkoutActionId] = useState(null);
+    const [workoutSearch, setWorkoutSearch] = useState('');
+
+    const [clients, setClients] = useState([]);
+    const [clientLoading, setClientLoading] = useState(false);
+    const [clientError, setClientError] = useState('');
+    const [clientSearch, setClientSearch] = useState('');
+    const [clientActionId, setClientActionId] = useState(null);
+
     const [coachSearch, setCoachSearch] = useState('');
     const [exerciseSearch, setExerciseSearch] = useState('');
     const [financialPeriod, setFinancialPeriod] = useState('all');
@@ -182,7 +194,7 @@ export const AdminDashboard = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 1) {
+        if (activeTab === 4) {
             fetchExercises();
         }
     }, [activeTab, isAuthenticated, customAuth]);
@@ -219,7 +231,7 @@ export const AdminDashboard = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 2) {
+        if (activeTab === 3) {
             fetchFinancialSummary();
         }
     }, [activeTab, financialPeriod, financialYear, financialSearch, isAuthenticated, customAuth]);
@@ -252,10 +264,114 @@ export const AdminDashboard = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 3) {
+        if (activeTab === 2) {
             fetchEngagementSummary();
         }
     }, [activeTab, engagementPeriod, isAuthenticated, customAuth]);
+
+    const fetchWorkouts = async () => {
+        setWorkoutLoading(true);
+        setWorkoutError('');
+        try {
+            const token = await getToken();
+            if (!token) {
+                setWorkoutError('Log in as an admin to view workouts.');
+                setWorkoutLoading(false);
+                return;
+            }
+            const res = await fetch(`${API_BASE_URL}/workouts`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => []);
+            if (!res.ok) throw new Error(data.detail || 'Failed to load workouts');
+            setWorkouts(data);
+        } catch (err) {
+            setWorkoutError(err.message || 'Failed to load workouts');
+        } finally {
+            setWorkoutLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 5) {
+            fetchWorkouts();
+        }
+    }, [activeTab, isAuthenticated, customAuth]);
+
+    const fetchClients = async () => {
+        setClientLoading(true);
+        setClientError('');
+        try {
+            const token = await getToken();
+            if (!token) {
+                setClientError('Log in as an admin to view clients.');
+                setClientLoading(false);
+                return;
+            }
+            const res = await fetch(`${API_BASE_URL}/admin/clients`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => []);
+            if (!res.ok) throw new Error(data.detail || 'Failed to load clients');
+            setClients(data);
+        } catch (err) {
+            setClientError(err.message || 'Failed to load clients');
+        } finally {
+            setClientLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 0) {
+            fetchClients();
+        }
+    }, [activeTab, isAuthenticated, customAuth]);
+
+    const handleDeleteClient = async (clientId) => {
+        if (!window.confirm('Permanently delete this client account? This cannot be undone.')) return;
+        setClientActionId(clientId);
+        setClientError('');
+        try {
+            const token = await getToken();
+            if (!token) throw new Error('Log in as an admin to manage clients.');
+            const res = await fetch(`${API_BASE_URL}/admin/clients/${clientId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.detail || 'Failed to delete client');
+            }
+            setClients((current) => current.filter((c) => c.client_id !== clientId));
+        } catch (err) {
+            setClientError(err.message || 'Failed to delete client');
+        } finally {
+            setClientActionId(null);
+        }
+    };
+
+    const handleDeleteWorkout = async (workoutId) => {
+        if (!window.confirm('Delete this workout plan? This cannot be undone.')) return;
+        setWorkoutActionId(workoutId);
+        setWorkoutError('');
+        try {
+            const token = await getToken();
+            if (!token) throw new Error('Log in as an admin to manage workouts.');
+            const res = await fetch(`${API_BASE_URL}/workouts/${workoutId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.detail || 'Failed to delete workout');
+            }
+            setWorkouts((current) => current.filter((w) => w.workout_id !== workoutId));
+        } catch (err) {
+            setWorkoutError(err.message || 'Failed to delete workout');
+        } finally {
+            setWorkoutActionId(null);
+        }
+    };
 
     const updateCoachStatus = async (coachId, action) => {
         setCoachActionId(coachId);
@@ -458,6 +574,18 @@ export const AdminDashboard = () => {
         (exercise.muscle_groups || []).join(' / ').toLowerCase().includes(exerciseSearch.toLowerCase())
     );
 
+    const filteredWorkouts = workouts.filter((w) =>
+        (w.name || '').toLowerCase().includes(workoutSearch.toLowerCase())
+    );
+
+    const filteredClients = clients.filter((c) => {
+        const q = clientSearch.toLowerCase();
+        return (
+            `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase().includes(q) ||
+            (c.email || '').toLowerCase().includes(q)
+        );
+    });
+
     const getStatusClass = (status) => {
         if (status === 'Active' || status === 'Approved') return 'status-approved';
         if (status === 'Pending') return 'status-pending';
@@ -497,15 +625,15 @@ export const AdminDashboard = () => {
                                 <div className="quick-stat-card"><div className="stat-heading">Total Users</div><div className="stat">{adminOverview?.total_users ?? '—'}</div></div>
                                 <div className="quick-stat-card"><div className="stat-heading">Active Coaches</div><div className="stat">{adminOverview?.active_coaches ?? coaches.filter((coach) => coach.status === 'Active').length}</div></div>
                                 <div className="quick-stat-card"><div className="stat-heading">Pending Approvals</div><div className="stat">{adminOverview?.pending_approvals ?? coaches.filter((coach) => coach.status === 'Pending').length} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div></div>
-                                <div className="quick-stat-card" onClick={() => setActiveTab(2)}><div className="stat-heading">Revenue This Month</div><div className="stat">{adminOverview ? formatCurrency(adminOverview.revenue_this_month) : '—'}</div></div>
+                                <div className="quick-stat-card" onClick={() => setActiveTab(3)}><div className="stat-heading">Revenue This Month</div><div className="stat">{adminOverview ? formatCurrency(adminOverview.revenue_this_month) : '—'}</div></div>
                             </div>
                             {adminOverviewError && <p className="feedback-msg error">{adminOverviewError}</p>}
                             <div className="tabs">
-                                {['COACH MANAGEMENT', 'EXERCISE INVENTORY', 'FINANCIAL TRACKING', 'USER ENGAGEMENT'].map((tab, i) => (
+                                {['CLIENT MANAGEMENT', 'COACH MANAGEMENT', 'USER ENGAGEMENT', 'FINANCIAL TRACKING', 'EXERCISE INVENTORY', 'WORKOUT INVENTORY'].map((tab, i) => (
                                     <div key={i} className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{tab}</div>
                                 ))}
                             </div>
-                            {activeTab === 0 && (
+                            {activeTab === 1 && (
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">Coach Applications & Accounts</div>
@@ -524,9 +652,9 @@ export const AdminDashboard = () => {
                                         </thead>
                                         <tbody>
                                             {coachLoading ? (
-                                                <tr><td colSpan="6">Loading coach applications...</td></tr>
+                                                <tr><td colSpan="6"><span className="state-message loading">Loading coach applications...</span></td></tr>
                                             ) : filteredCoaches.length === 0 ? (
-                                                <tr><td colSpan="6">No coach applications found.</td></tr>
+                                                <tr><td colSpan="6"><span className="state-message">No coach applications found.</span></td></tr>
                                             ) : filteredCoaches.map((coach) => (
                                                 <tr key={coach.coach_id}>
                                                     <td><strong>{coach.first_name} {coach.last_name}</strong></td>
@@ -554,9 +682,9 @@ export const AdminDashboard = () => {
                                     </table>
                                 </div>
                             )}
-                            {activeTab === 1 && (
+                            {activeTab === 4 && (
                                 <div className="tab-content">
-                                    {exerciseLoading && <p>Loading exercises...</p>}
+                                    {exerciseLoading && <p className="state-message loading">Loading exercises...</p>}
                                     {exerciseError && <p className="feedback-msg error">{exerciseError}</p>}
                                     <div className="section-header">
                                         <div className="admin-search-bar">
@@ -577,7 +705,7 @@ export const AdminDashboard = () => {
                                             {exerciseLoading ? (
                                                 <tr><td colSpan="4">Loading exercise inventory...</td></tr>
                                             ) : filteredExercises.length === 0 ? (
-                                                <tr><td colSpan="4">No exercises found.</td></tr>
+                                                <tr><td colSpan="4"><span className="state-message">No exercises found.</span></td></tr>
                                             ) : filteredExercises.map((exercise) => (
                                                 <tr key={exercise.exercise_id}>
                                                     <td><strong>{exercise.name}</strong></td>
@@ -664,7 +792,7 @@ export const AdminDashboard = () => {
                                     )}
                                 </div>
                             )}
-                            {activeTab === 2 && (
+                            {activeTab === 3 && (
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">Financial Tracking</div>
@@ -786,7 +914,7 @@ export const AdminDashboard = () => {
                                     )}
                                 </div>
                             )}
-                            {activeTab === 3 && (
+                            {activeTab === 2 && (
                                 <div className="tab-content">
                                     <div className="section-header">
                                         <div className="admin-section-title">User Engagement</div>
@@ -958,6 +1086,96 @@ export const AdminDashboard = () => {
                                             No engagement data is available yet. Once clients log in and submit daily surveys, trends will appear here.
                                         </div>
                                     )}
+                                </div>
+                            )}
+                            {activeTab === 5 && (
+                                <div className="tab-content">
+                                    <div className="section-header">
+                                        <div className="admin-section-title">Workout Plan Inventory</div>
+                                        <div className="admin-search-bar">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
+                                                <circle cx="11" cy="11" r="8" />
+                                                <path d="m21 21-4.35-4.35" />
+                                            </svg>
+                                            <input type="text" placeholder="SEARCH WORKOUTS..." value={workoutSearch} onChange={(e) => setWorkoutSearch(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    {workoutError && <p className="feedback-msg error">{workoutError}</p>}
+                                    <table className="admin-table">
+                                        <thead>
+                                            <tr><th>Workout Name</th><th>Goal</th><th>Experience</th><th>Duration (wks)</th><th>Actions</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            {workoutLoading ? (
+                                                <tr><td colSpan="5"><span className="state-message loading">Loading workout plans...</span></td></tr>
+                                            ) : filteredWorkouts.length === 0 ? (
+                                                <tr><td colSpan="5"><span className="state-message">No workout plans found.</span></td></tr>
+                                            ) : filteredWorkouts.map((w) => (
+                                                <tr key={w.workout_id}>
+                                                    <td><strong>{w.name}</strong></td>
+                                                    <td>{w.goal_type || '—'}</td>
+                                                    <td>{w.experience_level || '—'}</td>
+                                                    <td>{w.intended_duration_weeks ?? '—'}</td>
+                                                    <td>
+                                                        <div className="actions-cell">
+                                                            <Link className="btn-sm btn-outline-sm" to={`/edit-workout/${w.workout_id}`}>EDIT</Link>
+                                                            <button className="btn-sm btn-red-outline" disabled={workoutActionId === w.workout_id} onClick={() => handleDeleteWorkout(w.workout_id)}>{workoutActionId === w.workout_id ? 'WORKING...' : 'DELETE'}</button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                            {activeTab === 0 && (
+                                <div className="tab-content">
+                                    <div className="section-header">
+                                        <div className="admin-section-title">All Clients</div>
+                                        <div className="admin-search-bar">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
+                                                <circle cx="11" cy="11" r="8" />
+                                                <path d="m21 21-4.35-4.35" />
+                                            </svg>
+                                            <input type="text" placeholder="SEARCH CLIENTS..." value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    {clientError && <p className="feedback-msg error">{clientError}</p>}
+                                    <table className="admin-table">
+                                        <thead>
+                                            <tr><th>Client</th><th>Email</th><th>Weekly Streak</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            {clientLoading ? (
+                                                <tr><td colSpan="6"><span className="state-message loading">Loading clients...</span></td></tr>
+                                            ) : filteredClients.length === 0 ? (
+                                                <tr><td colSpan="6"><span className="state-message">No clients found.</span></td></tr>
+                                            ) : filteredClients.map((client) => (
+                                                <tr key={client.client_id}>
+                                                    <td>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            {client.profile_picture
+                                                                ? <img src={client.profile_picture} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                                                                : <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#6B6BA0', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                                                                    {(client.first_name?.[0] ?? '').toUpperCase()}{(client.last_name?.[0] ?? '').toUpperCase()}
+                                                                  </div>
+                                                            }
+                                                            <strong>{client.first_name} {client.last_name}</strong>
+                                                        </div>
+                                                    </td>
+                                                    <td>{client.email}</td>
+                                                    <td>{client.weekly_streak}</td>
+                                                    <td><span className={`status-badge ${getStatusClass(client.is_active ? 'Active' : 'Rejected')}`}>{client.is_active ? 'Active' : 'Inactive'}</span></td>
+                                                    <td>{new Date(client.joined_at).toLocaleDateString()}</td>
+                                                    <td>
+                                                        <button className="btn-sm btn-red-outline" disabled={clientActionId === client.client_id} onClick={() => handleDeleteClient(client.client_id)}>
+                                                            {clientActionId === client.client_id ? 'WORKING...' : 'DELETE'}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             )}
                         </div>

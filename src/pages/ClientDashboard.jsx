@@ -5,6 +5,7 @@ import { FaRegUser, FaChartPie } from "react-icons/fa"
 import { BsBarChartFill } from "react-icons/bs"
 import { FaClipboardCheck } from "react-icons/fa6"
 import { CoachActions } from '../components/CoachActions'
+import { ViewCoach } from '../components/ViewCoach'
 import { useCustomAuth } from '../context/AuthContext'
 import { Sidebar } from "../components/Sidebar"
 import './Pages.css'
@@ -70,6 +71,9 @@ export const ClientDashboard = () => {
     const [checkInLocked, setCheckInLocked] = useState(false)
     const [checkInCountdown, setCheckInCountdown] = useState('00:00:00')
     const [terminateError, setTerminateError] = useState('')
+    const [coachModalOpen, setCoachModalOpen] = useState(false)
+    const [coachModalData, setCoachModalData] = useState(null)
+    const [weekSchedule, setWeekSchedule] = useState([])
 
     const displayFirstName = data?.full_name?.split(' ')[0] || data?.name?.split(' ')[0] || ''
 
@@ -109,6 +113,30 @@ export const ClientDashboard = () => {
         }
 
         fetchDashboard()
+    }, [isAuthenticated, customAuth, getAccessTokenSilently])
+
+    useEffect(() => {
+        const fetchWeekSchedule = async () => {
+            if (!isAuthenticated && !customAuth) return
+            try {
+                const token = isAuthenticated
+                    ? await getAccessTokenSilently({ authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE } })
+                    : customAuth
+                if (!token) return
+                const now = new Date()
+                const day = now.getDay()
+                const monday = new Date(now)
+                monday.setDate(now.getDate() - ((day + 6) % 7))
+                const sunday = new Date(monday)
+                sunday.setDate(monday.getDate() + 6)
+                const fmt = (d) => d.toISOString().slice(0, 10)
+                const res = await fetch(`${API_BASE_URL}/workouts/scheduled?start_date=${fmt(monday)}&end_date=${fmt(sunday)}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+                if (res.ok) setWeekSchedule(await res.json())
+            } catch { /* non-critical */ }
+        }
+        fetchWeekSchedule()
     }, [isAuthenticated, customAuth, getAccessTokenSilently])
 
     useEffect(() => {
@@ -258,6 +286,19 @@ export const ClientDashboard = () => {
         }
     }
 
+    const openCoachProfile = async () => {
+        const coachId = data?.active_coach?.coach_id
+        if (!coachId) return
+        try {
+            const res = await fetch(`${API_BASE_URL}/coaches/${coachId}`)
+            if (res.ok) setCoachModalData(await res.json())
+            else setCoachModalData(data.active_coach)
+        } catch {
+            setCoachModalData(data.active_coach)
+        }
+        setCoachModalOpen(true)
+    }
+
     const submitDailyCheckIn = async (event) => {
         event.preventDefault()
         setCheckInSubmitting(true)
@@ -368,6 +409,37 @@ export const ClientDashboard = () => {
                             </div>
                         </div>
 
+                        <div className="week-glance-panel">
+                            <div className="dashboard-heading">WEEK AT A GLANCE</div>
+                            <div className="week-glance-grid">
+                                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((label, i) => {
+                                    const now = new Date()
+                                    const monday = new Date(now)
+                                    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
+                                    const day = new Date(monday)
+                                    day.setDate(monday.getDate() + i)
+                                    const iso = day.toISOString().slice(0, 10)
+                                    const isToday = iso === now.toISOString().slice(0, 10)
+                                    const workouts = weekSchedule.filter(w => w.scheduled_date === iso)
+                                    return (
+                                        <div key={label} className={`week-glance-day${isToday ? ' today' : ''}${workouts.length ? ' has-workout' : ''}`}>
+                                            <div className="week-glance-label">{label}</div>
+                                            <div className="week-glance-date">{day.getDate()}</div>
+                                            {workouts.length > 0 ? (
+                                                <div className="week-glance-workouts">
+                                                    {workouts.map((w, j) => (
+                                                        <div key={j} className="week-glance-item">{w.name}</div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="week-glance-rest">Rest</div>
+                                            )}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+
                         <div className="section-2">
                             <div className="workout-plan-panel">
                                 <div className="dashboard-heading">MY WORKOUT PLAN</div>
@@ -439,7 +511,7 @@ export const ClientDashboard = () => {
                                       >
                                         Message
                                       </button>
-                                      <Link className="panel-btn-white">View Profile</Link>
+                                      <button type="button" className="panel-btn-white" onClick={openCoachProfile}>View Profile</button>
                                     </div>
                                     <CoachActions
                                       coachId={data?.active_coach?.coach_id}
@@ -503,6 +575,8 @@ export const ClientDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            <ViewCoach isOpen={coachModalOpen} onClose={() => setCoachModalOpen(false)} coach={coachModalData} />
 
             {isCheckInOpen && (
                 <div className="daily-checkin-overlay" onClick={closeCheckIn}>

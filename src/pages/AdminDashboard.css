@@ -217,6 +217,10 @@
     color: #EA4335;
 }
 
+.admin-table td .btn-sm {
+    width: 120px;
+}
+
 .btn-green {
     background: #34A853;
     border: 1.5px solid #34A853;
@@ -641,6 +645,7 @@
     color: var(--slate-purple);
     font-family: 'Space Mono', monospace;
     padding: 22px;
+    text-align: center;
     text-transform: uppercase;
 }
 

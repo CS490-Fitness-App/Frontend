@@ -26,11 +26,22 @@
 }
 
 .workout-card-tag {
-    background-color: palegreen;
     border-radius: 1rem;
     margin: 0.5rem;
     width: fit-content;
     padding: 0.4rem;
+}
+
+.workout-card-tag-beginner {
+    background-color: palegreen;
+}
+
+.workout-card-tag-intermediate {
+    background-color: rgb(251, 251, 152);
+}
+
+.workout-card-tag-advanced {
+    background-color: rgb(251, 152, 152);
 }
 
 .workout-card-title {

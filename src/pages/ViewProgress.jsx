@@ -405,7 +405,7 @@ const WorkoutCalendarPanel = ({ events }) => {
                 <h3>Workout Calendar</h3>
                 <p>Scheduled workouts — past 30 days and next 90 days.</p>
             </div>
-            <div style={{ height: 480 }}>
+            <div className="calendar-shell" style={{ height: 480 }}>
                 <Calendar
                     localizer={localizer}
                     events={calEvents}

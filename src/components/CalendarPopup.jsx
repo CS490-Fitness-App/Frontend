@@ -28,18 +28,22 @@ export const CalendarPopup = ({ isOpen, onClose, onSave, onDelete, date, event, 
     }
 
     return (
-        <div className="calendar-popup-background">
-            <div className="calendar-popup-container">
-                <div className="h3">{event ? "Edit workout" : "Add Workout"}</div>
+        <div className="coach-modal-overlay" onClick={onClose}>
+            <div className="coach-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="coach-modal-header">
+                    <div className="dashboard-heading coach-modal-title">
+                        {event ? 'Edit Workout' : 'Schedule Workout'}
+                    </div>
+                    <button type="button" className="coach-modal-close" onClick={onClose}>X</button>
+                </div>
+
                 {clientName && !event && (
-                    <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#8B8BF5', margin: '4px 0 8px' }}>
-                        for {clientName}
-                    </p>
+                    <p className="stat-descriptor calendar-client-for">for {clientName}</p>
                 )}
 
-                <form onSubmit={handleSubmit}>
-                    <div className="calendar-popup-contents">
-                        <label className="calendar-form-label" >Workout: </label>
+                <form onSubmit={handleSubmit} className="calendar-popup-form">
+                    <div className="calendar-field">
+                        <label className="stat-heading">Workout</label>
                         <select
                             className="calendar-form-input"
                             required
@@ -55,8 +59,8 @@ export const CalendarPopup = ({ isOpen, onClose, onSave, onDelete, date, event, 
                         </select>
                     </div>
 
-                    <div className="calendar-popup-contents">
-                        <label className="calendar-form-label">Date:</label>
+                    <div className="calendar-field">
+                        <label className="stat-heading">Date</label>
                         <input
                             className="calendar-form-input"
                             type="date"
@@ -66,17 +70,23 @@ export const CalendarPopup = ({ isOpen, onClose, onSave, onDelete, date, event, 
                         />
                     </div>
 
-                    <button className="calendar-btn" type="submit" disabled={submitting}>Save</button>
-                    <button className="calendar-btn-outline" type="button" onClick={onClose} disabled={submitting}>Cancel</button>
+                    <div className="calendar-popup-actions">
+                        <button className="panel-btn-white" type="button" onClick={onClose} disabled={submitting}>
+                            Cancel
+                        </button>
+                        <button className="panel-btn-purple" type="submit" disabled={submitting}>
+                            {submitting ? 'Saving...' : 'Save'}
+                        </button>
+                    </div>
 
                     {event && (
                         <button
-                            className="calendar-btn-delete"
+                            className="panel-btn-fire calendar-delete-btn"
                             type="button"
                             onClick={() => onDelete(event)}
                             disabled={submitting}
                         >
-                            Delete
+                            {submitting ? 'Deleting...' : 'Delete Workout'}
                         </button>
                     )}
                 </form>

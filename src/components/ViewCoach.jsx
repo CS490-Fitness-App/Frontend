@@ -33,6 +33,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
     const [formError, setFormError] = useState('')
     const [formSubmitting, setFormSubmitting] = useState(false)
     const [contractAllowed, setContractAllowed] = useState(false)
+    const [adminDeletingId, setAdminDeletingId] = useState(null)
 
     const isLoggedIn = isAuthenticated || !!customAuth
     const isClient = userRole === 'client'
@@ -66,12 +67,20 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
         if (isLoggedIn && isClient) {
             getToken().then(token => {
                 if (!token) return
-                fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews/can-review`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                })
-                    .then(r => r.ok ? r.json() : { allowed: false })
-                    .then(data => setContractAllowed(data.allowed))
-                    .catch(() => {})
+                const headers = { Authorization: `Bearer ${token}` }
+                Promise.all([
+                    fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews/can-review`, { headers })
+                        .then(r => r.ok ? r.json() : { allowed: false }),
+                    fetch(`${API_BASE_URL}/coaches/${coach.coach_id}/reviews/mine`, { headers })
+                        .then(r => r.ok ? r.json() : null),
+                ]).then(([canReview, mine]) => {
+                    setContractAllowed(canReview.allowed)
+                    if (mine) {
+                        setMyReview(mine)
+                        setFormRating(mine.rating)
+                        setFormDescription(mine.description || '')
+                    }
+                }).catch(() => {})
             })
         }
     }, [coach?.coach_id])
@@ -172,6 +181,22 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
         finally { setFormSubmitting(false) }
     }
 
+    const handleAdminDeleteReview = async (reviewId) => {
+        if (!window.confirm('Delete this review? This cannot be undone.')) return
+        setAdminDeletingId(reviewId)
+        try {
+            const token = await getToken()
+            const res = await fetch(`${API_BASE_URL}/admin/reviews/${reviewId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            if (res.ok) {
+                setReviews(prev => prev.filter(r => r.review_id !== reviewId))
+            }
+        } catch {}
+        finally { setAdminDeletingId(null) }
+    }
+
     const specializationLabel = () => {
         if (coach.is_trainer && coach.is_nutritionist) return 'Trainer & Nutritionist'
         if (coach.is_trainer) return 'Trainer'
@@ -191,9 +216,8 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
     }
 
     return (
-        <div>
-            <div className={`coach-view-container ${isOpen ? 'open' : ''}`}>
-                <div className={`coach-view-content ${isOpen ? 'open' : ''}`}>
+        <div className={`coach-view-container ${isOpen ? 'open' : ''}`}>
+            <div className={`coach-view-content ${isOpen ? 'open' : ''}`}>
 
                     <MdCancel className="cancel" onClick={onClose} />
 
@@ -234,7 +258,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                         </div>
                     </div>
 
-                    {coach.bio && <p style={{ margin: '1rem 0' }}>{coach.bio}</p>}
+                    {coach.bio && <p>{coach.bio}</p>}
 
                     {coach.availability && coach.availability.length > 0 && (
                         <div className="coach-availability">
@@ -254,7 +278,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                     )}
 
                     {(isAuthenticated || customAuth) && (
-                        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <p className="feedback-msg error" style={{ visibility: requestStatus === 'error' ? 'visible' : 'hidden' }}>{requestError || ' '}</p>
                             {requestStatus === 'success' ? (
                                 <p className="feedback-msg success">Request sent successfully!</p>
@@ -289,6 +313,15 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                                                 disabled={formSubmitting}
                                             >
                                                 Delete
+                                            </button>
+                                        )}
+                                        {userRole === 'admin' && (
+                                            <button
+                                                className="review-delete-btn"
+                                                onClick={() => handleAdminDeleteReview(r.review_id)}
+                                                disabled={adminDeletingId === r.review_id}
+                                            >
+                                                {adminDeletingId === r.review_id ? 'Deleting...' : 'Delete'}
                                             </button>
                                         )}
                                     </div>
@@ -332,7 +365,6 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                         )}
                     </div>
 
-                </div>
             </div>
         </div>
     )
