@@ -108,6 +108,114 @@
     padding: 18px;
 }
 
+.activity-photo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.activity-photo-form-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.activity-photo-note-input {
+    min-height: 96px;
+}
+
+.activity-photo-preview-card {
+    align-items: center;
+    border: 1.5px solid var(--black);
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+}
+
+.activity-photo-preview-image {
+    aspect-ratio: 1 / 1;
+    border: 1.5px solid var(--black);
+    height: 112px;
+    object-fit: cover;
+    width: 112px;
+}
+
+.activity-photo-preview-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activity-photo-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.activity-photo-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.activity-photo-card {
+    border: 1.5px solid var(--black);
+    overflow: hidden;
+}
+
+.activity-photo-image {
+    aspect-ratio: 1 / 1;
+    display: block;
+    object-fit: cover;
+    width: 100%;
+}
+
+.activity-photo-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+}
+
+.activity-photo-card-topline {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.activity-photo-tag {
+    background: var(--periwinkle-light);
+    border: 1px solid var(--periwinkle);
+    color: var(--black);
+    display: inline-flex;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 6px 10px;
+    text-transform: uppercase;
+}
+
+.activity-photo-tag.after {
+    background: #eef8ee;
+    border-color: #8ec28e;
+}
+
+.activity-photo-date {
+    color: var(--slate-purple);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+}
+
+.activity-photo-note {
+    margin: 0;
+}
+
+.activity-photo-delete {
+    align-self: flex-start;
+}
+
 .activity-helper-value {
     font-family: 'Anton', sans-serif;
     font-size: 42px;
@@ -317,6 +425,10 @@
 
 @media (max-width: 1080px) {
     .activity-top-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-photo-form-grid {
         grid-template-columns: 1fr;
     }
 

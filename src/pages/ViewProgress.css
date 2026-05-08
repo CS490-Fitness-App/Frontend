@@ -489,6 +489,133 @@
     margin: 4px 0 0 0;
 }
 
+.progress-photo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(209, 213, 219, 1);
+}
+
+.progress-photo-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.progress-photo-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.progress-photo-field span {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: rgb(107, 114, 128);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.progress-photo-field input,
+.progress-photo-field select,
+.progress-photo-field textarea {
+    border: 1px solid black;
+    background: white;
+    color: black;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 13px;
+    padding: 10px 12px;
+}
+
+.progress-photo-field textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.progress-photo-field-file input {
+    padding: 8px 10px;
+}
+
+.progress-photo-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.progress-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.progress-photo-card {
+    border: 1px solid black;
+    background: rgba(249, 250, 251, 1);
+    overflow: hidden;
+}
+
+.progress-photo-image {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+    background: rgba(221, 224, 255, 1);
+}
+
+.progress-photo-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+}
+
+.progress-photo-topline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-photo-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border: 1px solid black;
+}
+
+.progress-photo-tag.before {
+    background: #dbeafe;
+}
+
+.progress-photo-tag.after {
+    background: #dcfce7;
+}
+
+.progress-photo-date {
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 11px;
+    color: rgb(107, 114, 128);
+}
+
+.progress-photo-note {
+    margin: 0;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    color: black;
+}
+
+.progress-photo-delete {
+    align-self: flex-start;
+}
+
 /* ── Weight table ───────────────────────────────────────────── */
 
 .cp-weight-table {

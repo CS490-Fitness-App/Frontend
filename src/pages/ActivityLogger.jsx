@@ -177,6 +177,103 @@ const buildWorkoutForms = (scheduledWorkouts, loggedWorkouts) => {
     }))
 }
 
+const ActivityPhotoPanel = ({
+    photos,
+    isLocked,
+    uploadType,
+    setUploadType,
+    uploadNote,
+    setUploadNote,
+    selectedFile,
+    previewUrl,
+    onFileChange,
+    onUpload,
+    onDelete,
+    photoSubmitting,
+    photoError,
+}) => (
+    <section className="section-card activity-section-card">
+        <div className="section-title">Progress Photos For This Day</div>
+        <p className="stat-descriptor">Upload before or after check-in photos for this log. When you reopen this day later, they will show up here.</p>
+
+        {!isLocked && (
+            <div className="activity-photo-form">
+                <div className="activity-photo-form-grid">
+                    <label className="form-group">
+                        <span className="form-label">Photo Type</span>
+                        <select className="form-input" value={uploadType} onChange={(event) => setUploadType(event.target.value)}>
+                            <option value="before">Before</option>
+                            <option value="after">After</option>
+                        </select>
+                    </label>
+                    <label className="form-group">
+                        <span className="form-label">Image</span>
+                        <input className="form-input" type="file" accept="image/*" onChange={onFileChange} />
+                    </label>
+                </div>
+                <label className="form-group full-width">
+                    <span className="form-label">Note</span>
+                    <textarea
+                        className="form-input activity-photo-note-input"
+                        value={uploadNote}
+                        onChange={(event) => setUploadNote(event.target.value)}
+                        placeholder="Front pose, morning check-in, end of week 2, etc."
+                    />
+                </label>
+                {selectedFile && previewUrl && (
+                    <div className="activity-photo-preview-card">
+                        <img src={previewUrl} alt="Upload preview" className="activity-photo-preview-image" />
+                        <div className="activity-photo-preview-meta">
+                            <div className="activity-photo-tag">{uploadType}</div>
+                            <div className="stat-descriptor">{selectedFile.name}</div>
+                        </div>
+                    </div>
+                )}
+                <div className="activity-photo-actions">
+                    <button type="button" className="panel-btn-purple" onClick={onUpload} disabled={photoSubmitting}>
+                        {photoSubmitting ? 'Uploading...' : 'Add Photo To Log'}
+                    </button>
+                </div>
+            </div>
+        )}
+
+        {photoError && <p className="feedback-msg error">{photoError}</p>}
+
+        {photos.length === 0 ? (
+            <div className="activity-empty-state">
+                <p>No photos attached to this day yet.</p>
+            </div>
+        ) : (
+            <div className="activity-photo-grid">
+                {photos.map((photo) => (
+                    <div key={photo.progress_photo_id} className="activity-photo-card">
+                        <img src={photo.image_url} alt={`${photo.photo_type} log`} className="activity-photo-image" />
+                        <div className="activity-photo-card-meta">
+                            <div className="activity-photo-card-topline">
+                                <span className={`activity-photo-tag ${photo.photo_type}`}>{photo.photo_type}</span>
+                                <span className="activity-photo-date">
+                                    {new Date(`${photo.taken_on}T12:00:00`).toLocaleDateString()}
+                                </span>
+                            </div>
+                            {photo.note && <p className="activity-photo-note">{photo.note}</p>}
+                            {!isLocked && (
+                                <button
+                                    type="button"
+                                    className="panel-btn-white activity-photo-delete"
+                                    onClick={() => onDelete(photo.progress_photo_id)}
+                                    disabled={photoSubmitting}
+                                >
+                                    Delete
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        )}
+    </section>
+)
+
 export const ActivityLogger = () => {
     const { getAccessTokenSilently, isAuthenticated } = useAuth0()
     const { customAuth } = useCustomAuth()
@@ -189,6 +286,12 @@ export const ActivityLogger = () => {
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
     const [activityDay, setActivityDay] = useState(null)
+    const [progressPhotoFile, setProgressPhotoFile] = useState(null)
+    const [progressPhotoPreviewUrl, setProgressPhotoPreviewUrl] = useState('')
+    const [progressPhotoType, setProgressPhotoType] = useState('before')
+    const [progressPhotoNote, setProgressPhotoNote] = useState('')
+    const [photoSubmitting, setPhotoSubmitting] = useState(false)
+    const [photoError, setPhotoError] = useState('')
     const [surveyForm, setSurveyForm] = useState({
         step_count: '',
         calories_intake: '',
@@ -233,6 +336,7 @@ export const ActivityLogger = () => {
 
                 const payload = await readJsonPayload(response, 'Unable to load activity logger.')
                 setActivityDay(payload)
+                setPhotoError('')
                 setSurveyForm({
                     step_count: payload.daily_survey?.step_count ?? '',
                     calories_intake: payload.daily_survey?.calories_intake ?? '',
@@ -386,6 +490,126 @@ export const ActivityLogger = () => {
         }
     }
 
+    const clearPhotoDraft = () => {
+        setProgressPhotoFile(null)
+        setProgressPhotoPreviewUrl('')
+        setProgressPhotoType('before')
+        setProgressPhotoNote('')
+    }
+
+    const handlePhotoFileChange = (event) => {
+        if (isLocked) return
+        const file = event.target.files?.[0] || null
+        setProgressPhotoFile(file)
+        setPhotoError('')
+
+        if (!file) {
+            setProgressPhotoPreviewUrl('')
+            return
+        }
+
+        const nextPreviewUrl = URL.createObjectURL(file)
+        setProgressPhotoPreviewUrl((current) => {
+            if (current) URL.revokeObjectURL(current)
+            return nextPreviewUrl
+        })
+    }
+
+    const uploadProgressPhoto = async () => {
+        if (isLocked) return
+        if (!progressPhotoFile) {
+            setPhotoError('Choose an image before uploading.')
+            return
+        }
+
+        setPhotoSubmitting(true)
+        setPhotoError('')
+        setError('')
+        setSuccess('')
+
+        try {
+            const token = await getAuthToken()
+            const formData = new FormData()
+            formData.append('photo_type', progressPhotoType)
+            formData.append('note', progressPhotoNote)
+            formData.append('image', progressPhotoFile)
+
+            const response = await fetch(`${API_BASE_URL}/logs/activity-day/photos?date=${selectedDate}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData,
+            })
+
+            const body = await response.json().catch(() => ({}))
+            if (!response.ok) {
+                throw new Error(body.detail || 'Unable to upload progress photo.')
+            }
+
+            setActivityDay((current) => ({
+                ...current,
+                has_logged_data: true,
+                can_delete: selectedDate === getLocalDateString(),
+                progress_photos: [body, ...(current?.progress_photos || [])],
+            }))
+            clearPhotoDraft()
+            setSuccess('Photo added to this day\'s log.')
+        } catch (uploadError) {
+            setPhotoError(uploadError.message || 'Unable to upload progress photo.')
+        } finally {
+            setPhotoSubmitting(false)
+        }
+    }
+
+    const deleteProgressPhoto = async (progressPhotoId) => {
+        if (isLocked) return
+
+        setPhotoSubmitting(true)
+        setPhotoError('')
+        setError('')
+        setSuccess('')
+
+        try {
+            const token = await getAuthToken()
+            const response = await fetch(`${API_BASE_URL}/logs/activity-day/photos/${progressPhotoId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            })
+
+            if (!response.ok) {
+                throw new Error(await readErrorDetail(response, 'Unable to delete progress photo.'))
+            }
+
+            setActivityDay((current) => {
+                const nextPhotos = (current?.progress_photos || []).filter((photo) => photo.progress_photo_id !== progressPhotoId)
+                return {
+                    ...current,
+                    progress_photos: nextPhotos,
+                    has_logged_data: Boolean(
+                        current?.daily_survey ||
+                        (current?.logged_workouts || []).length ||
+                        nextPhotos.length
+                    ),
+                }
+            })
+            setSuccess('Photo removed from this day\'s log.')
+        } catch (deleteError) {
+            setPhotoError(deleteError.message || 'Unable to delete progress photo.')
+        } finally {
+            setPhotoSubmitting(false)
+        }
+    }
+
+    useEffect(() => () => {
+        if (progressPhotoPreviewUrl) {
+            URL.revokeObjectURL(progressPhotoPreviewUrl)
+        }
+    }, [progressPhotoPreviewUrl])
+
+    useEffect(() => {
+        clearPhotoDraft()
+        setPhotoError('')
+    }, [selectedDate])
+
     const deleteActivityDay = async () => {
         if (!activityDay?.can_delete) return
 
@@ -504,9 +728,25 @@ export const ActivityLogger = () => {
                                             <textarea className="form-input activity-notes-input" value={surveyForm.notes} onChange={updateSurveyField('notes')} placeholder="How did training feel today?" disabled={isLocked} />
                                         </label>
                                     </div>
-                                </section>
+                            </section>
 
-                                <section className="section-card activity-section-card">
+                            <ActivityPhotoPanel
+                                photos={activityDay.progress_photos || []}
+                                isLocked={isLocked}
+                                uploadType={progressPhotoType}
+                                setUploadType={setProgressPhotoType}
+                                uploadNote={progressPhotoNote}
+                                setUploadNote={setProgressPhotoNote}
+                                selectedFile={progressPhotoFile}
+                                previewUrl={progressPhotoPreviewUrl}
+                                onFileChange={handlePhotoFileChange}
+                                onUpload={uploadProgressPhoto}
+                                onDelete={deleteProgressPhoto}
+                                photoSubmitting={photoSubmitting}
+                                photoError={photoError}
+                            />
+
+                            <section className="section-card activity-section-card">
                                     <div className="section-title">Today&apos;s Focus</div>
                                     <div className="activity-goals">
                                         {activityDay.goals?.length ? (
