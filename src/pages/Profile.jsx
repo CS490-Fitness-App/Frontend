@@ -618,8 +618,8 @@ export const Profile = () => {
                                 <div className="dashboard-heading">Account Status</div>
                                 <p className="stat-descriptor">
                                     {isAccountActive
-                                        ? 'Deactivating your account will suspend access. You can reactivate anytime.'
-                                        : 'Your account is currently deactivated. Reactivate to regain access.'}
+                                        ? 'Deactivating your account starts a 30-day deletion timer. You can reactivate by logging back in anytime before that deadline.'
+                                        : 'Your account is currently deactivated. Reactivate to regain access before the scheduled deletion date.'}
                                 </p>
                                 <button
                                     type="button"
@@ -659,7 +659,7 @@ export const Profile = () => {
                         </div>
                         <p className="stat-descriptor" style={{ margin: '8px 0 16px', lineHeight: '1.6' }}>
                             {isAccountActive
-                                ? 'Are you sure you want to deactivate your account? Your profile will be hidden and you will be logged out. You can reactivate by logging in again.'
+                                ? 'Are you sure you want to deactivate your account? Your profile will be hidden, you will be logged out, and your account will be permanently deleted after 30 days unless you reactivate by logging in again first.'
                                 : 'Would you like to reactivate your account? Your profile and data will be restored.'}
                         </p>
                         {deactivateError && <p className="daily-checkin-error">{deactivateError}</p>}

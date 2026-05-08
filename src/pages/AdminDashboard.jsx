@@ -5,6 +5,7 @@ import { useCustomAuth } from '../context/AuthContext';
 import './AdminDashboard.css';
 import './ClientDashboard.css';
 import { API_BASE_URL } from '../utils/apiBaseUrl';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 const FINANCIAL_PERIODS = [
     { value: 'all', label: 'All Time' },
@@ -28,6 +29,9 @@ const formatCurrency = (value) =>
     }).format(value || 0);
 
 const formatPercent = (value) => `${Number(value || 0).toFixed(1)}%`;
+const formatWeightLb = (value) => (value === null || value === undefined ? '—' : `${value} lb`);
+const formatDateLabel = (value) => (value ? new Date(value).toLocaleDateString() : '—');
+const formatDateTimeLabel = (value) => (value ? new Date(value).toLocaleString() : '—');
 
 const getEngagementLabelStep = (count) => {
     if (count <= 14) return 1;
@@ -82,6 +86,14 @@ export const AdminDashboard = () => {
     const [clientError, setClientError] = useState('');
     const [clientSearch, setClientSearch] = useState('');
     const [clientActionId, setClientActionId] = useState(null);
+    const [clientStatusModal, setClientStatusModal] = useState(null);
+    const [clientDeleteModal, setClientDeleteModal] = useState(null);
+    const [profileModal, setProfileModal] = useState(null);
+    const [reports, setReports] = useState([]);
+    const [reportLoading, setReportLoading] = useState(false);
+    const [reportError, setReportError] = useState('');
+    const [reportSearch, setReportSearch] = useState('');
+    const [reportActionId, setReportActionId] = useState(null);
 
     const [coachSearch, setCoachSearch] = useState('');
     const [exerciseSearch, setExerciseSearch] = useState('');
@@ -327,8 +339,98 @@ export const AdminDashboard = () => {
         }
     }, [activeTab, isAuthenticated, customAuth]);
 
+    const fetchReports = async () => {
+        setReportLoading(true);
+        setReportError('');
+        try {
+            const token = await getToken();
+            if (!token) {
+                setReportError('Log in as an admin to review reports.');
+                setReportLoading(false);
+                return;
+            }
+            const res = await fetch(`${API_BASE_URL}/admin/reports`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => []);
+            if (!res.ok) throw new Error(data.detail || 'Failed to load reports');
+            setReports(data);
+        } catch (err) {
+            setReportError(err.message || 'Failed to load reports');
+        } finally {
+            setReportLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 6) {
+            fetchReports();
+        }
+    }, [activeTab, isAuthenticated, customAuth]);
+
+    useEffect(() => {
+        fetchReports();
+    }, [isAuthenticated, customAuth]);
+
+    const handleToggleClientStatus = async (clientId, isActive) => {
+        const actionLabel = isActive ? 'deactivate' : 'reactivate';
+        setClientActionId(clientId);
+        setClientError('');
+        try {
+            const token = await getToken();
+            if (!token) throw new Error('Log in as an admin to manage clients.');
+            const res = await fetch(`${API_BASE_URL}/admin/clients/${clientId}/${isActive ? 'deactivate' : 'reactivate'}`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || `Failed to ${actionLabel} client`);
+            }
+            setClients((current) => current.map((client) => (
+                client.client_id === clientId
+                    ? { ...client, is_active: data.is_active }
+                    : client
+            )));
+            fetchAdminOverview();
+        } catch (err) {
+            setClientError(err.message || `Failed to ${actionLabel} client`);
+        } finally {
+            setClientActionId(null);
+        }
+    };
+
+    const openClientStatusModal = (client) => {
+        setClientStatusModal({
+            clientId: client.client_id,
+            isActive: client.is_active,
+            clientName: `${client.first_name || ''} ${client.last_name || ''}`.trim() || client.email,
+        });
+    };
+
+    const closeClientStatusModal = () => {
+        setClientStatusModal(null);
+    };
+
+    const confirmClientStatusAction = async () => {
+        if (!clientStatusModal) return;
+        const { clientId, isActive } = clientStatusModal;
+        await handleToggleClientStatus(clientId, isActive);
+        setClientStatusModal(null);
+    };
+
+    const openClientDeleteModal = (client) => {
+        setClientDeleteModal({
+            clientId: client.client_id,
+            clientName: `${client.first_name || ''} ${client.last_name || ''}`.trim() || client.email,
+        });
+    };
+
+    const closeClientDeleteModal = () => {
+        setClientDeleteModal(null);
+    };
+
     const handleDeleteClient = async (clientId) => {
-        if (!window.confirm('Permanently delete this client account? This cannot be undone.')) return;
         setClientActionId(clientId);
         setClientError('');
         try {
@@ -342,11 +444,96 @@ export const AdminDashboard = () => {
                 const data = await res.json().catch(() => ({}));
                 throw new Error(data.detail || 'Failed to delete client');
             }
-            setClients((current) => current.filter((c) => c.client_id !== clientId));
+            setClients((current) => current.filter((client) => client.client_id !== clientId));
+            fetchAdminOverview();
         } catch (err) {
             setClientError(err.message || 'Failed to delete client');
         } finally {
             setClientActionId(null);
+        }
+    };
+
+    const confirmDeleteClient = async () => {
+        if (!clientDeleteModal) return;
+        await handleDeleteClient(clientDeleteModal.clientId);
+        setClientDeleteModal(null);
+    };
+
+    const openProfileModal = async (type, id) => {
+        setProfileModal({ type, loading: true, error: '', data: null });
+        try {
+            const token = await getToken();
+            if (!token) throw new Error('Log in as an admin to view profile details.');
+            const endpoint = type === 'client'
+                ? `${API_BASE_URL}/admin/clients/${id}/profile`
+                : `${API_BASE_URL}/admin/coaches/${id}/profile`;
+            const res = await fetch(endpoint, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || 'Failed to load profile details.');
+            }
+            setProfileModal({ type, loading: false, error: '', data });
+        } catch (err) {
+            setProfileModal({ type, loading: false, error: err.message || 'Failed to load profile details.', data: null });
+        }
+    };
+
+    const closeProfileModal = () => {
+        setProfileModal(null);
+    };
+
+    const formatClientDeactivationState = (client) => {
+        if (client.is_active) {
+            return '—';
+        }
+        if (client.deactivated_by_admin) {
+            return 'Admin hold';
+        }
+        if (client.scheduled_deletion_at) {
+            return `Deletes ${new Date(client.scheduled_deletion_at).toLocaleDateString()}`;
+        }
+        return 'Inactive';
+    };
+
+    const getClientDeactivationTooltip = (client) => {
+        if (client.is_active) return '';
+        if (client.deactivated_by_admin) {
+            return client.deactivated_at
+                ? `Deactivated by admin on ${new Date(client.deactivated_at).toLocaleString()}`
+                : 'Deactivated by admin until manually reactivated or deleted.';
+        }
+        if (client.scheduled_deletion_at) {
+            return `Scheduled deletion: ${new Date(client.scheduled_deletion_at).toLocaleString()}`;
+        }
+        return 'Account is inactive.';
+    };
+
+    const handleUpdateReportStatus = async (reportId, status) => {
+        setReportActionId(reportId);
+        setReportError('');
+        try {
+            const token = await getToken();
+            if (!token) throw new Error('Log in as an admin to manage reports.');
+            const res = await fetch(`${API_BASE_URL}/admin/reports/${reportId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ status }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.detail || 'Failed to update report status');
+            setReports((current) => current.map((report) => (
+                report.report_id === reportId ? data : report
+            )));
+            fetchAdminOverview();
+        } catch (err) {
+            setReportError(err.message || 'Failed to update report status');
+        } finally {
+            setReportActionId(null);
         }
     };
 
@@ -396,6 +583,14 @@ export const AdminDashboard = () => {
                         : coach
                 )
             );
+            setReports((current) =>
+                current.map((report) =>
+                    report.coach_id === coachId
+                        ? { ...report, coach_status: data.status }
+                        : report
+                )
+            );
+            fetchAdminOverview();
         } catch (err) {
             setCoachError(err.message || `Failed to ${action} coach application`);
         } finally {
@@ -586,8 +781,20 @@ export const AdminDashboard = () => {
         );
     });
 
+    const filteredReports = reports.filter((report) => {
+        const q = reportSearch.toLowerCase();
+        return (
+            (report.reporter_name || '').toLowerCase().includes(q) ||
+            (report.reporter_email || '').toLowerCase().includes(q) ||
+            (report.coach_name || '').toLowerCase().includes(q) ||
+            (report.coach_email || '').toLowerCase().includes(q) ||
+            (report.reason || '').toLowerCase().includes(q) ||
+            (report.status || '').toLowerCase().includes(q)
+        );
+    });
+
     const getStatusClass = (status) => {
-        if (status === 'Active' || status === 'Approved') return 'status-approved';
+        if (status === 'Active' || status === 'Approved' || status === 'Resolved') return 'status-approved';
         if (status === 'Pending') return 'status-pending';
         if (status === 'Suspended') return 'status-suspended';
         return 'status-rejected';
@@ -608,6 +815,13 @@ export const AdminDashboard = () => {
     const bestSurveyRate = Math.max(...engagementChart.map((point) => point.survey_completion_rate), 0);
     const maxSurveyCompletions = Math.max(...engagementChart.map((point) => point.survey_completions), 0);
     const moodBreakdown = engagementSummary?.mood_breakdown || [];
+    const activeCoachCount = coaches.length
+        ? coaches.filter((coach) => coach.status === 'Active').length
+        : (adminOverview?.active_coaches ?? 'â€”');
+    const pendingCoachCount = coaches.length
+        ? coaches.filter((coach) => coach.status === 'Pending').length
+        : (adminOverview?.pending_approvals ?? 'â€”');
+    const pendingReportCount = reports.filter((report) => report.status === 'Pending').length;
     const engagementLabelStep = getEngagementLabelStep(engagementChart.length);
 
     return (
@@ -622,14 +836,15 @@ export const AdminDashboard = () => {
                     <div className="admin-section">
                         <div className="dashboard">
                             <div className="section-quick-stats">
-                                <div className="quick-stat-card"><div className="stat-heading">Total Users</div><div className="stat">{adminOverview?.total_users ?? '—'}</div></div>
-                                <div className="quick-stat-card"><div className="stat-heading">Active Coaches</div><div className="stat">{adminOverview?.active_coaches ?? coaches.filter((coach) => coach.status === 'Active').length}</div></div>
-                                <div className="quick-stat-card"><div className="stat-heading">Pending Approvals</div><div className="stat">{adminOverview?.pending_approvals ?? coaches.filter((coach) => coach.status === 'Pending').length} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div></div>
-                                <div className="quick-stat-card" onClick={() => setActiveTab(3)}><div className="stat-heading">Revenue This Month</div><div className="stat">{adminOverview ? formatCurrency(adminOverview.revenue_this_month) : '—'}</div></div>
+                                <div className="quick-stat-card admin-click-card" onClick={() => setActiveTab(0)}><div className="stat-heading">Total Users</div><div className="stat">{adminOverview?.total_users ?? '—'}</div></div>
+                                <div className="quick-stat-card admin-click-card" onClick={() => setActiveTab(1)}><div className="stat-heading">Active Coaches</div><div className="stat">{activeCoachCount}</div></div>
+                                <div className="quick-stat-card admin-click-card" onClick={() => setActiveTab(1)}><div className="stat-heading">Pending Approvals</div><div className="stat">{pendingCoachCount} <span className="pending-dot" style={{ background: '#F5A623' }}></span></div></div>
+                                <div className="quick-stat-card admin-click-card" onClick={() => setActiveTab(6)}><div className="stat-heading">Pending Reports</div><div className="stat">{pendingReportCount} <span className="pending-dot" style={{ background: '#EA4335' }}></span></div></div>
+                                <div className="quick-stat-card admin-click-card" onClick={() => setActiveTab(3)}><div className="stat-heading">Revenue This Month</div><div className="stat">{adminOverview ? formatCurrency(adminOverview.revenue_this_month) : '—'}</div></div>
                             </div>
                             {adminOverviewError && <p className="feedback-msg error">{adminOverviewError}</p>}
                             <div className="tabs">
-                                {['CLIENT MANAGEMENT', 'COACH MANAGEMENT', 'USER ENGAGEMENT', 'FINANCIAL TRACKING', 'EXERCISE INVENTORY', 'WORKOUT INVENTORY'].map((tab, i) => (
+                                {['CLIENT MANAGEMENT', 'COACH MANAGEMENT', 'USER ENGAGEMENT', 'FINANCIAL TRACKING', 'EXERCISE INVENTORY', 'WORKOUT INVENTORY', 'REPORTS'].map((tab, i) => (
                                     <div key={i} className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{tab}</div>
                                 ))}
                             </div>
@@ -657,7 +872,11 @@ export const AdminDashboard = () => {
                                                 <tr><td colSpan="6"><span className="state-message">No coach applications found.</span></td></tr>
                                             ) : filteredCoaches.map((coach) => (
                                                 <tr key={coach.coach_id}>
-                                                    <td><strong>{coach.first_name} {coach.last_name}</strong></td>
+                                                    <td>
+                                                        <button type="button" className="admin-profile-trigger" onClick={() => openProfileModal('coach', coach.coach_id)}>
+                                                            <strong>{coach.first_name} {coach.last_name}</strong>
+                                                        </button>
+                                                    </td>
                                                     <td>{coach.email}</td>
                                                     <td>{coach.specialization}</td>
                                                     <td><span className={`status-badge ${getStatusClass(coach.status)}`}>{coach.status}</span></td>
@@ -1143,17 +1362,17 @@ export const AdminDashboard = () => {
                                     {clientError && <p className="feedback-msg error">{clientError}</p>}
                                     <table className="admin-table">
                                         <thead>
-                                            <tr><th>Client</th><th>Email</th><th>Weekly Streak</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+                                            <tr><th>Client</th><th>Email</th><th>Weekly Streak</th><th>Status</th><th>Deactivation</th><th>Joined</th><th>Actions</th></tr>
                                         </thead>
                                         <tbody>
                                             {clientLoading ? (
-                                                <tr><td colSpan="6"><span className="state-message loading">Loading clients...</span></td></tr>
+                                                <tr><td colSpan="7"><span className="state-message loading">Loading clients...</span></td></tr>
                                             ) : filteredClients.length === 0 ? (
-                                                <tr><td colSpan="6"><span className="state-message">No clients found.</span></td></tr>
+                                                <tr><td colSpan="7"><span className="state-message">No clients found.</span></td></tr>
                                             ) : filteredClients.map((client) => (
                                                 <tr key={client.client_id}>
                                                     <td>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                        <button type="button" className="admin-profile-trigger admin-profile-trigger-inline" onClick={() => openProfileModal('client', client.client_id)}>
                                                             {client.profile_picture
                                                                 ? <img src={client.profile_picture} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                                                                 : <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#6B6BA0', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
@@ -1161,16 +1380,140 @@ export const AdminDashboard = () => {
                                                                   </div>
                                                             }
                                                             <strong>{client.first_name} {client.last_name}</strong>
-                                                        </div>
+                                                        </button>
                                                     </td>
                                                     <td>{client.email}</td>
-                                                    <td>{client.weekly_streak}</td>
+                                                    <td>
+                                                        {client.is_active ? (
+                                                            client.weekly_streak
+                                                        ) : (
+                                                            <span
+                                                                className="muted-cell-value"
+                                                                title={`Historical streak: ${client.weekly_streak}`}
+                                                            >
+                                                                —
+                                                            </span>
+                                                        )}
+                                                    </td>
                                                     <td><span className={`status-badge ${getStatusClass(client.is_active ? 'Active' : 'Rejected')}`}>{client.is_active ? 'Active' : 'Inactive'}</span></td>
+                                                    <td>
+                                                        {client.is_active ? (
+                                                            <span className="muted-cell-value">—</span>
+                                                        ) : (
+                                                            <span className="muted-cell-value" title={getClientDeactivationTooltip(client)}>
+                                                                {formatClientDeactivationState(client)}
+                                                            </span>
+                                                        )}
+                                                    </td>
                                                     <td>{new Date(client.joined_at).toLocaleDateString()}</td>
                                                     <td>
-                                                        <button className="btn-sm btn-red-outline" disabled={clientActionId === client.client_id} onClick={() => handleDeleteClient(client.client_id)}>
-                                                            {clientActionId === client.client_id ? 'WORKING...' : 'DELETE'}
-                                                        </button>
+                                                        {client.is_active ? (
+                                                            <button className="btn-sm btn-red-outline" disabled={clientActionId === client.client_id} onClick={() => openClientStatusModal(client)}>
+                                                                {clientActionId === client.client_id ? 'WORKING...' : 'DEACTIVATE'}
+                                                            </button>
+                                                        ) : (
+                                                            <div className="actions-cell">
+                                                                <button className="btn-sm btn-warn-outline" disabled={clientActionId === client.client_id} onClick={() => openClientStatusModal(client)}>
+                                                                    {clientActionId === client.client_id ? 'WORKING...' : 'REACTIVATE'}
+                                                                </button>
+                                                                <button className="btn-sm btn-red-outline" disabled={clientActionId === client.client_id} onClick={() => openClientDeleteModal(client)}>
+                                                                    {clientActionId === client.client_id ? 'WORKING...' : 'DELETE'}
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                            {activeTab === 6 && (
+                                <div className="tab-content">
+                                    <div className="section-header">
+                                        <div className="admin-section-title">Reports</div>
+                                        <div className="admin-search-bar">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6BA0" strokeWidth="2">
+                                                <circle cx="11" cy="11" r="8" />
+                                                <path d="m21 21-4.35-4.35" />
+                                            </svg>
+                                            <input type="text" placeholder="SEARCH REPORTS..." value={reportSearch} onChange={(e) => setReportSearch(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    {reportError && <p className="feedback-msg error">{reportError}</p>}
+                                    <table className="admin-table reports-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Reported Coach</th>
+                                                <th>Reporter</th>
+                                                <th>Reason</th>
+                                                <th>Report Status</th>
+                                                <th>Coach Status</th>
+                                                <th>Submitted</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {reportLoading ? (
+                                                <tr><td colSpan="7"><span className="state-message loading">Loading reports...</span></td></tr>
+                                            ) : filteredReports.length === 0 ? (
+                                                <tr><td colSpan="7"><span className="state-message">No reports found.</span></td></tr>
+                                            ) : filteredReports.map((report) => (
+                                                <tr key={report.report_id}>
+                                                    <td>
+                                                        <div className="report-name-stack">
+                                                            <strong>{report.coach_name}</strong>
+                                                            <span>{report.coach_email}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="report-name-stack">
+                                                            <strong>{report.reporter_name}</strong>
+                                                            <span>{report.reporter_email}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="report-reason-cell" title={report.reason || ''}>
+                                                            {report.reason || '—'}
+                                                        </div>
+                                                    </td>
+                                                    <td><span className={`status-badge ${getStatusClass(report.status)}`}>{report.status}</span></td>
+                                                    <td><span className={`status-badge ${getStatusClass(report.coach_status || 'Rejected')}`}>{report.coach_status || 'Unknown'}</span></td>
+                                                    <td>{new Date(report.created_at).toLocaleDateString()}</td>
+                                                    <td>
+                                                        <div className="actions-cell report-actions-cell">
+                                                            <button
+                                                                className="btn-outline-sm"
+                                                                disabled={reportActionId === report.report_id || report.status !== 'Pending'}
+                                                                onClick={() => handleUpdateReportStatus(report.report_id, 'Resolved')}
+                                                            >
+                                                                {reportActionId === report.report_id ? 'WORKING...' : 'RESOLVE'}
+                                                            </button>
+                                                            <button
+                                                                className="btn-red-outline"
+                                                                disabled={reportActionId === report.report_id || report.status !== 'Pending'}
+                                                                onClick={() => handleUpdateReportStatus(report.report_id, 'Dismissed')}
+                                                            >
+                                                                {reportActionId === report.report_id ? 'WORKING...' : 'DISMISS'}
+                                                            </button>
+                                                            {report.coach_status === 'Suspended' ? (
+                                                                <button
+                                                                    className="btn-warn-outline"
+                                                                    disabled={coachActionId === report.coach_id || report.status !== 'Pending'}
+                                                                    onClick={() => handleReactivate(report.coach_id)}
+                                                                >
+                                                                    {coachActionId === report.coach_id ? 'WORKING...' : 'REACTIVATE'}
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    className="btn-warn-outline"
+                                                                    disabled={coachActionId === report.coach_id || report.status !== 'Pending'}
+                                                                    onClick={() => handleSuspend(report.coach_id)}
+                                                                >
+                                                                    {coachActionId === report.coach_id ? 'WORKING...' : 'SUSPEND'}
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -1179,6 +1522,194 @@ export const AdminDashboard = () => {
                                 </div>
                             )}
                         </div>
+                        {profileModal && (
+                            <div className="admin-modal-overlay" onClick={closeProfileModal}>
+                                <div className="admin-modal admin-profile-modal" onClick={(e) => e.stopPropagation()}>
+                                    <div className="admin-modal-header">
+                                        <div className="admin-section-title">
+                                            {profileModal.type === 'client' ? 'Client Profile' : 'Coach Profile'}
+                                        </div>
+                                        <button className="admin-modal-close" onClick={closeProfileModal}>X</button>
+                                    </div>
+                                    {profileModal.loading ? (
+                                        <p className="state-message loading">Loading profile...</p>
+                                    ) : profileModal.error ? (
+                                        <p className="feedback-msg error">{profileModal.error}</p>
+                                    ) : profileModal.data && profileModal.type === 'client' ? (
+                                        <div className="admin-profile-layout">
+                                            <div className="admin-profile-hero">
+                                                {profileModal.data.profile_picture ? (
+                                                    <img
+                                                        src={resolveMediaUrl(profileModal.data.profile_picture)}
+                                                        alt=""
+                                                        className="admin-profile-avatar"
+                                                    />
+                                                ) : (
+                                                    <div className="admin-profile-avatar admin-profile-avatar-fallback">
+                                                        {(profileModal.data.first_name?.[0] ?? '').toUpperCase()}{(profileModal.data.last_name?.[0] ?? '').toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div className="admin-profile-hero-copy">
+                                                    <div className="admin-profile-name">{`${profileModal.data.first_name || ''} ${profileModal.data.last_name || ''}`.trim() || profileModal.data.email}</div>
+                                                    <div className="admin-profile-email">{profileModal.data.email}</div>
+                                                    <div className="admin-profile-badges">
+                                                        <span className={`status-badge ${getStatusClass(profileModal.data.is_active ? 'Active' : 'Rejected')}`}>
+                                                            {profileModal.data.is_active ? 'Active' : 'Inactive'}
+                                                        </span>
+                                                        {!profileModal.data.is_active && (
+                                                            <span className="status-badge status-suspended">
+                                                                {profileModal.data.deactivated_by_admin ? 'Admin Hold' : 'Self Deactivated'}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="admin-profile-grid">
+                                                <div className="admin-profile-card">
+                                                    <div className="stat-heading">Account</div>
+                                                    <div className="admin-profile-detail-list">
+                                                        <div><strong>Joined:</strong> {formatDateLabel(profileModal.data.joined_at)}</div>
+                                                        <div><strong>Weekly Streak:</strong> {profileModal.data.weekly_streak}</div>
+                                                        <div><strong>Deactivated:</strong> {formatDateTimeLabel(profileModal.data.deactivated_at)}</div>
+                                                        <div><strong>Scheduled Deletion:</strong> {profileModal.data.deactivated_by_admin ? 'Admin hold' : formatDateTimeLabel(profileModal.data.scheduled_deletion_at)}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="admin-profile-card">
+                                                    <div className="stat-heading">Body Stats</div>
+                                                    <div className="admin-profile-detail-list">
+                                                        <div><strong>Age:</strong> {profileModal.data.age ?? '—'}</div>
+                                                        <div><strong>Height:</strong> {profileModal.data.height_cm ? `${profileModal.data.height_cm} cm` : '—'}</div>
+                                                        <div><strong>Current Weight:</strong> {formatWeightLb(profileModal.data.weight_lb)}</div>
+                                                        <div><strong>Goal Weight:</strong> {formatWeightLb(profileModal.data.goal_weight_lb)}</div>
+                                                        <div><strong>Sex:</strong> {profileModal.data.sex || '—'}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="admin-profile-card">
+                                                    <div className="stat-heading">Goals & Coaching</div>
+                                                    <div className="admin-profile-detail-list">
+                                                        <div><strong>Goals:</strong> {profileModal.data.goals?.length ? profileModal.data.goals.join(', ') : 'None set'}</div>
+                                                        <div><strong>Active Coach:</strong> {profileModal.data.active_coach_name || 'None assigned'}</div>
+                                                        <div><strong>Coach Email:</strong> {profileModal.data.active_coach_email || '—'}</div>
+                                                        <div><strong>Last Survey:</strong> {formatDateLabel(profileModal.data.last_survey_date)}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : profileModal.data ? (
+                                        <div className="admin-profile-layout">
+                                            <div className="admin-profile-hero">
+                                                {profileModal.data.profile_picture ? (
+                                                    <img
+                                                        src={resolveMediaUrl(profileModal.data.profile_picture)}
+                                                        alt=""
+                                                        className="admin-profile-avatar"
+                                                    />
+                                                ) : (
+                                                    <div className="admin-profile-avatar admin-profile-avatar-fallback">
+                                                        {(profileModal.data.first_name?.[0] ?? '').toUpperCase()}{(profileModal.data.last_name?.[0] ?? '').toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div className="admin-profile-hero-copy">
+                                                    <div className="admin-profile-name">{`${profileModal.data.first_name || ''} ${profileModal.data.last_name || ''}`.trim() || profileModal.data.email}</div>
+                                                    <div className="admin-profile-email">{profileModal.data.email}</div>
+                                                    <div className="admin-profile-badges">
+                                                        <span className={`status-badge ${getStatusClass(profileModal.data.status)}`}>{profileModal.data.status}</span>
+                                                        <span className={`status-badge ${getStatusClass(profileModal.data.is_active_user ? 'Active' : 'Rejected')}`}>
+                                                            {profileModal.data.is_active_user ? 'User Active' : 'User Inactive'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="admin-profile-grid">
+                                                <div className="admin-profile-card">
+                                                    <div className="stat-heading">Coaching Status</div>
+                                                    <div className="admin-profile-detail-list">
+                                                        <div><strong>Specialization:</strong> {profileModal.data.specialization}</div>
+                                                        <div><strong>Accepting Clients:</strong> {profileModal.data.accepting_clients ? 'Yes' : 'No'}</div>
+                                                        <div><strong>Hourly Rate:</strong> {formatCurrency(profileModal.data.hourly_rate)}</div>
+                                                        <div><strong>Submitted:</strong> {formatDateLabel(profileModal.data.submitted_at)}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="admin-profile-card">
+                                                    <div className="stat-heading">Background</div>
+                                                    <div className="admin-profile-detail-list">
+                                                        <div><strong>Gender:</strong> {profileModal.data.gender || '—'}</div>
+                                                        <div><strong>Experience:</strong> {profileModal.data.years_of_experience ?? '—'} {profileModal.data.years_of_experience != null ? 'years' : ''}</div>
+                                                        <div><strong>Max Clients:</strong> {profileModal.data.max_clients ?? '—'}</div>
+                                                        <div><strong>Bio:</strong> {profileModal.data.bio || 'No bio provided.'}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="admin-profile-card">
+                                                    <div className="stat-heading">Capacity</div>
+                                                    <div className="admin-profile-detail-list">
+                                                        <div><strong>Active Clients:</strong> {profileModal.data.active_client_count}</div>
+                                                        <div><strong>Pending Requests:</strong> {profileModal.data.pending_client_count}</div>
+                                                        <div><strong>Certifications:</strong> {profileModal.data.certifications?.length ? profileModal.data.certifications.join(', ') : 'None listed'}</div>
+                                                        <div><strong>Availability:</strong> {profileModal.data.availability?.length ? profileModal.data.availability.join(' • ') : 'Not provided'}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </div>
+                        )}
+                        {clientStatusModal && (
+                            <div className="admin-modal-overlay" onClick={closeClientStatusModal}>
+                                <div className="admin-modal admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+                                    <div className="admin-modal-header">
+                                        <div className="admin-section-title">
+                                            {clientStatusModal.isActive ? 'Deactivate Client' : 'Reactivate Client'}
+                                        </div>
+                                        <button className="admin-modal-close" onClick={closeClientStatusModal}>X</button>
+                                    </div>
+                                    <p className="admin-confirm-copy">
+                                        {clientStatusModal.isActive
+                                            ? `Deactivate ${clientStatusModal.clientName}? This will remove their access, terminate active coaching contracts, and place the account on admin hold until an admin reactivates or deletes it.`
+                                            : `Reactivate ${clientStatusModal.clientName}? This will restore their access to the platform.`}
+                                    </p>
+                                    <div className="admin-modal-actions">
+                                        <button type="button" className="btn-outline-sm" onClick={closeClientStatusModal}>Cancel</button>
+                                        <button
+                                            type="button"
+                                            className={clientStatusModal.isActive ? 'btn-red-outline' : 'btn-warn-outline'}
+                                            onClick={confirmClientStatusAction}
+                                            disabled={clientActionId === clientStatusModal.clientId}
+                                        >
+                                            {clientActionId === clientStatusModal.clientId
+                                                ? 'WORKING...'
+                                                : clientStatusModal.isActive
+                                                    ? 'DEACTIVATE'
+                                                    : 'REACTIVATE'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        {clientDeleteModal && (
+                            <div className="admin-modal-overlay" onClick={closeClientDeleteModal}>
+                                <div className="admin-modal admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+                                    <div className="admin-modal-header">
+                                        <div className="admin-section-title">Delete Client Account</div>
+                                        <button className="admin-modal-close" onClick={closeClientDeleteModal}>X</button>
+                                    </div>
+                                    <p className="admin-confirm-copy">
+                                        Permanently delete {clientDeleteModal.clientName}? This removes the account and its related data. This action cannot be undone.
+                                    </p>
+                                    <div className="admin-modal-actions">
+                                        <button type="button" className="btn-outline-sm" onClick={closeClientDeleteModal}>Cancel</button>
+                                        <button
+                                            type="button"
+                                            className="btn-red-outline"
+                                            onClick={confirmDeleteClient}
+                                            disabled={clientActionId === clientDeleteModal.clientId}
+                                        >
+                                            {clientActionId === clientDeleteModal.clientId ? 'WORKING...' : 'DELETE'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div className="footer-spacer"></div>
                     </div>
             </div>

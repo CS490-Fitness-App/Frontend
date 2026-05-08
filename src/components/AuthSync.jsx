@@ -4,24 +4,28 @@ import { useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
 import { useCustomAuth } from '../context/AuthContext'
 
-const readErrorDetail = async (response, fallbackMessage) => {
+const readErrorPayload = async (response, fallbackMessage) => {
   const rawBody = await response.text().catch(() => '')
 
   if (!rawBody) {
-    return fallbackMessage
+    return { message: fallbackMessage, detail: fallbackMessage }
   }
 
   try {
     const parsedBody = JSON.parse(rawBody)
-    return parsedBody.detail || parsedBody.message || rawBody || fallbackMessage
+    const detail = parsedBody.detail || parsedBody.message || fallbackMessage
+    return {
+      message: typeof detail === 'string' ? detail : detail?.message || fallbackMessage,
+      detail,
+    }
   } catch {
-    return rawBody
+    return { message: rawBody, detail: rawBody }
   }
 }
 
 export const AuthSync = () => {
   const { isAuthenticated, isLoading, getAccessTokenSilently, user } = useAuth0()
-  const { setBackendAuthReady, setBackendAuthError, setUserRole } = useCustomAuth()
+  const { customAuth, setBackendAuthReady, setBackendAuthError, setBackendAuthMeta, setUserRole } = useCustomAuth()
   const navigate = useNavigate()
 
   const getDashboardRoute = (role) => {
@@ -34,9 +38,42 @@ export const AuthSync = () => {
     const syncToBackend = async () => {
       if (isLoading) return
 
-      if (!isAuthenticated) {
+      if (!isAuthenticated && !customAuth) {
         setBackendAuthReady(false)
         setBackendAuthError('')
+        setBackendAuthMeta(null)
+        return
+      }
+
+      if (!isAuthenticated && customAuth) {
+        setBackendAuthReady(false)
+        setBackendAuthError('')
+        setBackendAuthMeta(null)
+        try {
+          const res = await fetch(`${API_BASE_URL}/auth/me`, {
+            headers: { Authorization: `Bearer ${customAuth}` },
+          })
+
+          if (!res.ok) {
+            const payload = await readErrorPayload(res, 'Failed to validate your account.')
+            setBackendAuthError(payload.message)
+            setBackendAuthMeta(typeof payload.detail === 'object' ? payload.detail : null)
+            setUserRole(typeof payload.detail === 'object' ? payload.detail.role || null : null)
+            return
+          }
+
+          const body = await res.json().catch(() => ({}))
+          setBackendAuthReady(true)
+          setBackendAuthError('')
+          setBackendAuthMeta(null)
+          setUserRole(body.role || null)
+        } catch (error) {
+          const message = error?.message || 'Failed to validate your account.'
+          setBackendAuthError(message)
+          setBackendAuthMeta(null)
+          setUserRole(null)
+          console.error('Custom auth validation failed:', error)
+        }
         return
       }
 
@@ -47,6 +84,7 @@ export const AuthSync = () => {
 
       setBackendAuthReady(false)
       setBackendAuthError('')
+      setBackendAuthMeta(null)
 
       // Capture and clear pendingAuth before any async work so it only fires once.
       const shouldNavigate = !!sessionStorage.getItem('pendingAuth')
@@ -88,13 +126,16 @@ export const AuthSync = () => {
         })
 
         if (!res.ok) {
-          const detail = await readErrorDetail(res, 'Failed to sync account with backend.')
-          setBackendAuthError(detail)
-          console.error(`[AuthSync] Backend returned ${res.status}:`, detail)
+          const payload = await readErrorPayload(res, 'Failed to sync account with backend.')
+          setBackendAuthError(payload.message)
+          setBackendAuthMeta(typeof payload.detail === 'object' ? payload.detail : null)
+          setUserRole(typeof payload.detail === 'object' ? payload.detail.role || null : null)
+          console.error(`[AuthSync] Backend returned ${res.status}:`, payload.detail)
         } else {
           const body = await res.json().catch(() => ({}))
           setBackendAuthReady(true)
           setBackendAuthError('')
+          setBackendAuthMeta(null)
           setUserRole(body.role || requestedRole)
           if (shouldNavigate) {
             if (body.is_new_user) {
@@ -108,6 +149,7 @@ export const AuthSync = () => {
       } catch (error) {
         const message = error?.message || error?.error_description || 'Failed to sync account with backend.'
         setBackendAuthError(message)
+        setBackendAuthMeta(null)
         console.error('Auth sync failed:', error)
       }
 
@@ -115,7 +157,7 @@ export const AuthSync = () => {
     }
 
     syncToBackend()
-  }, [isAuthenticated, isLoading, getAccessTokenSilently, user, navigate, setBackendAuthError, setBackendAuthReady])
+  }, [isAuthenticated, isLoading, getAccessTokenSilently, user, navigate, setBackendAuthError, setBackendAuthReady, customAuth, setUserRole, setBackendAuthMeta])
 
   return null
 }
