@@ -8,7 +8,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useCustomAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../utils/apiBaseUrl'
 
-import { MdDragHandle } from "react-icons/md";
+import { MdDragHandle, MdDelete } from "react-icons/md";
 
 const EXPERIENCE_OPTIONS = [
     { id: 1, label: 'Beginner' },
@@ -215,6 +215,10 @@ export const EditWorkout = () => {
                 return { ...exercise, [field]: value }
             })
         )
+    }
+
+    const handleRemoveExercise = (index) => {
+        setExercises((prev) => prev.filter((_, i) => i !== index))
     }
 
     const handleAddExercise = () => {
@@ -463,7 +467,14 @@ export const EditWorkout = () => {
                                                 onChange={(e) => updateExerciseField(index, 'rest', e.target.value)}
                                             />
                                         </td>
-                                        <td><MdDragHandle className="drag-icon" /></td>
+                                        <td className="exercise-row-actions">
+                                            <MdDragHandle className="drag-icon" />
+                                            <MdDelete
+                                                className="delete-icon"
+                                                onClick={() => handleRemoveExercise(index)}
+                                                title="Remove exercise"
+                                            />
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
