@@ -106,9 +106,7 @@ export const Workouts = () => {
             }
         }
 
-        setLoading(true)
-        const timer = setTimeout(fetchWorkouts, 300)
-        return () => clearTimeout(timer)
+        fetchWorkouts()
     }, [customAuth, filters, getAccessTokenSilently, isAuthenticated, user])
 
     return (

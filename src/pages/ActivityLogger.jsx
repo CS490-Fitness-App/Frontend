@@ -331,9 +331,6 @@ export const ActivityLogger = () => {
             setSuccess('')
 
             try {
-                if (userRole === 'coach' && !clientUserId) {
-                    throw new Error('Open a client from View Progress to review their daily log.')
-                }
 
                 const token = await getAuthToken()
                 const activityParams = new URLSearchParams({ date: selectedDate })

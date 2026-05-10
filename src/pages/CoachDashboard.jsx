@@ -41,6 +41,9 @@ export const CoachDashboard = () => {
     const [error, setError] = useState('');
     const [monthlyEarnings, setMonthlyEarnings] = useState(0);
 
+    const [reviews, setReviews] = useState([]);
+    const [avgRating, setAvgRating] = useState(null);
+
     const [showAvailModal, setShowAvailModal] = useState(false);
     const [availDays, setAvailDays] = useState([]);
     const [availStart, setAvailStart] = useState('09:00');
@@ -98,6 +101,16 @@ export const CoachDashboard = () => {
             if (billingRes.ok) {
                 const billingData = await billingRes.json();
                 setMonthlyEarnings(Number(billingData.monthly_total || 0));
+            }
+
+            const reviewsRes = await fetch(`${API_BASE_URL}/coaches/${myCoachId}/reviews`);
+            if (reviewsRes.ok) {
+                const reviewsData = await reviewsRes.json();
+                setReviews(reviewsData);
+                if (reviewsData.length > 0) {
+                    const avg = reviewsData.reduce((sum, r) => sum + r.rating, 0) / reviewsData.length;
+                    setAvgRating(avg.toFixed(1));
+                }
             }
         } catch (err) {
             setError(err.message);
@@ -274,7 +287,9 @@ export const CoachDashboard = () => {
                                 </div>
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">Reviews</div>
-                                    <div className="stat">—</div>
+                                    <div className="stat">
+                                        {loading ? '...' : avgRating !== null ? avgRating : '—'}
+                                    </div>
                                 </div>
                                 <div className="quick-stat-card">
                                     <div className="stat-heading">This Month's Earnings</div>
