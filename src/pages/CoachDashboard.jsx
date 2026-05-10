@@ -286,7 +286,7 @@ export const CoachDashboard = () => {
                                     <div className="stat">{loading ? '...' : pendingRequests.length} <span className="pending-dot"></span></div>
                                 </div>
                                 <div className="quick-stat-card">
-                                    <div className="stat-heading">Reviews</div>
+                                    <div className="stat-heading">Rating</div>
                                     <div className="stat">
                                         {loading ? '...' : avgRating !== null ? avgRating : '—'}
                                     </div>
