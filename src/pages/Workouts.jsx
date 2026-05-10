@@ -56,7 +56,6 @@ export const Workouts = () => {
             return syncResponse.ok
         }
 
-        setLoading(true)
         const fetchWorkouts = async () => {
             try {
                 let token
@@ -107,6 +106,7 @@ export const Workouts = () => {
             }
         }
 
+        setLoading(true)
         const timer = setTimeout(fetchWorkouts, 300)
         return () => clearTimeout(timer)
     }, [customAuth, filters, getAccessTokenSilently, isAuthenticated, user])

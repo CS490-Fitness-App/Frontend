@@ -1,5 +1,5 @@
 import "./LoginForm.css"
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { MdCancel } from "react-icons/md"
@@ -66,7 +66,14 @@ export const LoginForm = ({ isOpen, onClose }) => {
     const { setAuth, setBackendAuthReady, setBackendAuthError, setBackendAuthMeta, setUserRole } = useCustomAuth()
     const navigate = useNavigate()
 
+    const modalRef = useRef(null)
     const [view, setView] = useState('login')
+
+    const switchView = (newView) => {
+        setError(null)
+        setView(newView)
+        setTimeout(() => { if (modalRef.current) modalRef.current.scrollTop = 0 }, 0)
+    }
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
@@ -263,7 +270,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
 
     return (
         <div className={`modal-container ${isOpen ? 'open' : ''}`}>
-            <div className={`modal-content ${isOpen ? 'open' : ''} view-${view}`}>
+            <div ref={modalRef} className={`modal-content ${isOpen ? 'open' : ''} view-${view}`}>
 
                 {/* ── Login view ── */}
                 <div className="login" style={loginStyle}>
@@ -308,7 +315,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
 
                             <div className="login-link">
                                 Don't have an account?{' '}
-                                <a href="#" onClick={(e) => { e.preventDefault(); setError(null); setView('signup') }}>
+                                <a href="#" onClick={(e) => { e.preventDefault(); switchView('signup') }}>
                                     Sign up now
                                 </a>
                             </div>
@@ -394,7 +401,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
 
                             <div className="login-link">
                                 Already have an account?{' '}
-                                <a href="#" onClick={(e) => { e.preventDefault(); setError(null); setView('login') }}>
+                                <a href="#" onClick={(e) => { e.preventDefault(); switchView('login') }}>
                                     Log in
                                 </a>
                             </div>
