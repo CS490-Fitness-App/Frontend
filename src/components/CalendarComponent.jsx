@@ -241,9 +241,13 @@ export const CalendarComponent = ({ preselectedWorkoutId = null, clientId = null
                     onEventDrop={handleEventDrop}
                     style={{ height: "77vh" }}
                     resizable={false}
-                    eventPropGetter={() => {
-                        const backgroundColor = '#8B8BF5';
-                        return { style: { backgroundColor } };
+                    eventPropGetter={(event) => {
+                        const colors = {
+                            Missed: '#e57373',
+                            Logged: '#66bb6a',
+                        }
+                        const backgroundColor = colors[event.status] || '#8B8BF5'
+                        return { style: { backgroundColor } }
                     }}
                 />
             </div>
