@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState } from 'react'
 const AuthContext = createContext(null)
 const CUSTOM_AUTH_STORAGE_KEY = 'primalFitnessCustomAuth'
 const ROLE_STORAGE_KEY = 'primalFitnessUserRole'
+const PROFILE_PICTURE_STORAGE_KEY = 'primalFitnessProfilePicture'
 
 export const AuthProvider = ({ children }) => {
     const [customAuth, setCustomAuth] = useState(() => {
@@ -15,7 +16,21 @@ export const AuthProvider = ({ children }) => {
     const [backendAuthReady, setBackendAuthReady] = useState(false)
     const [backendAuthError, setBackendAuthError] = useState('')
     const [backendAuthMeta, setBackendAuthMeta] = useState(null)
-    const [profilePicture, setProfilePicture] = useState('')
+    const [profilePicture, setProfilePictureState] = useState(() => {
+        if (typeof window === 'undefined') return ''
+        return window.localStorage.getItem(PROFILE_PICTURE_STORAGE_KEY) || ''
+    })
+
+    const setProfilePicture = (url) => {
+        setProfilePictureState(url || '')
+        if (typeof window !== 'undefined') {
+            if (url) {
+                window.localStorage.setItem(PROFILE_PICTURE_STORAGE_KEY, url)
+            } else {
+                window.localStorage.removeItem(PROFILE_PICTURE_STORAGE_KEY)
+            }
+        }
+    }
     const [userRole, setUserRoleState] = useState(() => {
         if (typeof window === 'undefined') return null
         return window.localStorage.getItem(ROLE_STORAGE_KEY) || null
@@ -53,11 +68,12 @@ export const AuthProvider = ({ children }) => {
         setBackendAuthReady(false)
         setBackendAuthError('')
         setBackendAuthMeta(null)
-        setProfilePicture('')
+        setProfilePictureState('')
         setUserRoleState(null)
         if (typeof window !== 'undefined') {
             window.localStorage.removeItem(CUSTOM_AUTH_STORAGE_KEY)
             window.localStorage.removeItem(ROLE_STORAGE_KEY)
+            window.localStorage.removeItem(PROFILE_PICTURE_STORAGE_KEY)
         }
     }
 
