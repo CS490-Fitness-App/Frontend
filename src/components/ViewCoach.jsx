@@ -277,7 +277,7 @@ export const ViewCoach = ({ isOpen, onClose, coach }) => {
                         </div>
                     )}
 
-                    {(isAuthenticated || customAuth) && (
+                    {(isAuthenticated || customAuth) && userRole !== 'admin' && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <p className="feedback-msg error" style={{ visibility: requestStatus === 'error' ? 'visible' : 'hidden' }}>{requestError || ' '}</p>
                             {requestStatus === 'success' ? (

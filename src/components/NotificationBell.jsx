@@ -210,7 +210,11 @@ export const NotificationBell = () => {
     const handleNotificationClick = (notification) => {
         if (notification.notification_id === DAILY_CHECKIN_REMINDER_ID) {
             setOpen(false)
-            navigate('/client-dashboard', { state: { openDailyCheckIn: true } })
+            if (userRole === 'admin') {
+                navigate('/dashboard/admin')
+            } else {
+                navigate('/client-dashboard', { state: { openDailyCheckIn: true } })
+            }
         }
     }
 

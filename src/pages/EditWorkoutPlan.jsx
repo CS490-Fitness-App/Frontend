@@ -294,12 +294,12 @@ export const EditWorkout = () => {
                         // Workout created; image failed — still navigate but warn
                         setError(`Workout created, but image upload failed: ${imgErr.message}`)
                         setSaving(false)
-                        navigate(`/view-workout/${newId}`)
+                        navigate(userRole === 'admin' ? '/workouts' : `/view-workout/${newId}`)
                         return
                     }
                 }
 
-                navigate(`/view-workout/${newId}`)
+                navigate(userRole === 'admin' ? '/workouts' : `/view-workout/${newId}`)
             } else {
                 const payload = {
                     name: workoutName,
@@ -327,7 +327,7 @@ export const EditWorkout = () => {
                     throw new Error(responseBody.detail || `Failed to save workout (${response.status})`)
                 }
 
-                navigate(userRole === 'admin' ? '/dashboard/admin' : `/view-workout/${workoutId}`)
+                navigate(userRole === 'admin' ? '/workouts' : `/view-workout/${workoutId}`)
             }
         } catch (err) {
             setError(err.message || 'Unable to save workout plan.')
