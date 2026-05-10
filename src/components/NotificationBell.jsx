@@ -8,6 +8,17 @@ import './NotificationBell.css'
 const DAILY_CHECKIN_REMINDER_ID = 0
 const DAILY_CHECKIN_REMINDER_MESSAGE = 'Daily Check-in'
 
+const CHAT_LINK_RE = /\[chat:(\d+)\]$/
+
+const parseChatLink = (message) => {
+    const match = message?.match(CHAT_LINK_RE)
+    if (!match) return { chatId: null, displayMessage: message }
+    return {
+        chatId: match[1],
+        displayMessage: message.slice(0, match.index).trim(),
+    }
+}
+
 const getLocalDateString = () => {
     const now = new Date()
     const year = now.getFullYear()
@@ -215,6 +226,13 @@ export const NotificationBell = () => {
             } else {
                 navigate('/client-dashboard', { state: { openDailyCheckIn: true } })
             }
+            return
+        }
+        const { chatId } = parseChatLink(notification.message)
+        if (chatId) {
+            setOpen(false)
+            handleDelete(notification.notification_id)
+            navigate(`/chat?chat=${chatId}`)
         }
     }
 
@@ -261,16 +279,19 @@ export const NotificationBell = () => {
                         <div className="notif-empty">No notifications</div>
                     ) : (
                         <ul className="notif-list">
-                            {notifications.map((n) => (
+                            {notifications.map((n) => {
+                                const { chatId, displayMessage } = parseChatLink(n.message)
+                                const isClickable = n.notification_id === DAILY_CHECKIN_REMINDER_ID || !!chatId
+                                return (
                                 <li
                                     key={n.notification_id}
-                                    className={`notif-item${n.is_read ? '' : ' notif-unread'}${n.notification_id === DAILY_CHECKIN_REMINDER_ID ? ' notif-item-action' : ''}`}
+                                    className={`notif-item${n.is_read ? '' : ' notif-unread'}${isClickable ? ' notif-item-action' : ''}`}
                                     onClick={() => handleNotificationClick(n)}
                                 >
                                     <div className="notif-content">
-                                        <p className="notif-message">{n.message}</p>
+                                        <p className="notif-message">{displayMessage}</p>
                                         <span className="notif-time">
-                                            {n.notification_id === DAILY_CHECKIN_REMINDER_ID ? 'Open daily check-in' : formatTime(n.created_at)}
+                                            {n.notification_id === DAILY_CHECKIN_REMINDER_ID ? 'Open daily check-in' : chatId ? 'Open chat' : formatTime(n.created_at)}
                                         </span>
                                     </div>
                                     {n.notification_id > 0 && (
@@ -286,7 +307,8 @@ export const NotificationBell = () => {
                                         </button>
                                     )}
                                 </li>
-                            ))}
+                                )
+                            })}
                         </ul>
                     )}
                 </div>
