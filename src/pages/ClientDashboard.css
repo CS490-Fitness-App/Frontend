@@ -480,21 +480,21 @@
 .daily-checkin-form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
-.daily-checkin-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.daily-checkin-field input,
-.daily-checkin-field select {
+.daily-checkin-input {
     border: 1px solid black;
     padding: 10px;
     font-family: "Roboto Mono", sans-serif;
     font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.daily-checkin-notes {
+    resize: vertical;
+    min-height: 72px;
 }
 
 .daily-checkin-actions {

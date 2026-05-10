@@ -60,10 +60,12 @@ export const ClientDashboard = () => {
     const [isCheckInOpen, setIsCheckInOpen] = useState(false)
     const [checkInForm, setCheckInForm] = useState({
         caloriesIntake: '',
+        caloriesBurned: '',
         steps: '',
         waterIntake: '',
         weightLb: '',
         moodLabel: 'Okay',
+        notes: '',
     })
     const [checkInSubmitting, setCheckInSubmitting] = useState(false)
     const [checkInMessage, setCheckInMessage] = useState('')
@@ -311,10 +313,12 @@ export const ClientDashboard = () => {
             const payload = {
                 date: today,
                 calories_intake: parseOptionalNumber(checkInForm.caloriesIntake),
+                calories_burned: parseOptionalNumber(checkInForm.caloriesBurned),
                 step_count: parseOptionalNumber(checkInForm.steps),
                 water_intake: parseOptionalNumber(checkInForm.waterIntake),
                 weight_lb: parseOptionalNumber(checkInForm.weightLb),
                 mood_label: checkInForm.moodLabel,
+                notes: checkInForm.notes.trim() || null,
             }
 
             const response = await fetch(`${API_BASE_URL}/logs/daily-checkin`, {
@@ -591,36 +595,48 @@ export const ClientDashboard = () => {
                         </p>
 
                         <form className="daily-checkin-form" onSubmit={submitDailyCheckIn}>
-                            <label className="daily-checkin-field">
-                                <span className="stat-heading">Calories</span>
-                                <input type="number" min="0" value={checkInForm.caloriesIntake} onChange={updateCheckInField('caloriesIntake')} placeholder="e.g. 2100" />
-                            </label>
+                            <div className="form-grid">
+                                <label className="form-group">
+                                    <span className="stat-heading">Calories In</span>
+                                    <input className="daily-checkin-input" type="number" min="0" value={checkInForm.caloriesIntake} onChange={updateCheckInField('caloriesIntake')} placeholder="e.g. 2100" />
+                                </label>
 
-                            <label className="daily-checkin-field">
-                                <span className="stat-heading">Steps</span>
-                                <input type="number" min="0" value={checkInForm.steps} onChange={updateCheckInField('steps')} placeholder="e.g. 9000" />
-                            </label>
+                                <label className="form-group">
+                                    <span className="stat-heading">Calories Burned</span>
+                                    <input className="daily-checkin-input" type="number" min="0" value={checkInForm.caloriesBurned} onChange={updateCheckInField('caloriesBurned')} placeholder="e.g. 450" />
+                                </label>
 
-                            <label className="daily-checkin-field">
-                                <span className="stat-heading">Water Intake (glasses)</span>
-                                <input type="number" min="0" value={checkInForm.waterIntake} onChange={updateCheckInField('waterIntake')} placeholder="e.g. 8" />
-                            </label>
+                                <label className="form-group">
+                                    <span className="stat-heading">Steps</span>
+                                    <input className="daily-checkin-input" type="number" min="0" value={checkInForm.steps} onChange={updateCheckInField('steps')} placeholder="e.g. 9000" />
+                                </label>
 
-                            <label className="daily-checkin-field">
-                                <span className="stat-heading">Weight (LB)</span>
-                                <input type="number" min="0" step="0.1" value={checkInForm.weightLb} onChange={updateCheckInField('weightLb')} placeholder="e.g. 178.4" />
-                            </label>
+                                <label className="form-group">
+                                    <span className="stat-heading">Water (glasses)</span>
+                                    <input className="daily-checkin-input" type="number" min="0" value={checkInForm.waterIntake} onChange={updateCheckInField('waterIntake')} placeholder="e.g. 8" />
+                                </label>
 
-                            <label className="daily-checkin-field">
-                                <span className="stat-heading">Mood</span>
-                                <select value={checkInForm.moodLabel} onChange={updateCheckInField('moodLabel')}>
-                                    <option value="Amazing">Amazing</option>
-                                    <option value="Good">Good</option>
-                                    <option value="Okay">Okay</option>
-                                    <option value="Bad">Bad</option>
-                                    <option value="Awful">Awful</option>
-                                </select>
-                            </label>
+                                <label className="form-group">
+                                    <span className="stat-heading">Weight (LB)</span>
+                                    <input className="daily-checkin-input" type="number" min="0" step="0.1" value={checkInForm.weightLb} onChange={updateCheckInField('weightLb')} placeholder="e.g. 178.4" />
+                                </label>
+
+                                <label className="form-group">
+                                    <span className="stat-heading">Mood</span>
+                                    <select className="daily-checkin-input" value={checkInForm.moodLabel} onChange={updateCheckInField('moodLabel')}>
+                                        <option value="Amazing">Amazing</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Okay">Okay</option>
+                                        <option value="Bad">Bad</option>
+                                        <option value="Awful">Awful</option>
+                                    </select>
+                                </label>
+
+                                <label className="form-group full-width">
+                                    <span className="stat-heading">Notes</span>
+                                    <textarea className="daily-checkin-input daily-checkin-notes" value={checkInForm.notes} onChange={updateCheckInField('notes')} placeholder="How did today feel?" />
+                                </label>
+                            </div>
 
                             {checkInError && <p className="feedback-msg error">{checkInError}</p>}
                             {checkInMessage && <p className="feedback-msg success">{checkInMessage}</p>}
