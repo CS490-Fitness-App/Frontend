@@ -63,7 +63,7 @@ export const CalendarComponent = ({ preselectedWorkoutId = null, clientId = null
                 fetch(`${API_BASE_URL}/workouts/scheduled`, {
                     headers: { Authorization: `Bearer ${token}` },
                 }),
-                fetch(`${API_BASE_URL}/workouts`, {
+                fetch(`${API_BASE_URL}/workouts/public`, {
                     headers: { Authorization: `Bearer ${token}` },
                 }),
             ])
