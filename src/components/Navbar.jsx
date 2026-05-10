@@ -26,6 +26,7 @@ export const Navbar = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const openModal = () => setIsModalOpen(true)
     const closeModal = () => setIsModalOpen(false)
+    const [userInitials, setUserInitials] = useState('')
 
     useEffect(() => {
         const loadProfilePicture = async () => {
@@ -59,6 +60,9 @@ export const Navbar = () => {
                 const body = await response.json().catch(() => ({}))
                 if (response.ok) {
                     setProfilePicture(body.profile_picture || user?.picture || '')
+                    const first = body.first_name?.[0] || ''
+                    const last = body.last_name?.[0] || ''
+                    setUserInitials((first + last).toUpperCase() || user?.given_name?.[0]?.toUpperCase() || 'U')
                     return
                 }
 
@@ -123,7 +127,7 @@ export const Navbar = () => {
                                             className="nav-profile-avatar-image"
                                         />
                                     ) : (
-                                        <span>{(user?.given_name?.[0] || user?.name?.[0] || 'U').toUpperCase()}</span>
+                                        <span>{userInitials || (user?.given_name?.[0] || user?.name?.[0] || 'U').toUpperCase()}</span>
                                     )}
                                 </div>
                             </Link>
