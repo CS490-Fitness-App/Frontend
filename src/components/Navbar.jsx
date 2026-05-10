@@ -108,8 +108,8 @@ export const Navbar = () => {
                     )}
                     <li>
                         {loggedIn
-                            ? <NavLink onClick={handleLogout}>Log Out</NavLink>
-                            : <NavLink onClick={openModal}>Log In</NavLink>
+                            ? <button className="nav-link-btn" onClick={handleLogout}>Log Out</button>
+                            : <button className="nav-link-btn" onClick={openModal}>Log In</button>
                         }
                     </li>
                     {loggedIn && (

@@ -104,12 +104,6 @@ export const AuthSync = () => {
           },
         })
 
-        // Debug: log token claims to verify iss/aud are correct.
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
-          console.log('[AuthSync] Token claims:', { iss: payload.iss, aud: payload.aud, sub: payload.sub })
-        } catch { /* opaque token */ }
-
         const res = await fetch(`${API_BASE_URL}/auth/login`, {
           method: 'POST',
           headers: {

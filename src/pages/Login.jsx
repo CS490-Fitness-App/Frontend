@@ -1,8 +1,10 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { LoginForm } from "../components/LoginForm"
 import './Pages.css'
 
 export const Login = () => {
+    const navigate = useNavigate()
     return (
         <div>
             <div className="page-heading">
@@ -11,7 +13,7 @@ export const Login = () => {
                     <span className="text-purple">In</span>
                 </div>
             </div>
-            <LoginForm />
+            <LoginForm isOpen={true} onClose={() => navigate('/')} />
         </div>
     )
 }

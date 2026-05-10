@@ -40,22 +40,25 @@ export const PublicWorkouts = () => {
 
     useEffect(() => {
         setLoading(true)
-        const queryString = buildQuery(filters)
-        const workoutsUrl = queryString ? `${API_BASE_URL}/workouts/public?${queryString}` : `${API_BASE_URL}/workouts/public`
+        const timer = setTimeout(() => {
+            const queryString = buildQuery(filters)
+            const workoutsUrl = queryString ? `${API_BASE_URL}/workouts/public?${queryString}` : `${API_BASE_URL}/workouts/public`
 
-        fetch(workoutsUrl)
-            .then(res => {
-                if (!res.ok) throw new Error(`Failed to load workouts (${res.status})`)
-                return res.json()
-            })
-            .then(data => {
-                setWorkouts(data)
-                setLoading(false)
-            })
-            .catch(err => {
-                setError(err.message)
-                setLoading(false)
-            })
+            fetch(workoutsUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error(`Failed to load workouts (${res.status})`)
+                    return res.json()
+                })
+                .then(data => {
+                    setWorkouts(data)
+                    setLoading(false)
+                })
+                .catch(err => {
+                    setError(err.message)
+                    setLoading(false)
+                })
+        }, 300)
+        return () => clearTimeout(timer)
     }, [filters])
 
     const handleWorkoutClick = (workoutId) => {

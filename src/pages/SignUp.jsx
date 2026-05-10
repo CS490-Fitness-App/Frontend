@@ -30,7 +30,6 @@ export const SignUp = () => {
       },
       appState: { returnTo: '/survey' },
     });
-    navigate('/survey', { state: { role } });
   };
 
   const handleGoogleSignUp = async () => {

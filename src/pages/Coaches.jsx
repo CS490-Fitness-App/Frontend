@@ -52,25 +52,28 @@ export const Coaches = () => {
     }
 
     useEffect(() => {
-        const queryString = buildQuery(filters)
-        const coachesUrl = queryString ? `${API_BASE_URL}/coaches/?${queryString}` : `${API_BASE_URL}/coaches/`
-
         setLoading(true)
         setError(null)
 
-        fetch(coachesUrl)
-            .then(res => {
-                if (!res.ok) throw new Error(`Failed to load coaches (${res.status})`)
-                return res.json()
-            })
-            .then(data => {
-                setCoachs(data)
-                setLoading(false)
-            })
-            .catch(err => {
-                setError(err.message)
-                setLoading(false)
-            })
+        const timer = setTimeout(() => {
+            const queryString = buildQuery(filters)
+            const coachesUrl = queryString ? `${API_BASE_URL}/coaches/?${queryString}` : `${API_BASE_URL}/coaches/`
+
+            fetch(coachesUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error(`Failed to load coaches (${res.status})`)
+                    return res.json()
+                })
+                .then(data => {
+                    setCoachs(data)
+                    setLoading(false)
+                })
+                .catch(err => {
+                    setError(err.message)
+                    setLoading(false)
+                })
+        }, 300)
+        return () => clearTimeout(timer)
     }, [filters])
 
     /*const selectedcoach = coachs.find(

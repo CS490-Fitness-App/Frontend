@@ -24,7 +24,7 @@ function App() {
                     <Route path="/coaches" element={<Coaches />} />
                     <Route path="/exercises" element={<Exercises />} />
                     <Route path="/workouts" element={<PublicWorkouts />} />
-                    <Route path="/my-workouts" element={<Workouts />} />
+                    <Route path="/my-workouts" element={<ProtectedRoute allowedRoles={['client', 'coach', 'admin']}><Workouts /></ProtectedRoute>} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/client-dashboard" element={<ProtectedRoute allowedRoles={['client', 'coach']}><ClientDashboard /></ProtectedRoute>} />
                     <Route path="/coach-dashboard" element={<ProtectedRoute allowedRoles={['coach']}><CoachDashboard /></ProtectedRoute>} />

@@ -73,22 +73,25 @@ export const Exercises = () => {
 
     useEffect(() => {
         setLoading(true)
-        const queryString = buildQuery(filters)
-        const exercisesUrl = queryString ? `${API_BASE_URL}/exercises?${queryString}` : `${API_BASE_URL}/exercises`
+        const timer = setTimeout(() => {
+            const queryString = buildQuery(filters)
+            const exercisesUrl = queryString ? `${API_BASE_URL}/exercises?${queryString}` : `${API_BASE_URL}/exercises`
 
-        fetch(exercisesUrl)
-            .then(res => {
-                if (!res.ok) throw new Error(`Failed to load exercises (${res.status})`)
-                return res.json()
-            })
-            .then(data => {
-                setExercises(data)
-                setLoading(false)
-            })
-            .catch(err => {
-                setError(err.message)
-                setLoading(false)
-            })
+            fetch(exercisesUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error(`Failed to load exercises (${res.status})`)
+                    return res.json()
+                })
+                .then(data => {
+                    setExercises(data)
+                    setLoading(false)
+                })
+                .catch(err => {
+                    setError(err.message)
+                    setLoading(false)
+                })
+        }, 300)
+        return () => clearTimeout(timer)
     }, [filters])
 
     const openModal = (exercise) => {

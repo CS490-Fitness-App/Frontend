@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
         '/uploads': proxyTarget,
         '/users': proxyTarget,
         '/workouts': proxyTarget,
+        '/dashboard': proxyTarget,
       },
     },
   }
