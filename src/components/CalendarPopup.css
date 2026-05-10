@@ -170,26 +170,62 @@
 
 /* ── Week view ───────────────────────────────────────────────────── */
 
-.rbc-time-content {
-    display: none;
+/* Hide time slots — all events are all-day */
+.calendar-shell .rbc-time-view .rbc-time-content,
+.calendar-shell .rbc-time-view .rbc-time-gutter,
+.calendar-shell .rbc-time-view .rbc-time-header-gutter {
+    display: none !important;
 }
 
-.rbc-time-header-content {
+/* Stretch the header section to fill the calendar height */
+.calendar-shell .rbc-time-view {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    border: none;
+}
+
+.calendar-shell .rbc-time-view .rbc-time-header {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: visible;
+}
+
+.calendar-shell .rbc-time-view .rbc-time-header-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     border-bottom: none;
+    overflow: visible;
 }
 
-.rbc-calendar .rbc-time-view .rbc-time-content {
-    display: none !important;
+/* All-day cell fills all remaining height */
+.calendar-shell .rbc-time-view .rbc-allday-cell {
+    flex: 1;
+    height: 100%;
+    max-height: none;
+    overflow-y: auto;
+    padding: 4px;
 }
 
-.rbc-calendar .rbc-time-view .rbc-time-gutter {
-    display: none !important;
+/* Column dividers between days */
+.calendar-shell .rbc-time-view .rbc-header + .rbc-header {
+    border-left: 1px solid rgba(209, 213, 219, 1);
 }
 
-.rbc-calendar .rbc-time-view .rbc-time-header-gutter {
-    display: none !important;
+.calendar-shell .rbc-time-view .rbc-day-slot {
+    border-left: 1px solid rgba(209, 213, 219, 1);
 }
 
-.rbc-calendar .rbc-time-view .rbc-time-header-content {
-    border-bottom: none;
+/* Today highlight in week view */
+.calendar-shell .rbc-time-view .rbc-header.rbc-today {
+    background: rgba(221, 224, 255, 0.4);
+}
+
+/* Events in the all-day row */
+.calendar-shell .rbc-time-view .rbc-event {
+    padding: 4px 6px;
+    margin: 2px 1px;
+    font-size: 12px;
 }

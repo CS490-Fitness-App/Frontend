@@ -10,6 +10,19 @@ const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN?.trim()
 const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID?.trim()
 const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE?.trim()
 
+const extractAuth0Error = (data, fallback) => {
+    const candidates = [
+        data?.error_description,
+        data?.description,
+        data?.message,
+        data?.error,
+    ]
+    for (const c of candidates) {
+        if (typeof c === 'string' && c.trim()) return c.trim()
+    }
+    return fallback
+}
+
 const isInvalidAudiencePasswordGrantError = (tokenData) => {
     const detail = `${tokenData?.error_description || ''} ${tokenData?.error || ''}`.toLowerCase()
     return detail.includes('invalid audience specified for password grant exchange')
@@ -142,7 +155,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
             }
 
             if (!isInvalidAudiencePasswordGrantError(tokenData) || i === audiencesToTry.length - 1) {
-                throw new Error(tokenData.error_description || tokenData.error || 'Invalid email or password')
+                throw new Error(extractAuth0Error(tokenData, 'Invalid email or password'))
             }
         }
 
@@ -237,7 +250,7 @@ export const LoginForm = ({ isOpen, onClose }) => {
             })
             const signupData = await signupRes.json()
             if (!signupRes.ok) {
-                throw new Error(signupData.description || signupData.message || 'Signup failed')
+                throw new Error(extractAuth0Error(signupData, 'Signup failed'))
             }
 
             // Step 2: get access token via ROPG
